@@ -1,11 +1,12 @@
-function sphere = objMakeSphere(f,a,ph,blendmethod,filename)
+function sphere = objMakeSphere(f,a,ph,varargin)
 
 % OBJMAKESPHERE
 % 
 % Usage:          objMakeSphere()
-%                 objMakeSphere(f,a,ph,blendmethod,filename)
-%        sphere = objMakeSphere()
-%        sphere = objMakeSphere(f,a,ph,blendmethod,filename)
+%                 objMakeSphere(f,a,ph,options)
+%                 objMakeSphere(f,a,ph,fmod,amod,phmod,options)
+%        OR:
+%                 sphere = objMakeSphere(...)
 %
 % f is the frequency of the modulation of the radius
 % in cycles per sphere; default = 8.  f can be a row vector 
@@ -28,12 +29,6 @@ function sphere = objMakeSphere(f,a,ph,blendmethod,filename)
 %
 % ph is the phase for all components.  Size of ph should equal the size
 % of f.  Default is zero (sin phase) for all components.
-%
-% blendmethod is either 'multiply' or 'add' (default).  It defines
-% how the two modulations are combined.  Note that setting separate
-% amplitudes really makes sense only when the blendmethod is 'add'.
-% When using 'multiply', you can always set one amplitude to 1
-% and control the modulation amplitude with the other.
 %
 % If there are multiple components in each direction defined (number
 % of rows in f is greater than one), blendmethod should be a cell
@@ -84,20 +79,27 @@ function sphere = objMakeSphere(f,a,ph,blendmethod,filename)
 % 2013-10-28 - ts - triangular instead of quad faces
 % 2014-04-01 - ts - help examples updated
 % 2014-05-06 - ts - help examples updated
+% 2014-07-30 - ts - * Merged objMakeSphere and objMakeSphereMod
+%                   * An optional modulator can be used to modulate the
+%                     carrier
+%                   * Removed the blendmethod-options: multiple carriers
+%                     are always added together, modulator and carrier
+%                     multiply
+%                   * Option to give the grid resolution as input
+%                   * Write more specs to obj-file; return more specs
+%                     in the structure
 
 % TODO
 % Add option for noise in the amplitude
 % Add option for noise in the frequencies
-% Add option for a second frequency, added to the first one
-% Or wait, should it be multiplied?  Added, I suppose
-% Add option for rotation.  Or make a separate function?
-% Add a modulator that modulates carrier amplitude
-% Check input argument checking and default parameters
-% Update examples in help.
+% UPDATE HELP!
+% More error checking on parameters (including modulator)
+% Initialize all matrices properly
 
 %--------------------------------------------
 
 
+% Carrier parameters
 % Set default frequency if necessary
 if ~nargin || isempty(f)
   f = 8;
@@ -108,36 +110,82 @@ if nargin<2 || isempty(a)
   a = .1 * ones(size(f));
 end
 
+% Default phase
 if nargin<3 || isempty(ph)
   ph = zeros(size(f));
 end
 
-if nargin<4 || isempty(blendmethod)
-  if size(f,1)>1
-    blendmethod = {'add','add'};
+% Set the default modulation parameters to empty indicating no modulator; set default filename.
+fmod  = [];
+amod  = [];
+phmod = [];
+filename = 'sphere.obj';
+
+% Number of vertices in azimuth and elevation directions, default values
+n = 256;
+m = 128;
+
+
+[modpar,par] = parseparams(varargin);
+
+if ~isempty(modpar)
+  if length(modpar)==1
+    fmod = modpar{1};
+  elseif length(modpar)==2
+    fmod = modpar{1};
+    amod = modpar{2};
   else
-    blendmethod = {'add'};
+    fmod = modpar{1};
+    amod = modpar{2};
+    phmod = modpar{3};
   end
 end
 
-if ischar(blendmethod)
-  blendmethod = {blendmethod};
+if ~isempty(par)
+   ii = 1;
+   while ii<=length(par)
+     if ischar(par{ii})
+       switch lower(par{ii})
+         case 'npoints'
+           if ii<length(par) && isnumeric(par{ii+1}) && length(par{ii+1}(:))==2
+             ii = ii + 1;
+             m = par{ii}(2);
+             n = par{ii}(1);
+           else
+             error('No value or a bad value given for option ''npoints''.');
+           end
+         otherwise
+           filename = par{ii};
+       end
+     end
+     ii = ii + 1;
+   end
 end
+
+% Set the default values for modulation amplitude and phase.
+% Make these the same size as fmod
+if ~isempty(fmod)
+  if isempty(amod)
+    amod = .1 * ones(size(fmod));
+  end
+  if isempty(phmod)
+    phmod = zeros(size(fmod));
+  end
+end
+
+
   
-% Default file name
-if nargin<5 || isempty(filename)
-  filename = 'sphere.obj';
-elseif isempty(regexp(filename,'\.obj$'))
+% Add file name extension if needed
+if isempty(regexp(filename,'\.obj$'))
   filename = [filename,'.obj'];
 end
 
-% Number of vertices in azimuth and elevation directions
-m = 256 + 1;
-n = 128 + 1;
+m = m + 1;
+n = n + 1;
 
 r = 1; % radius
-theta = linspace(-pi,pi,m); % azimuth
-phi = linspace(-pi/2,pi/2,n); % elevation
+theta = linspace(-pi,pi,n); % azimuth
+phi = linspace(-pi/2,pi/2,m); % elevation
 
 
 %--------------------------------------------
@@ -148,62 +196,58 @@ end
 
 %--------------------------------------------
 
+if ~isempty(fmod)
+  modaz = .5 * (1 + amod(1) * sin(fmod(1)*theta+phmod(1)));
+  if length(fmod)>1
+    model = .5 * (1 + amod(2) * sin(fmod(2)*phi+phmod(2)));
+  else
+    model = ones(size(phi));
+  end
+else
+  modaz = ones(size(theta));
+  model = ones(size(phi));
+end
+
 for ii = 1:size(f,1)
-  modaz(ii,:) = a(ii,1)*sin(f(ii,1)*(theta)+ph(ii,1));
+  carraz(ii,:) = a(ii,1)*sin(f(ii,1)*(theta)+ph(ii,1));
   if size(f,2)>1
-    model(ii,:) = a(ii,2)*sin(f(ii,2)*(phi)+ph(ii,2));
+    carrel(ii,:) = a(ii,2)*sin(f(ii,2)*(phi)+ph(ii,2));
   end  
 end
 
 if size(f,1)>1
-  switch blendmethod{2}
-   case 'multiply'
-    modaz = prod(modaz,1);
-    if size(f,2)>1
-      model = prod(model,1);
-    end
-   case 'add'
-    modaz = sum(modaz,1);
-    if size(f,2)>1
-      model = sum(model,1);
-    end   
-  end
+  carraz = sum(carraz,1);
+  if size(f,2)>1
+    carrel = sum(carrel,1);
+  end   
 end
 
 vertices = zeros(m*n,3);
-for el = 1:n
-  for az = 1:m
-    
+for el = 1:m
+  for az = 1:n
     if size(f,2)>1
-      switch blendmethod{1}
-       case 'multiply'
-        rtmp = r + modaz(az) * model(el);
-       case 'add'
-        rtmp = r + modaz(az) + model(el);
-       otherwise
-        error('Bad value for ''blendmethod''.');
-      end
+      rtmp = r + modaz(az)*carraz(az) + model(el)*carrel(el);
     else
-      rtmp = r + modaz(az);
+      rtmp = r + modaz(az)*carraz(az);
     end
     
     % Spherical to cartesian coordinates
     [x,y,z] = sph2cart(theta(az),phi(el),rtmp);
-    vertices((el-1)*m+az,:) = [x y z];
+    vertices((el-1)*n+az,:) = [x y z];
     
   end
 end
 
 % Face indices
-for ii = 1:n-1
-  for jj = 1:m-1
-    %faces((ii-1)*(m-1)+jj,:) = [(ii-1)*m+jj ii*m+jj ii*m+jj+1 (ii-1)*m+jj+1];
+for ii = 1:m-1
+  for jj = 1:n-1
+    %faces((ii-1)*(n-1)+jj,:) = [(ii-1)*n+jj ii*dnm+jj ii*n+jj+1 (ii-1)*n+jj+1];
 
-    %faces((2*ii-2)*(m-1)+jj,:) = [(ii-1)*m+jj ii*m+jj ii*m+jj+1];
-    %faces((2*ii-1)*(m-1)+jj,:) = [(ii-1)*m+jj ii*m+jj+1 (ii-1)*m+jj+1];
+    %faces((2*ii-2)*(n-1)+jj,:) = [(ii-1)*n+jj ii*n+jj ii*n+jj+1];
+    %faces((2*ii-1)*(n-1)+jj,:) = [(ii-1)*n+jj ii*n+jj+1 (ii-1)*n+jj+1];
 
-    faces((2*ii-2)*(m-1)+2*jj-1,:) = [(ii-1)*m+jj ii*m+jj ii*m+jj+1];
-    faces((2*ii-2)*(m-1)+2*jj,:) = [(ii-1)*m+jj ii*m+jj+1 (ii-1)*m+jj+1];
+    faces((2*ii-2)*(n-1)+2*jj-1,:) = [(ii-1)*n+jj ii*n+jj ii*n+jj+1];
+    faces((2*ii-2)*(n-1)+2*jj,:) = [(ii-1)*n+jj ii*n+jj+1 (ii-1)*n+jj+1];
     
   end
 end
@@ -211,16 +255,31 @@ end
 if nargout
   sphere.vertices = vertices;
   sphere.faces = faces;
+  sphere.npointsx = m-1;
+  sphere.npointsy = n-1;
 end
 
 % Write to file
 fid = fopen(filename,'w');
 fprintf(fid,'# %s\n',datestr(now));
-fprintf(fid,'# Modulation frequency (azimuth): %4.2f.',f(:,1));
-fprintf(fid,'\n# Modulation amplitude (azimuth): %4.2f.',a(:,1));
+fprintf(fid,'# Created with function %s.\n',mfilename);
+fprintf(fid,'# Modulation carrier frequency (azimuth): %4.2f.\n',f(:,1));
+fprintf(fid,'# Modulation carrier amplitude (azimuth): %4.2f.\n',a(:,1));
+fprintf(fid,'# Modulation carrier phase (azimuth): %4.2f.\n',ph(:,1));
 if size(f,2)>1
-  fprintf(fid,'\n# Modulation frequency (elevation): %4.2f.',f(:,2));
-  fprintf(fid,'\n# Modulation amplitude (elevation): %4.2f.',a(:,2));
+  fprintf(fid,'# Modulation carrier frequency (elevation): %4.2f.\n',f(:,2));
+  fprintf(fid,'# Modulation carrier amplitude (elevation): %4.2f.\n',a(:,2));
+  fprintf(fid,'# Modulation carrier phase (elevation): %4.2f.\n',ph(:,2));
+end
+if ~isempty(fmod)
+  fprintf(fid,'# Modulator frequency (azimuth): %4.2f.\n',fmod(:,1));
+  fprintf(fid,'# Modulator amplitude (azimuth): %4.2f.\n',amod(:,1));
+  fprintf(fid,'# Modulator phase (azimuth): %4.2f.\n',phmod(:,1));
+  if length(fmod)>1
+    fprintf(fid,'# Modulator frequency (elevation): %4.2f.\n',fmod(:,2));
+    fprintf(fid,'# Modulator amplitude (elevation): %4.2f.\n',amod(:,2));
+    fprintf(fid,'# Modulator phase (elevation): %4.2f.\n',phmod(:,2));
+  end   
 end
 fprintf(fid,'\n\n# Vertices:\n');
 fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
@@ -229,4 +288,3 @@ fprintf(fid,'# End vertices\n\n# Faces:\n');
 fprintf(fid,'f %d %d %d\n',faces');
 fprintf(fid,'# End faces\n\n');
 fclose(fid);
-
