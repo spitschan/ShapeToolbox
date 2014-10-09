@@ -1,27 +1,101 @@
-function plane = objMakePlane(f,a,ph,varargin)
+function plane = objMakePlane(cprm,varargin)
 
 % OBJMAKEPLANE
 % 
 % Usage:          objMakePlane()
-%                 objMakePlane(f,a,filename)
-%        plane = objMakePlane(f,a,filename)
+%                 objMakePlane(cpar,[options])
+%                 objMakePlane(cpar,mpar,[options])
+%        OR:
+%                 plane = objMakePlane(...)
 %
-% f is the frequency of the modulation of the radius
-% in cycles per plane; default = 8.  f can be a vector 
-% of two to define modulations in both azimuth and 
-% elevation, e.g., f = [8 4].
+% A 3D model of a plane perturbed by sinusoidal modulation(s).  The 
+% function writes the vertices and faces into a Wavefront OBJ-file
+% and optionally returns them as a structure.
 %
-% a gives the amplitude of the modulation; default = .1.
-% (Radius of the plane is 1.)
-% 
-% The model is saved in a text file.  The optional input 
-% argument filename can be used to define the name of the
-% file.  Default is 'plane.obj'.
+% Without any input arguments, makes the default plane with a
+% modulation along the x-direction at frequency of 8 cycle/object,
+% amplitude of 0.1, and phase of 0.
 %
-% Any of the input arguments can be omitted or left empty.
-%       
-% If the output argument is specified, the vertices and faces 
-% are returned in the structure plane.
+% The width of the plane object is 1.  The modulation of the plane is
+% in the same units (e.g., amplitude of 0.1 results in the values in
+% the z-direction ranging from -0.1 to 0.1, or 10% of the width of the
+% plane).  
+%
+% The input argument cpar defines the parameters for the modulation.
+% The parameters are the frequency, amplitude, phase, and orientation:
+%   cpar = [freq ampl ph or]
+%
+% The frequency for modulation is in cycle/plane object.  Both the 
+% x- and y-coordinates have zero in the middle of the plane.  All
+% modulation are sine modulations (phase 0 is the sine phase).  The
+% orientation of the modulation is given in degrees, 0 is vertical.
+%
+% It is possible to define several component modulations.  These
+% modulations are added together.  Several components are defined in
+% different rows of cpar:
+%   cpar = [freq_1 ampl_1 ph_1 or_1
+%           freq_2 ampl_2 ph_2 or_2
+%           ...
+%           freq_n ampl_n ph_n or_n]
+%
+% Default values for amplitude, phase, and orientation are .1, 0, and 0,
+% respectively.  If the number of columns in cpar is less that four,
+% the default values will be filled in.
+%
+% To produce more complex modulations, separate carrier and
+% modulator components can be defined.  The carrier components are
+% defined exactly as above.  The modulator modulates the amplitude of
+% the carrier.  The parameters of the modulator(s) are given in the
+% input argument mpar.  The format is exactly the same as in defining
+% the carrier components in cpar.  If several modulator components are
+% defined, they are added together.  Typically, you will probably want
+% to use a very simple (usually a single-component) modulator.
+% Default values are as with cpar.
+%
+% Optional input arguments can be given to define the number of vertex
+% points or the filename for saving the object.
+%
+% To define the number of vertices in the model, use the option
+% 'npoints' followed by a vector of length giving the number of points
+% in the y- and x-directions:
+%  ...,'npoints',[m n],...
+% Default numbers are m=256 (y-direction), n=256 (x-direction).
+%
+% The model is saved in a text file.  The default name of the output
+% text file is 'plane.obj'.  A different filename can be gives as a
+% string:
+%   ...,'myfilename',...
+% If the custom filename does not have an obj-extension, it will be
+% added.
+%
+% If the output argument is specified, the vertices and faces plus
+% some other information are returned in the fields of the output 
+% structure.
+%
+% Examples:
+% > objMakePlane()             % Default, 8 cycles in the x-direction
+% > objMakePlane([6 .2])       % Six modulation cycles, amplitude 0.2
+%
+% Modulation components in the two directions (added), save to plaid.obj:
+% > objMakePlane([8 .2 0 0; 4 .1 0 90],'plaid.obj') 
+% (This will produce a kind of "plaid" pattern.)
+%
+% Same as above, but use fewer points for a quicker testing (will not
+% look good when rendered, but might be useful for experimenting):
+% > objMakePlane([8 .2 0 0; 4 .1 0 90],'npoints',[128 128],'plaid.obj') 
+%
+% Makes a smooth bump:
+% > objMakePlane([1 .1 pi/2 0; 1 .1 pi/2 90])    
+%
+% Two modulation components in the same (azimuth) direction,
+% frequencies 4 and 12:
+% > objMakePlane([4 .15 0 0; 12 .15 0 0]) 
+%
+% A vertical carrier with 8 cycles, its amplitude modulated by a
+% 2-cycle, vertical modulator, also return the model in the structure
+% sph:
+% > sph = objMakePlane([8 .2 0 0],[2 1 0 0]) 
+%
 
 % Toni Saarela, 2013
 % 2013-10-09 - ts - first version
@@ -30,57 +104,72 @@ function plane = objMakePlane(f,a,ph,varargin)
 %                   option to give grid size as input
 %                   write more specs to obj file; return more specs
 %                     with structure
+% 2014-08-07 - ts - simplified the computation of carriers and
+%                    modulators a little, new format for giving the modulation
+%                    parameters; better initialization of matrices;
+%                    significantly speeded up the computation of
+%                    faces; carriers and modulators can have arbitrary
+%                    orientations; wrote help
+%                    
 
 % TODO
-% WRITE HELP (the current one is for the sphere function)
 % Add option for noise in the amplitude
 % Add option for noise in the frequencies
-% Option to define the orientation of the carrier
-% Option to define the orientation of the modulator
 % More error checking of parameters
-% Initialize all matrices properly
+% Should the x and y values go from -w/2 to w/2 or from -w/2 to
+%   w/2-w/npoints?
+
 
 %--------------------------------------------
 
 % Carrier parameters
-% Set default frequency if necessary
-if ~nargin || isempty(f)
-  f = 8;
+
+% Set default frequency, amplitude, phase, "orientation" if necessary
+
+if ~nargin || isempty(cprm)
+  cprm = [8 .1 0 0];
 end
 
-% Default amplitude
-if nargin<2 || isempty(a)
-  a = .1 * ones(size(f));
+[nccomp,ncol] = size(cprm);
+
+switch ncol
+  case 1
+    cprm = [cprm ones(nccomp,1)*[.1 0 0]];
+  case 2
+    cprm = [cprm zeros(nccomp,2)];
+  case 3
+    cprm = [cprm zeros(nccomp,1)];
 end
 
-% Default phase
-if nargin<3 || isempty(ph)
-  ph = zeros(size(f));
-end
+cprm(:,4) = pi * cprm(:,4)/180;
 
 % Set the default modulation parameters to empty indicating no modulator; set default filename.
-fmod  = [];
-amod  = [];
-phmod = [];
+mprm  = [];
 filename = 'plane.obj';
 
-% Number of vertices in y and x directions
+% Number of vertices in y and x directions, default values
 m = 256;
 n = 256;
 
 [modpar,par] = parseparams(varargin);
 
+% If modulator parameters are given as input, set mprm to these values
 if ~isempty(modpar)
-  if length(modpar)==1
-    fmod = modpar{1};
-  elseif length(modpar)==2
-    fmod = modpar{1};
-    amod = modpar{2};
-  else
-    fmod = modpar{1};
-    amod = modpar{2};
-    phmod = modpar{3};
+   mprm = modpar{1};
+end
+
+% Set default values to modulator parameters as needed
+if ~isempty(mprm)
+  [nmcomp,ncol] = size(mprm);
+  switch ncol
+    case 1
+      mprm = [mprm ones(nccomp,1)*[.1 0 0]];
+    case 2
+      mprm = [mprm zeros(nccomp,2)];
+    case 3
+      mprm = [mprm zeros(nccomp,1)];
   end
+  mprm(:,4) = pi * mprm(:,4)/180;
 end
 
 if ~isempty(par)
@@ -91,8 +180,8 @@ if ~isempty(par)
          case 'npoints'
            if ii<length(par) && isnumeric(par{ii+1}) && length(par{ii+1}(:))==2
              ii = ii + 1;
-             m = par{ii}(2);
-             n = par{ii}(1);
+             m = par{ii}(1);
+             n = par{ii}(2);
            else
              error('No value or a bad value given for option ''npoints''.');
            end
@@ -103,78 +192,62 @@ if ~isempty(par)
      ii = ii + 1;
    end
 end
-
-% Set the default values for modulation amplitude and phase.
-% Make these the same size as fmod
-if ~isempty(fmod)
-  if isempty(amod)
-    amod = .1 * ones(size(fmod));
-  end
-  if isempty(phmod)
-    phmod = zeros(size(fmod));
-  end
-end
-
-
   
 % Add file name extension if needed
 if isempty(regexp(filename,'\.obj$'))
   filename = [filename,'.obj'];
 end
 
-m = m + 1;
-n = n + 1;
+% m = m + 1;
+% n = n + 1;
 
-r = 1; % extent of the plane, goes from -r to r in both x and y
-x = linspace(-r,r,m); % 
-y = linspace(-r,r,n)'; % 
+w = 1; % width of the plane
+h = m/n * w;
 
-f = f/(2*r);
-fmod = fmod/(2*r);
+x = linspace(-w/2,w/2,n); % 
+y = linspace(-h/2,h/2,m)'; % 
 
 %--------------------------------------------
 
-if any(a)<0
-  error('Modulation amplitude has to be positive.');
-end
+
 
 %--------------------------------------------
 
 vertices = zeros(m*n,3);
 
 [X,Y] = meshgrid(x,y);
+Y = flipud(Y);
 
-if ~isempty(fmod)
-  modx = .5 * (1 + amod(1) * sin(2*pi*fmod(1)*x+phmod(1)));
-  if length(fmod)>1
-    mody = .5 * (1 + amod(2) * sin(2*pi*fmod(2)*y+phmod(2)));
-  else
-    mody = ones(size(y));
+% If modulator parameters are given make the modulator
+if ~isempty(mprm)
+  M = zeros(m,n);
+  for ii = 1:nmcomp
+    M = M + mprm(ii,2) * sin(2*pi*mprm(ii,1)*(X*cos(mprm(ii,4))-Y*sin(mprm(ii,4)))+mprm(ii,3));
   end
+
+  M = .5 * (1 + M);
+
+  if any(M(:)<0) || any(M(:)>1)
+    if nmcomp>1
+      warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');
+    else
+      warning('The amplitude of the modulator is out of bounds (0-1).\n Expect wonky results.');
+    end
+  end
+
 else
-  modx = ones(size(x));
-  mody = ones(size(y));
+  M = ones(m,n);
 end
 
-for ii = 1:size(f,1)
-  carrX(ii,:) = a(ii,1)*sin(2*pi*f(ii,1)*x+ph(ii,1));
-  if size(f,2)>1
-    carrY(:,ii) = a(ii,2)*sin(2*pi*f(ii,2)*y+ph(ii,2));
-  end
+% Make the (compound) carrier
+C = zeros(m,n);
+
+for ii = 1:nccomp
+  C = C + cprm(ii,2) * sin(2*pi*cprm(ii,1)*(X*cos(cprm(ii,4))-Y*sin(cprm(ii,4)))+cprm(ii,3));
 end
 
-if size(f,1)>1
-  carrX = sum(carrX,1);
-  if size(f,2)>1
-    carrY = sum(carrY,2);
-  end   
-end
-
-if size(f,2)>1
-  Z = ones(m,1)*(modx.*carrX) + (mody.*carrY)*ones(1,n);
-else  
-  Z = ones(m,1)*(modx.*carrX);
-end   
+% Multiply carrier with modulator
+Z = M .* C;
 
 X = X'; X = X(:);
 Y = Y'; Y = Y(:);
@@ -182,42 +255,53 @@ Z = Z'; Z = Z(:);
 
 vertices = [X Y Z];
 
+faces = zeros((m-1)*(n-1)*2,3);
+
+%tic
+F = ([1 1]'*[1:n-1]);
+F = F(:) * [1 1 1];
+F(:,2) = F(:,2) + repmat([n n+1]',[n-1 1]);
+F(:,3) = F(:,3) + repmat([n+1 1]',[n-1 1]);
 for ii = 1:m-1
-  for jj = 1:n-1
-
-    faces((2*ii-2)*(n-1)+2*jj-1,:) = [(ii-1)*n+jj ii*n+jj ii*n+jj+1];
-    faces((2*ii-2)*(n-1)+2*jj,:) = [(ii-1)*n+jj ii*n+jj+1 (ii-1)*n+jj+1];
-
-  end
+  faces((ii-1)*(n-1)*2+1:ii*(n-1)*2,:) = (ii-1)*n + F;
 end
+%toc
+
+% Old method for determining the faces looped over the vertices and
+% took more than a second.  The way above is much faster.
+% tic
+% for ii = 1:m-1
+%   for jj = 1:n-1
+%     faces((2*ii-2)*(n-1)+2*jj-1,:) = [(ii-1)*n+jj ii*n+jj ii*n+jj+1];
+%     faces((2*ii-2)*(n-1)+2*jj,:) = [(ii-1)*n+jj ii*n+jj+1 (ii-1)*n+jj+1];
+%   end
+% end
+% toc
 
 if nargout
   plane.vertices = vertices;
   plane.faces = faces;
-  plane.npointsx = m-1;
-  plane.npointsy = n-1;
+  plane.npointsx = n;
+  plane.npointsy = m;
 end
 
+# Write to file
 fid = fopen(filename,'w');
 fprintf(fid,'# %s\n',datestr(now));
 fprintf(fid,'# Created with function %s.\n',mfilename);
-fprintf(fid,'# Modulation carrier frequency (x), cycles/plane: %4.2f.\n',2*r*f(:,1));
-fprintf(fid,'# Modulation carrier amplitude (x): %4.2f.\n',a(:,1));
-fprintf(fid,'# Modulation carrier phase (x): %4.2f.\n',ph(:,1));
-if size(f,2)>1
-  fprintf(fid,'# Modulation carrier frequency (y), cycles/plane: %4.2f.\n',2*r*f(:,2));
-  fprintf(fid,'# Modulation carrier amplitude (y): %4.2f.\n',a(:,2));
-  fprintf(fid,'# Modulation carrier phase (y): %4.2f.\n',ph(:,2));
+fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
+fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
+fprintf(fid,'#\n# Modulation carrier parameters (each row is one component):\n');
+fprintf(fid,'#  Frequency | Amplitude | Phase | Orientation\n');
+for ii = 1:nccomp
+  fprintf(fid,'#  %4.2f        %4.2f        %4.2f    %d\n',cprm(ii,:));
 end
-if ~isempty(fmod)
-  fprintf(fid,'# Modulator frequency (x), cycles/plane: %4.2f.\n',2*r*fmod(:,1));
-  fprintf(fid,'# Modulator amplitude (x): %4.2f.\n',amod(:,1));
-  fprintf(fid,'# Modulator phase (x): %4.2f.\n',phmod(:,1));
-  if length(fmod)>1
-    fprintf(fid,'# Modulator frequency (y), cycles/plane: %4.2f.\n',2*r*fmod(:,2));
-    fprintf(fid,'# Modulator amplitude (y): %4.2f.\n',amod(:,2));
-    fprintf(fid,'# Modulator phase (y): %4.2f.\n',phmod(:,2));
-  end   
+if ~isempty(mprm)
+  fprintf(fid,'#\n# Modulator parameters (each row is one component):\n');
+  fprintf(fid,'#  Frequency | Amplitude | Phase | Orientation\n');
+  for ii = 1:nmcomp
+    fprintf(fid,'#  %4.2f        %4.2f        %4.2f    %d\n',mprm(ii,:));
+  end
 end
 fprintf(fid,'\n\n# Vertices:\n');
 fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
