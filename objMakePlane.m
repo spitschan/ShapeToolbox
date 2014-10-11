@@ -119,7 +119,6 @@ function plane = objMakePlane(cprm,varargin)
 % Should the x and y values go from -w/2 to w/2 or from -w/2 to
 %   w/2-w/npoints?
 
-
 %--------------------------------------------
 
 % Carrier parameters
