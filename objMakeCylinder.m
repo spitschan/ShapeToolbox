@@ -9,6 +9,8 @@ function cylinder = objMakeCylinder(cprm)
 % TODO
 % Add an option to define whether modulations are done in angle
 % (theta) units or distance units.
+% Add modulators
+% More and better parsing of input arguments
 
 if ~nargin || isempty(cprm)
   cprm = [8 .1 0 0];
@@ -16,7 +18,7 @@ end
 
 [nccomp,ncol] = size(cprm);
 
-cprm(:,4) = pi * cprm(:,4)/180;
+cprm(:,3:4) = pi * cprm(:,3:4)/180;
 
 filename = 'cylinder.obj';
 

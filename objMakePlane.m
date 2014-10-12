@@ -43,14 +43,15 @@ function plane = objMakePlane(cprm,varargin)
 % the default values will be filled in.
 %
 % To produce more complex modulations, separate carrier and
-% modulator components can be defined.  The carrier components are
-% defined exactly as above.  The modulator modulates the amplitude of
-% the carrier.  The parameters of the modulator(s) are given in the
-% input argument mpar.  The format is exactly the same as in defining
-% the carrier components in cpar.  If several modulator components are
-% defined, they are added together.  Typically, you will probably want
-% to use a very simple (usually a single-component) modulator.
-% Default values are as with cpar.
+% modulator components can be defined with the input argument mpar.
+% The carrier components are defined exactly as above.  The
+% modulator modulates the amplitude of the carrier.  The parameters
+% of the modulator(s) are given in the input argument mpar.  The
+% format is exactly the same as in defining the carrier components
+% in cpar.  If several modulator components are defined, they are
+% added together.  Typically, you will probably want to use a very
+% simple (usually a single-component) modulator. Default values are
+% as with cpar.
 %
 % Optional input arguments can be given to define the number of vertex
 % points or the filename for saving the object.
@@ -110,7 +111,9 @@ function plane = objMakePlane(cprm,varargin)
 %                    significantly speeded up the computation of
 %                    faces; carriers and modulators can have arbitrary
 %                    orientations; wrote help
-%                    
+% 2014-10-11 - ts - both phase and orientation are given in degrees now
+% 2014-10-11 - ts - now possible to use the modulators to modulate
+%                    between two (or more) carriers
 
 % TODO
 % Add option for noise in the amplitude
@@ -118,6 +121,8 @@ function plane = objMakePlane(cprm,varargin)
 % More error checking of parameters
 % Should the x and y values go from -w/2 to w/2 or from -w/2 to
 %   w/2-w/npoints?
+% Add an option to define the size of plane
+% Update help, add the modulation between carriers thing
 
 %--------------------------------------------
 
@@ -126,21 +131,23 @@ function plane = objMakePlane(cprm,varargin)
 % Set default frequency, amplitude, phase, "orientation" if necessary
 
 if ~nargin || isempty(cprm)
-  cprm = [8 .1 0 0];
+  cprm = [8 .05 0 0 0];
 end
 
 [nccomp,ncol] = size(cprm);
 
 switch ncol
   case 1
-    cprm = [cprm ones(nccomp,1)*[.1 0 0]];
+    cprm = [cprm ones(nccomp,1)*[.05 0 0 0]];
   case 2
-    cprm = [cprm zeros(nccomp,2)];
+    cprm = [cprm zeros(nccomp,3)];
   case 3
+    cprm = [cprm zeros(nccomp,2)];
+  case 4
     cprm = [cprm zeros(nccomp,1)];
 end
 
-cprm(:,4) = pi * cprm(:,4)/180;
+cprm(:,3:4) = pi * cprm(:,3:4)/180;
 
 % Set the default modulation parameters to empty indicating no modulator; set default filename.
 mprm  = [];
@@ -162,13 +169,15 @@ if ~isempty(mprm)
   [nmcomp,ncol] = size(mprm);
   switch ncol
     case 1
-      mprm = [mprm ones(nccomp,1)*[.1 0 0]];
+      mprm = [mprm ones(nccomp,1)*[.1 0 0 0]];
     case 2
-      mprm = [mprm zeros(nccomp,2)];
+      mprm = [mprm zeros(nccomp,3)];
     case 3
+      mprm = [mprm zeros(nccomp,2)];
+    case 4
       mprm = [mprm zeros(nccomp,1)];
   end
-  mprm(:,4) = pi * mprm(:,4)/180;
+  mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
 
 if ~isempty(par)
@@ -207,9 +216,6 @@ x = linspace(-w/2,w/2,n); %
 y = linspace(-h/2,h/2,m)'; % 
 
 %--------------------------------------------
-
-
-
 %--------------------------------------------
 
 vertices = zeros(m*n,3);
@@ -217,36 +223,96 @@ vertices = zeros(m*n,3);
 [X,Y] = meshgrid(x,y);
 Y = flipud(Y);
 
-% If modulator parameters are given make the modulator
 if ~isempty(mprm)
-  M = zeros(m,n);
-  for ii = 1:nmcomp
-    M = M + mprm(ii,2) * sin(2*pi*mprm(ii,1)*(X*cos(mprm(ii,4))-Y*sin(mprm(ii,4)))+mprm(ii,3));
+
+   % Find the component groups
+   cgroups = unique(cprm(:,5));
+   mgroups = unique(mprm(:,5));
+   
+   % Groups other than zero (zero is a special group handled
+   % separately below)
+   cgroups2 = setdiff(cgroups,0);
+   mgroups2 = setdiff(mgroups,0);
+   
+   if ~isempty(cgroups2)
+     Z = zeros([m n length(cgroups2)]);
+     for gi = 1:length(cgroups2)
+       % Find the carrier components that belong to this group
+       cidx = find(cprm(:,5)==cgroups2(gi));
+       % Make the (compound) carrier
+       C = zeros(m,n);
+       for ii = 1:length(cidx)
+         C = C + cprm(cidx(ii),2) * sin(2*pi*cprm(cidx(ii),1)*(X*cos(cprm(cidx(ii),4))-Y*sin(cprm(cidx(ii),4)))+cprm(cidx(ii),3));
+       end % loop over carrier components
+       % If there's a modulator in this group, make it
+       midx = find(mprm(:,5)==cgroups2(gi));
+       if ~isempty(midx)          
+         M = zeros(m,n);
+         for ii = 1:length(midx)
+           M = M + mprm(midx(ii),2) * sin(2*pi*mprm(midx(ii),1)*(X*cos(mprm(midx(ii),4))-Y*sin(mprm(midx(ii),4)))+mprm(midx(ii),3));
+         end % loop over modulator components
+         M = .5 * (1 + M);
+         if any(M(:)<0) || any(M(:)>1)
+           if nmcomp>1
+             warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');
+           else
+             warning('The amplitude of the modulator is out of bounds (0-1).\n Expect wonky results.');
+           end
+         end % if modulator out of range
+         % Multiply modulator and carrier
+         Z(:,:,gi) = M .* C;
+       else % Otherwise, the carrier is all
+         Z(:,:,gi) = C;
+       end % is modulator defined
+     end % loop over carrier groups
+   end % if there are carriers in groups other than zero
+
+   Z = sum(Z,3);
+
+   % Handle the component group 0:
+   % Carriers in group zero are always added to the other (modulated)
+   % components without any modulator of their own
+   % Modulators in group zero modulate ALL the other components.  That
+   % is, if there are carriers/modulators in groups other than zero,
+   % they are made and added together first (above).  Then, carriers
+   % in group zero are added to those.  Finally, modulators in group
+   % zero modulate that whole bunch.
+   cidx = find(cprm(:,5)==0);
+   if ~isempty(cidx)
+     % Make the (compound) carrier
+     C = zeros(m,n);
+     for ii = 1:length(cidx)
+       C = C + cprm(cidx(ii),2) * sin(2*pi*cprm(cidx(ii),1)*(X*cos(cprm(cidx(ii),4))-Y*sin(cprm(cidx(ii),4)))+cprm(cidx(ii),3));
+     end % loop over carrier components
+     Z = Z + C;
+   end
+
+   midx = find(mprm(:,5)==0);
+   if ~isempty(midx)
+     M = zeros(m,n);
+     for ii = 1:length(midx)
+       M = M + mprm(midx(ii),2) * sin(2*pi*mprm(midx(ii),1)*(X*cos(mprm(midx(ii),4))-Y*sin(mprm(midx(ii),4)))+mprm(midx(ii),3));
+     end % loop over modulator components
+     M = .5 * (1 + M);
+     if any(M(:)<0) || any(M(:)>1)
+       if nmcomp>1
+         warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');
+       else
+         warning('The amplitude of the modulator is out of bounds (0-1).\n Expect wonky results.');
+       end
+     end % if modulator out of range
+     % Multiply modulator and carrier
+     Z = M .* Z;
+   end
+
+else % there are no modulators
+  % Only make the carriers here, add them up and you're done
+  C = zeros(m,n);
+  for ii = 1:nccomp
+    C = C + cprm(ii,2) * sin(2*pi*cprm(ii,1)*(X*cos(cprm(ii,4))-Y*sin(cprm(ii,4)))+cprm(ii,3));
   end
-
-  M = .5 * (1 + M);
-
-  if any(M(:)<0) || any(M(:)>1)
-    if nmcomp>1
-      warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');
-    else
-      warning('The amplitude of the modulator is out of bounds (0-1).\n Expect wonky results.');
-    end
-  end
-
-else
-  M = ones(m,n);
-end
-
-% Make the (compound) carrier
-C = zeros(m,n);
-
-for ii = 1:nccomp
-  C = C + cprm(ii,2) * sin(2*pi*cprm(ii,1)*(X*cos(cprm(ii,4))-Y*sin(cprm(ii,4)))+cprm(ii,3));
-end
-
-% Multiply carrier with modulator
-Z = M .* C;
+  Z = C;
+end % if modulators defined
 
 X = X'; X = X(:);
 Y = Y'; Y = Y(:);
@@ -265,17 +331,6 @@ for ii = 1:m-1
   faces((ii-1)*(n-1)*2+1:ii*(n-1)*2,:) = (ii-1)*n + F;
 end
 %toc
-
-% Old method for determining the faces looped over the vertices and
-% took more than a second.  The way above is much faster.
-% tic
-% for ii = 1:m-1
-%   for jj = 1:n-1
-%     faces((2*ii-2)*(n-1)+2*jj-1,:) = [(ii-1)*n+jj ii*n+jj ii*n+jj+1];
-%     faces((2*ii-2)*(n-1)+2*jj,:) = [(ii-1)*n+jj ii*n+jj+1 (ii-1)*n+jj+1];
-%   end
-% end
-% toc
 
 if nargout
   plane.vertices = vertices;
