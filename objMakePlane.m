@@ -114,6 +114,9 @@ function plane = objMakePlane(cprm,varargin)
 % 2014-10-11 - ts - both phase and orientation are given in degrees now
 % 2014-10-11 - ts - now possible to use the modulators to modulate
 %                    between two (or more) carriers
+% 2014-10-12 - ts - changed default value for modulator amplitude (1)
+%                   fixed a bug affecting the case when there are
+%                   carriers AND modulators only in group 0
 
 % TODO
 % Add option for noise in the amplitude
@@ -128,7 +131,7 @@ function plane = objMakePlane(cprm,varargin)
 
 % Carrier parameters
 
-% Set default frequency, amplitude, phase, "orientation" if necessary
+% Set default frequency, amplitude, phase, orientation and component group id
 
 if ~nargin || isempty(cprm)
   cprm = [8 .05 0 0 0];
@@ -169,7 +172,7 @@ if ~isempty(mprm)
   [nmcomp,ncol] = size(mprm);
   switch ncol
     case 1
-      mprm = [mprm ones(nccomp,1)*[.1 0 0 0]];
+      mprm = [mprm ones(nccomp,1)*[1 0 0 0]];
     case 2
       mprm = [mprm zeros(nccomp,3)];
     case 3
@@ -265,9 +268,10 @@ if ~isempty(mprm)
          Z(:,:,gi) = C;
        end % is modulator defined
      end % loop over carrier groups
+     Z = sum(Z,3);
+   else
+     Z = zeros([m n]);
    end % if there are carriers in groups other than zero
-
-   Z = sum(Z,3);
 
    % Handle the component group 0:
    % Carriers in group zero are always added to the other (modulated)

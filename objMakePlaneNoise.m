@@ -11,6 +11,8 @@ function plane = objMakePlaneNoise(nprm,varargin)
 %                    between two (or more) carriers
 %                   can have different sizes in x and y directions
 %                    (not tested properly yet)
+% 2014-10-12 - ts - fixed a bug affecting the case when there are
+%                   carriers AND modulators only in group 0
 
 %--------------------------------------------
 
@@ -27,9 +29,9 @@ end
 
 [nncomp,ncol] = size(nprm);
 
-if ncol==4
+if ncol==5
   nprm = [nprm zeros(nncomp,1)];
-elseif ncol<4
+elseif ncol<5
   error('Incorrect number of columns in input argument ''nprm''.');
 end
 
@@ -173,9 +175,10 @@ if ~isempty(mprm)
          Z(:,:,gi) = C;
        end % is modulator defined
      end % loop over carrier groups      
+     Z = sum(Z,3);
+   else
+     Z = zeros([m n]);
    end % if there are noise carriers in groups other than zero
-
-   Z = sum(Z,3);
 
    % Handle the component group 0:
    % Carriers in group zero are always added to the other (modulated)

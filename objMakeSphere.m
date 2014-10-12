@@ -142,34 +142,40 @@ function sphere = objMakeSphere(cprm,varargin)
 %                   updated help  
 % 2014-08-07 - ts - better initialization of matrices; additions to help;
 %                   significantly speeded up the computation of faces
+% 2014-10-12 - ts - now possible to use the modulators to modulate
+%                    between two (or more) carriers
 
 % TODO
 % Add option for noise in the amplitude
 % Add option for noise in the frequencies
 % More error checking on parameters (including modulator)
+% UPDATE HELP
 
 %--------------------------------------------
 
 
 % Carrier parameters
 
-% Set default frequency, amplitude, phase, "orientation" if necessary
+% Set default frequency, amplitude, phase, "orientation"  and component group id
 
 if ~nargin || isempty(cprm)
-  cprm = [8 .1 0 0];
+  cprm = [8 .1 0 0 0];
 end
 
 [nccomp,ncol] = size(cprm);
 
 switch ncol
   case 1
-    cprm = [cprm ones(nccomp,1)*[.1 0 0]];
+    cprm = [cprm ones(nccomp,1)*[.05 0 0 0]];
   case 2
-    cprm = [cprm zeros(nccomp,2)];
+    cprm = [cprm zeros(nccomp,3)];
   case 3
+    cprm = [cprm zeros(nccomp,2)];
+  case 4
     cprm = [cprm zeros(nccomp,1)];
 end
 
+cprm(:,3:4) = pi * cprm(:,3:4)/180;
 
 % Set the default modulation parameters to empty indicating no modulator; set default filename.
 mprm  = [];
@@ -191,12 +197,15 @@ if ~isempty(mprm)
   [nmcomp,ncol] = size(mprm);
   switch ncol
     case 1
-      mprm = [mprm ones(nccomp,1)*[.1 0 0]];
+      mprm = [mprm ones(nccomp,1)*[1 0 0 0]];
     case 2
-      mprm = [mprm zeros(nccomp,2)];
+      mprm = [mprm zeros(nccomp,3)];
     case 3
+      mprm = [mprm zeros(nccomp,2)];
+    case 4
       mprm = [mprm zeros(nccomp,1)];
   end
+  mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
 
 % Check other optional input arguments
@@ -233,17 +242,6 @@ r = 1; % radius
 theta = linspace(-pi,pi-2*pi/n,n); % azimuth
 phi = linspace(-pi/2,pi/2,m)'; % elevation
 
-% Set the indicator for the direction of modulation to 0 or 1,
-% regardless of the actual value (any non-zero value indicates the
-% elevation direction).  This is just to make the direction clear in the
-% comments of the obj-file.  Do this with the logical-function
-% although the value will be converted to floating point in the
-% matrix.
-cprm(:,4) = logical(cprm(:,4));
-if ~isempty(mprm)
-  mprm(:,4) = logical(mprm(:,4));
-end
-
 %--------------------------------------------
 
 if any(cprm(:,2)>r)
@@ -252,51 +250,107 @@ end
 
 %--------------------------------------------
 
-% If modulator parameters are given make the modulator
+[Theta,Phi] = meshgrid(theta,phi);
+
 if ~isempty(mprm)
-  modaz = zeros(1,n);
-  model = zeros(m,1);
-  for ii = 1:nmcomp
-    if mprm(ii,4)
-      model = model + mprm(ii,2) * sin(2*mprm(ii,1)*phi+mprm(ii,3));
-    else
-      modaz = modaz + mprm(ii,2) * sin(mprm(ii,1)*theta+mprm(ii,3));
-    end
-  end
 
-  M = .5 * (1 + ones(m,1) * modaz + model * ones(1,n));
+   % Find the component groups
+   cgroups = unique(cprm(:,5));
+   mgroups = unique(mprm(:,5));
+   
+   % Groups other than zero (zero is a special group handled
+   % separately below)
+   cgroups2 = setdiff(cgroups,0);
+   mgroups2 = setdiff(mgroups,0);
+   
+   if ~isempty(cgroups2)
+     R = zeros([m n length(cgroups2)]);
+     for gi = 1:length(cgroups2)
+       % Find the carrier components that belong to this group
+       cidx = find(cprm(:,5)==cgroups2(gi));
+       % Make the (compound) carrier
+       C = zeros(m,n);
+       for ii = 1:length(cidx)
+         C = C + makeComp(cprm(cidx(ii),:),Theta,Phi);
+       end % loop over carrier components
+       % If there's a modulator in this group, make it
+       midx = find(mprm(:,5)==cgroups2(gi));
+       if ~isempty(midx)          
+         M = zeros(m,n);
+         for ii = 1:length(midx)
+           M = M + makeComp(mprm(midx(ii),:),Theta,Phi);
+         end % loop over modulator components
+         M = .5 * (1 + M);
+         if any(M(:)<0) || any(M(:)>1)
+           if nmcomp>1
+             warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');
+           else
+             warning('The amplitude of the modulator is out of bounds (0-1).\n Expect wonky results.');
+           end
+         end % if modulator out of range
+         % Multiply modulator and carrier
+         R(:,:,gi) = M .* C;
+       else % Otherwise, the carrier is all
+         R(:,:,gi) = C;
+       end % is modulator defined
+     end % loop over carrier groups
+     R = sum(R,3);
+   else
+     R = zeros([m n]);;
+   end % if there are carriers in groups other than zero
 
-  if any(M(:)<0) || any(M(:)>1)
-    if nmcomp>1
-      warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');
-    else
-      warning('The amplitude of the modulator is out of bounds (0-1).\n Expect wonky results.');
-    end
-  end
+   
 
-else
-  M = ones(m,n);
-end
+   % Handle the component group 0:
+   % Carriers in group zero are always added to the other (modulated)
+   % components without any modulator of their own
+   % Modulators in group zero modulate ALL the other components.  That
+   % is, if there are carriers/modulators in groups other than zero,
+   % they are made and added together first (above).  Then, carriers
+   % in group zero are added to those.  Finally, modulators in group
+   % zero modulate that whole bunch.
+   cidx = find(cprm(:,5)==0);
+   if ~isempty(cidx)
+     % Make the (compound) carrier
+     C = zeros(m,n);
+     for ii = 1:length(cidx)
+       C = C + makeComp(cprm(cidx(ii),:),Theta,Phi);
+     end % loop over carrier components
+     R = R + C;
+   end
 
-% Make the (compound) carrier
-carraz = zeros(1,n);
-carrel = zeros(m,1);
-for ii = 1:nccomp
-  if cprm(ii,4)
-    carrel = carrel + cprm(ii,2) * sin(2*cprm(ii,1)*phi+cprm(ii,3));
-  else
-    carraz = carraz + cprm(ii,2) * sin(cprm(ii,1)*theta+cprm(ii,3));
-  end
-end
+   midx = find(mprm(:,5)==0);
+   if ~isempty(midx)          
+     M = zeros(m,n);
+     for ii = 1:length(midx)
+       M = M + makeComp(mprm(midx(ii),:),Theta,Phi);
+     end % loop over modulator components
+     M = .5 * (1 + M);
+     if any(M(:)<0) || any(M(:)>1)
+       if nmcomp>1
+         warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');
+       else
+         warning('The amplitude of the modulator is out of bounds (0-1).\n Expect wonky results.');
+       end
+     end % if modulator out of range
+     
+     % Multiply modulator and carrier
+     R = M .* R;
+   end
 
-C = ones(m,1) * carraz + carrel * ones(1,n);
+else % there are no modulators
+  % Only make the carriers here, add them up and you're done
+  C = zeros(m,n);
+  for ii = 1:nccomp
+    C = C + makeComp(cprm(ii,:),Theta,Phi);
+  end % loop over carrier components
+  R = C;
+end % if modulators defined
 
-% Multiply carrier by modulator, add to sphere radius to get the 
-% modulated radius
-R = r + M.*C;
+R = r + R;
 
 % Convert vertices to cartesian coordinates
-[X,Y,Z] = sph2cart(ones(m,1)*theta,phi*ones(1,n),R);
+[X,Y,Z] = sph2cart(Theta,Phi,R);
 
 X = X'; X = X(:);
 Y = Y'; Y = Y(:);
@@ -362,3 +416,8 @@ fprintf(fid,'# End vertices\n\n# Faces:\n');
 fprintf(fid,'f %d %d %d\n',faces');
 fprintf(fid,'# End faces\n\n');
 fclose(fid);
+
+
+function C = makeComp(prm,Theta,Phi)
+
+C = prm(2) * sin(prm(1)*(Theta*cos(prm(4))-2*Phi*sin(prm(4)))+prm(3));
