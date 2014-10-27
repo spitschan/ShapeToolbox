@@ -117,6 +117,8 @@ function plane = objMakePlane(cprm,varargin)
 % 2014-10-12 - ts - changed default value for modulator amplitude (1)
 %                   fixed a bug affecting the case when there are
 %                   carriers AND modulators only in group 0
+% 2014-10-14 - ts - added an option to compute texture coordinates and
+%                    include a mtl file reference
 
 % TODO
 % Add option for noise in the amplitude
@@ -155,6 +157,8 @@ cprm(:,3:4) = pi * cprm(:,3:4)/180;
 % Set the default modulation parameters to empty indicating no modulator; set default filename.
 mprm  = [];
 filename = 'plane.obj';
+mtlfilename = '';
+mtlname = '';
 
 % Number of vertices in y and x directions, default values
 m = 256;
@@ -196,6 +200,14 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''npoints''.');
            end
+         case 'material'
+           if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
+             ii = ii + 1;
+             mtlfilename = par{ii}{1};
+             mtlname = par{ii}{2};
+           else
+             error('No value or a bad value given for option ''material''.');
+           end
          otherwise
            filename = par{ii};
        end
@@ -215,6 +227,8 @@ end
 w = 1; % width of the plane
 h = m/n * w;
 
+cprm(:,1) = cprm(:,1)*(2*pi);
+
 x = linspace(-w/2,w/2,n); % 
 y = linspace(-h/2,h/2,m)'; % 
 
@@ -224,105 +238,22 @@ y = linspace(-h/2,h/2,m)'; %
 vertices = zeros(m*n,3);
 
 [X,Y] = meshgrid(x,y);
-Y = flipud(Y);
+%Y = flipud(Y);
 
-if ~isempty(mprm)
+Z = _objMakeSineComponents(cprm,mprm,X,Y);
 
-   % Find the component groups
-   cgroups = unique(cprm(:,5));
-   mgroups = unique(mprm(:,5));
-   
-   % Groups other than zero (zero is a special group handled
-   % separately below)
-   cgroups2 = setdiff(cgroups,0);
-   mgroups2 = setdiff(mgroups,0);
-   
-   if ~isempty(cgroups2)
-     Z = zeros([m n length(cgroups2)]);
-     for gi = 1:length(cgroups2)
-       % Find the carrier components that belong to this group
-       cidx = find(cprm(:,5)==cgroups2(gi));
-       % Make the (compound) carrier
-       C = zeros(m,n);
-       for ii = 1:length(cidx)
-         C = C + cprm(cidx(ii),2) * sin(2*pi*cprm(cidx(ii),1)*(X*cos(cprm(cidx(ii),4))-Y*sin(cprm(cidx(ii),4)))+cprm(cidx(ii),3));
-       end % loop over carrier components
-       % If there's a modulator in this group, make it
-       midx = find(mprm(:,5)==cgroups2(gi));
-       if ~isempty(midx)          
-         M = zeros(m,n);
-         for ii = 1:length(midx)
-           M = M + mprm(midx(ii),2) * sin(2*pi*mprm(midx(ii),1)*(X*cos(mprm(midx(ii),4))-Y*sin(mprm(midx(ii),4)))+mprm(midx(ii),3));
-         end % loop over modulator components
-         M = .5 * (1 + M);
-         if any(M(:)<0) || any(M(:)>1)
-           if nmcomp>1
-             warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');
-           else
-             warning('The amplitude of the modulator is out of bounds (0-1).\n Expect wonky results.');
-           end
-         end % if modulator out of range
-         % Multiply modulator and carrier
-         Z(:,:,gi) = M .* C;
-       else % Otherwise, the carrier is all
-         Z(:,:,gi) = C;
-       end % is modulator defined
-     end % loop over carrier groups
-     Z = sum(Z,3);
-   else
-     Z = zeros([m n]);
-   end % if there are carriers in groups other than zero
-
-   % Handle the component group 0:
-   % Carriers in group zero are always added to the other (modulated)
-   % components without any modulator of their own
-   % Modulators in group zero modulate ALL the other components.  That
-   % is, if there are carriers/modulators in groups other than zero,
-   % they are made and added together first (above).  Then, carriers
-   % in group zero are added to those.  Finally, modulators in group
-   % zero modulate that whole bunch.
-   cidx = find(cprm(:,5)==0);
-   if ~isempty(cidx)
-     % Make the (compound) carrier
-     C = zeros(m,n);
-     for ii = 1:length(cidx)
-       C = C + cprm(cidx(ii),2) * sin(2*pi*cprm(cidx(ii),1)*(X*cos(cprm(cidx(ii),4))-Y*sin(cprm(cidx(ii),4)))+cprm(cidx(ii),3));
-     end % loop over carrier components
-     Z = Z + C;
-   end
-
-   midx = find(mprm(:,5)==0);
-   if ~isempty(midx)
-     M = zeros(m,n);
-     for ii = 1:length(midx)
-       M = M + mprm(midx(ii),2) * sin(2*pi*mprm(midx(ii),1)*(X*cos(mprm(midx(ii),4))-Y*sin(mprm(midx(ii),4)))+mprm(midx(ii),3));
-     end % loop over modulator components
-     M = .5 * (1 + M);
-     if any(M(:)<0) || any(M(:)>1)
-       if nmcomp>1
-         warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');
-       else
-         warning('The amplitude of the modulator is out of bounds (0-1).\n Expect wonky results.');
-       end
-     end % if modulator out of range
-     % Multiply modulator and carrier
-     Z = M .* Z;
-   end
-
-else % there are no modulators
-  % Only make the carriers here, add them up and you're done
-  C = zeros(m,n);
-  for ii = 1:nccomp
-    C = C + cprm(ii,2) * sin(2*pi*cprm(ii,1)*(X*cos(cprm(ii,4))-Y*sin(cprm(ii,4)))+cprm(ii,3));
-  end
-  Z = C;
-end % if modulators defined
 
 X = X'; X = X(:);
 Y = Y'; Y = Y(:);
 Z = Z'; Z = Z(:);
 
 vertices = [X Y Z];
+
+if ~isempty(mtlfilename)
+  U = (X-min(x))/(max(x)-min(x));
+  V = (Y-min(y))/(max(y)-min(y));
+  uvcoords = [U V];
+end
 
 faces = zeros((m-1)*(n-1)*2,3);
 
@@ -361,10 +292,21 @@ if ~isempty(mprm)
     fprintf(fid,'#  %4.2f        %4.2f        %4.2f    %d\n',mprm(ii,:));
   end
 end
-fprintf(fid,'\n\n# Vertices:\n');
-fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-fprintf(fid,'# End vertices\n\n# Faces:\n');
-fprintf(fid,'f %d %d %d\n',faces');
-fprintf(fid,'# End faces\n\n');
+if isempty(mtlfilename)
+  fprintf(fid,'\n\n# Vertices:\n');
+  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
+  fprintf(fid,'# End vertices\n\n# Faces:\n');
+  fprintf(fid,'f %d %d %d\n',faces');
+  fprintf(fid,'# End faces\n\n');
+else
+  fprintf(fid,'\n\nmtllib %s\nusemtl %s\n\n',mtlfilename,mtlname);
+  fprintf(fid,'\n\n# Vertices:\n');
+  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
+  fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
+  fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
+  fprintf(fid,'# End texture coordinates\n\n# Faces:\n');
+  fprintf(fid,'f %d/%d %d/%d %d/%d\n',expmat(faces,[1,2])');
+  fprintf(fid,'# End faces\n\n');
+end
 fclose(fid);
 

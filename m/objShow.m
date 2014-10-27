@@ -16,3 +16,4 @@ figure
 h = surf(X,Y,Z);
 set(gca,'Visible','Off');
 colormap gray
+

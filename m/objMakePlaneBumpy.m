@@ -1,60 +1,35 @@
-function sphere = objMakeSphereBumpy(prm,varargin)
+function plane = objMakePlaneBumpy(prm,varargin)
 
-% OBJMAKESPHEREBUMPY
-% 
-% Usage:          objMakeSphereBumpy()
-%                 objMakeSphereBumpy()
-%        sphere = objMakeSphereBumpy()
-%        sphere = objMakeSphereBumpy()
+% OBJMAKEPLANEBUMPY
 %
-%
-% Note: The minimum distance between bumps only applies to bumps of
-% the same type.  If several types of bumps are defined (in rows of
-% the imput argument prm), different types of bumps might be closer
-% together than mindist.  This might change in the future.  Then
-% again, it might not.
+% Usage: plane = objMakePlaneBumpy(prm,...)
 
 % Toni Saarela, 2014
-% 2014-05-06 - ts - first version
-% 2014-08-07 - ts - option for mixing bumps with different parameters
-%                   made the computations much faster
-% 2014-10-09 - ts - better parsing of input arguments
-%                   added an option for minimum distance of bumps
-%                   added an option for number of vertices
-%                   fixed an error in writing the bump specs in the
-%                     obj-file comments
-
-% TODO
-% - return the locations of bumps
-% - option to add noise to bump amplitudes/sigmas
-% - write help
-% - write more info to the obj-file and the returned structure
-
-% [nbumps amplitude sigma sigma2 anoise snoise s2noise]
+% 2014-10-17 - ts - first version
 
 %--------------------------------------------
 
 if ~nargin || isempty(prm)
-  prm = [20 .1 pi/12];
+  prm = [20 .05 .05];
 end
 
 [nbumptypes,ncol] = size(prm);
 
 switch ncol
   case 1
-    prm = [prm ones(nccomp,1)*[.1 pi/12]];
+    prm = [prm ones(nccomp,1)*[.05 .05]];
   case 2
-    prm = [prm ones(nccomp,1)*pi/12];
+    prm = [prm ones(nccomp,1)*.05];
 end
 
 nbumps = sum(prm(:,1));
 
 % Set default values before parsing the optional input arguments.
-filename = 'spherebumpy.obj';
+filename = 'planebumpy.obj';
 mtlfilename = '';
 mtlname = '';
 mindist = 0;
-m = 128;
+m = 256;
 n = 256;
 
 [tmp,par] = parseparams(varargin);
@@ -100,9 +75,11 @@ if isempty(regexp(filename,'\.obj$'))
   filename = [filename,'.obj'];
 end
 
-r = 1; % radius
-theta = linspace(-pi,pi-2*pi/n,n); % azimuth
-phi = linspace(-pi/2,pi/2,m); % elevation
+w = 1; % width of the plane
+h = m/n * w;
+
+x = linspace(-w/2,w/2,n); % 
+y = linspace(-h/2,h/2,m)'; % 
 
 %--------------------------------------------
 % TODO:
@@ -113,28 +90,24 @@ phi = linspace(-pi/2,pi/2,m); % elevation
 %end
 %--------------------------------------------
 
-[Theta,Phi] = meshgrid(theta,phi);
-Theta = Theta'; Theta = Theta(:);
-Phi   = Phi';   Phi   = Phi(:);
-R = r * ones(m*n,1);
+vertices = zeros(m*n,3);
+
+[X,Y] = meshgrid(x,y);
+X = X'; X = X(:);
+Y = Y'; Y = Y(:);
+Z = zeros(size(X));
 
 for jj = 1:nbumptypes
 
   if mindist
-    % Make extra candidate vectors (30 times the required number)
-    %ptmp = normrnd(0,1,[30*prm(jj,1) 3]);
-    ptmp = randn([30*prm(jj,1) 3]);
-    % Make them unit length
-    ptmp = ptmp ./ (sqrt(sum(ptmp.^2,2))*[1 1 1]);
-    
-    % Matrix for the accepted vectors
-    p = zeros([prm(jj,1) 3]);
 
-    % Compute distances (the same as angles, radius is one) between
-    % all the vectors.  Use the real function here---sometimes,
-    % some of the values might be slightly larger than one, in which
-    % case acos returns a complex number with a small imaginary part.
-    d = real(acos(ptmp * ptmp'));
+    % Pick candidate locations (more than needed):
+    nvec = 30*prm(jj,1);
+    xtmp = min(x) + rand([nvec 1])*(max(x)-min(x));
+    ytmp = min(y) + rand([nvec 1])*(max(y)-min(y));
+
+    
+    d = sqrt((xtmp*ones([1 nvec])-ones([nvec 1])*xtmp').^2 + (ytmp*ones([1 nvec])-ones([nvec 1])*ytmp').^2);
 
     % Always accept the first vector
     idx_accepted = [1];
@@ -143,7 +116,7 @@ for jj = 1:nbumptypes
     % are at least the minimum distance away from those already
     % accepted.
     idx = 2;
-    while idx <= size(ptmp,1)
+    while idx <= size(xtmp,1)
       if all(d(idx_accepted,idx)>=mindist)
          idx_accepted = [idx_accepted idx];
          n_accepted = n_accepted + 1;
@@ -158,64 +131,60 @@ for jj = 1:nbumptypes
        error('Could not find enough vectors to satisfy the minumum distance criterion.\nConsider reducing the value of ''mindist''.');
     end
 
-    p = ptmp(idx_accepted,:);
+    x0 = xtmp(idx_accepted,:);
+    y0 = ytmp(idx_accepted,:);
 
   else
-    %- pick n random directions
-    %p = normrnd(0,1,[prm(jj,1) 3]);
-    p = randn([prm(jj,1) 3]);
+    %- pick n random locations
+    x0 = min(x) + rand([prm(jj,1) 1])*(max(x)-min(x));
+    y0 = min(y) + rand([prm(jj,1) 1])*(max(y)-min(y));
+
   end
 
-  [theta0,phi0,rtmp] = cart2sph(p(:,1),p(:,2),p(:,3));
-  
-  clear rtmp
+  clear xtmp ytmp
 
   %-------------------
   
   for ii = 1:prm(jj,1)
-    deltatheta = abs(wrapAnglePi(Theta - theta0(ii)));
-    
-    %- https://en.wikipedia.org/wiki/Great-circle_distance:
-    d = acos(sin(Phi).*sin(phi0(ii))+cos(Phi).*cos(phi0(ii)).*cos(deltatheta));
+
+    deltax = X - x0(ii);
+    deltay = Y - y0(ii);
+    d = sqrt(deltax.^2+deltay.^2);
     
     idx = find(d<3.5*prm(jj,3));
-    R(idx) = R(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));
+    Z(idx) = Z(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));
   end
 
 end
 
-[X,Y,Z] = sph2cart(Theta,Phi,R);
 vertices = [X Y Z];
 
 if ~isempty(mtlfilename)
-  U = (Theta(:)-min(theta))/(max(theta)-min(theta));
-  V = (Phi(:)-min(phi))/(max(phi)-min(phi));
+  U = (X-min(x))/(max(x)-min(x));
+  V = (Y-min(y))/(max(y)-min(y));
   uvcoords = [U V];
 end
 
+% Face indices
 faces = zeros((m-1)*n*2,3);
 
-% Face indices
-
 %tic
-F = ([1 1]'*[1:n]);
+F = ([1 1]'*[1:n-1]);
 F = F(:) * [1 1 1];
-F(:,2) = F(:,2) + [repmat([n n+1]',[n-1 1]); [n 1]'];
-F(:,3) = F(:,3) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
+F(:,2) = F(:,2) + repmat([n n+1]',[n-1 1]);
+F(:,3) = F(:,3) + repmat([n+1 1]',[n-1 1]);
 for ii = 1:m-1
-  faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
+  faces((ii-1)*(n-1)*2+1:ii*(n-1)*2,:) = (ii-1)*n + F;
 end
 %toc
 
-
 %-------------------
 
-
 if nargout
-  sphere.vertices = vertices;
-  sphere.faces = faces;
-  sphere.npointsx = n;
-  sphere.npointsy = m;
+  plane.vertices = vertices;
+  plane.faces = faces;
+  plane.npointsx = n;
+  plane.npointsy = m;
 end
 
 % Write to file
@@ -246,19 +215,4 @@ else
   fprintf(fid,'# End faces\n\n');
 end
 fclose(fid);
-
-
-function theta = wrapAnglePi(theta)
-
-% WRAPANGLEPI
-%
-% Usage: theta = wrapAnglePi(theta)
-
-% Toni Saarela, 2010
-% 2010-xx-xx - ts - first version
-
-theta = rem(theta,2*pi);
-theta(theta>pi) = -2*pi+theta(theta>pi);
-theta(theta<-pi) = 2*pi+theta(theta<-pi);
-%theta(X==0 & Y==0) = 0;
 

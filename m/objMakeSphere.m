@@ -144,15 +144,16 @@ function sphere = objMakeSphere(cprm,varargin)
 %                   significantly speeded up the computation of faces
 % 2014-10-12 - ts - now possible to use the modulators to modulate
 %                    between two (or more) carriers
+% 2014-10-14 - ts - added an option to compute texture coordinates and
+%                    include a mtl file reference
 
 % TODO
 % Add option for noise in the amplitude
 % Add option for noise in the frequencies
 % More error checking on parameters (including modulator)
-% UPDATE HELP
+% UPDATE HELP UPDATE HELP UPDATE HELP
 
 %--------------------------------------------
-
 
 % Carrier parameters
 
@@ -180,6 +181,8 @@ cprm(:,3:4) = pi * cprm(:,3:4)/180;
 % Set the default modulation parameters to empty indicating no modulator; set default filename.
 mprm  = [];
 filename = 'sphere.obj';
+mtlfilename = '';
+mtlname = '';
 
 % Number of vertices in azimuth and elevation directions, default values
 n = 256;
@@ -222,6 +225,14 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''npoints''.');
            end
+         case 'material'
+           if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
+             ii = ii + 1;
+             mtlfilename = par{ii}{1};
+             mtlname = par{ii}{2};
+           else
+             error('No value or a bad value given for option ''material''.');
+           end              
          otherwise
            filename = par{ii};
        end
@@ -252,102 +263,9 @@ end
 
 [Theta,Phi] = meshgrid(theta,phi);
 
-if ~isempty(mprm)
+R = r + _objMakeSineComponents(cprm,mprm,Theta,Phi);
 
-   % Find the component groups
-   cgroups = unique(cprm(:,5));
-   mgroups = unique(mprm(:,5));
-   
-   % Groups other than zero (zero is a special group handled
-   % separately below)
-   cgroups2 = setdiff(cgroups,0);
-   mgroups2 = setdiff(mgroups,0);
-   
-   if ~isempty(cgroups2)
-     R = zeros([m n length(cgroups2)]);
-     for gi = 1:length(cgroups2)
-       % Find the carrier components that belong to this group
-       cidx = find(cprm(:,5)==cgroups2(gi));
-       % Make the (compound) carrier
-       C = zeros(m,n);
-       for ii = 1:length(cidx)
-         C = C + makeComp(cprm(cidx(ii),:),Theta,Phi);
-       end % loop over carrier components
-       % If there's a modulator in this group, make it
-       midx = find(mprm(:,5)==cgroups2(gi));
-       if ~isempty(midx)          
-         M = zeros(m,n);
-         for ii = 1:length(midx)
-           M = M + makeComp(mprm(midx(ii),:),Theta,Phi);
-         end % loop over modulator components
-         M = .5 * (1 + M);
-         if any(M(:)<0) || any(M(:)>1)
-           if nmcomp>1
-             warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');
-           else
-             warning('The amplitude of the modulator is out of bounds (0-1).\n Expect wonky results.');
-           end
-         end % if modulator out of range
-         % Multiply modulator and carrier
-         R(:,:,gi) = M .* C;
-       else % Otherwise, the carrier is all
-         R(:,:,gi) = C;
-       end % is modulator defined
-     end % loop over carrier groups
-     R = sum(R,3);
-   else
-     R = zeros([m n]);;
-   end % if there are carriers in groups other than zero
-
-   
-
-   % Handle the component group 0:
-   % Carriers in group zero are always added to the other (modulated)
-   % components without any modulator of their own
-   % Modulators in group zero modulate ALL the other components.  That
-   % is, if there are carriers/modulators in groups other than zero,
-   % they are made and added together first (above).  Then, carriers
-   % in group zero are added to those.  Finally, modulators in group
-   % zero modulate that whole bunch.
-   cidx = find(cprm(:,5)==0);
-   if ~isempty(cidx)
-     % Make the (compound) carrier
-     C = zeros(m,n);
-     for ii = 1:length(cidx)
-       C = C + makeComp(cprm(cidx(ii),:),Theta,Phi);
-     end % loop over carrier components
-     R = R + C;
-   end
-
-   midx = find(mprm(:,5)==0);
-   if ~isempty(midx)          
-     M = zeros(m,n);
-     for ii = 1:length(midx)
-       M = M + makeComp(mprm(midx(ii),:),Theta,Phi);
-     end % loop over modulator components
-     M = .5 * (1 + M);
-     if any(M(:)<0) || any(M(:)>1)
-       if nmcomp>1
-         warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');
-       else
-         warning('The amplitude of the modulator is out of bounds (0-1).\n Expect wonky results.');
-       end
-     end % if modulator out of range
-     
-     % Multiply modulator and carrier
-     R = M .* R;
-   end
-
-else % there are no modulators
-  % Only make the carriers here, add them up and you're done
-  C = zeros(m,n);
-  for ii = 1:nccomp
-    C = C + makeComp(cprm(ii,:),Theta,Phi);
-  end % loop over carrier components
-  R = C;
-end % if modulators defined
-
-R = r + R;
+%R = r + R;
 
 % Convert vertices to cartesian coordinates
 [X,Y,Z] = sph2cart(Theta,Phi,R);
@@ -357,6 +275,14 @@ Y = Y'; Y = Y(:);
 Z = Z'; Z = Z(:);
 
 vertices = [X Y Z];
+
+if ~isempty(mtlfilename)
+  Phi = Phi';
+  Theta = Theta';
+  U = (Theta(:)-min(theta))/(max(theta)-min(theta));
+  V = (Phi(:)-min(phi))/(max(phi)-min(phi));
+  uvcoords = [U V];
+end
 
 faces = zeros((m-1)*n*2,3);
 
@@ -410,14 +336,23 @@ if ~isempty(mprm)
   end
   fprintf(fid,'# *Direction of modulation, 0 indicates azimuth, 1 elevation direction.\n');
 end
-fprintf(fid,'\n\n# Vertices:\n');
-fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-fprintf(fid,'# End vertices\n\n# Faces:\n');
-fprintf(fid,'f %d %d %d\n',faces');
-fprintf(fid,'# End faces\n\n');
+
+if isempty(mtlfilename)
+  fprintf(fid,'\n\n# Vertices:\n');
+  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
+  fprintf(fid,'# End vertices\n\n# Faces:\n');
+  fprintf(fid,'f %d %d %d\n',faces');
+  fprintf(fid,'# End faces\n\n');
+else
+  fprintf(fid,'\n\nmtllib %s\nusemtl %s\n\n',mtlfilename,mtlname);
+  fprintf(fid,'\n\n# Vertices:\n');
+  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
+  fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
+  fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
+  fprintf(fid,'# End texture coordinates\n\n# Faces:\n');
+  fprintf(fid,'f %d/%d %d/%d %d/%d\n',expmat(faces,[1,2])');
+  fprintf(fid,'# End faces\n\n');
+end
 fclose(fid);
 
 
-function C = makeComp(prm,Theta,Phi)
-
-C = prm(2) * sin(prm(1)*(Theta*cos(prm(4))-2*Phi*sin(prm(4)))+prm(3));

@@ -46,7 +46,7 @@ if ~isempty(mprm)
   [nmcomp,ncol] = size(mprm);
   switch ncol
     case 1
-      mprm = [mprm ones(nccomp,1)*[.1 0 0 0]];
+      mprm = [mprm ones(nccomp,1)*[1 0 0 0]];
     case 2
       mprm = [mprm zeros(nccomp,3)];
     case 3

@@ -1,61 +1,76 @@
-function sphere = objMakeSphereBumpy(prm,varargin)
+function sphere = objMakeSphereCustom(f,prm,varargin)
 
-% OBJMAKESPHEREBUMPY
+% OBJMAKESPHERECUSTOM
 % 
-% Usage:          objMakeSphereBumpy()
-%                 objMakeSphereBumpy()
-%        sphere = objMakeSphereBumpy()
-%        sphere = objMakeSphereBumpy()
-%
-%
-% Note: The minimum distance between bumps only applies to bumps of
-% the same type.  If several types of bumps are defined (in rows of
-% the imput argument prm), different types of bumps might be closer
-% together than mindist.  This might change in the future.  Then
-% again, it might not.
+% Usage:          objMakeSphereCustom()
 
 % Toni Saarela, 2014
-% 2014-05-06 - ts - first version
-% 2014-08-07 - ts - option for mixing bumps with different parameters
-%                   made the computations much faster
-% 2014-10-09 - ts - better parsing of input arguments
-%                   added an option for minimum distance of bumps
-%                   added an option for number of vertices
-%                   fixed an error in writing the bump specs in the
-%                     obj-file comments
+% 2014-10-18 - ts - first version
+% 2014-10-20 - ts - small fixes
 
 % TODO
 % - return the locations of bumps
-% - option to add noise to bump amplitudes/sigmas
 % - write help
 % - write more info to the obj-file and the returned structure
+% - when using a map, by default make the grid the same size as the
 
-% [nbumps amplitude sigma sigma2 anoise snoise s2noise]
 
 %--------------------------------------------
 
-if ~nargin || isempty(prm)
-  prm = [20 .1 pi/12];
+if ischar(f)
+  map = double(imread(f));
+  if ndims(map)>2
+    map = mean(map,3);
+  end
+
+  map = flipud(map/max(abs(map(:))));
+
+  ampl = prm(1);
+
+  [mmap,nmap] = size(map);
+  m = mmap;
+  n = nmap;
+
+  use_map = true;
+
+  clear f
+
+elseif isnumeric(f)
+  map = f;
+  if ndims(map)>2
+    map = mean(map,3);
+  end
+
+  map = flipud(map/max(map(:)));
+
+  ampl = prm(1);
+
+  use_map = true;
+
+  [mmap,nmap] = size(map);
+  m = mmap;
+  n = nmap;
+
+  clear f
+
+elseif isa(f,'function_handle')
+  [nbumptypes,ncol] = size(prm);
+  nbumps = sum(prm(:,1));
+  use_map = false;
+
+  m = 128;
+  n = 256;
+
 end
 
-[nbumptypes,ncol] = size(prm);
-
-switch ncol
-  case 1
-    prm = [prm ones(nccomp,1)*[.1 pi/12]];
-  case 2
-    prm = [prm ones(nccomp,1)*pi/12];
-end
-
-nbumps = sum(prm(:,1));
 
 % Set default values before parsing the optional input arguments.
-filename = 'spherebumpy.obj';
+filename = 'spherecustom.obj';
 mtlfilename = '';
 mtlname = '';
 mindist = 0;
-m = 128;
-n = 256;
+%m = 128;
+%n = 256;
 
 [tmp,par] = parseparams(varargin);
 if ~isempty(par)
@@ -114,75 +129,95 @@ phi = linspace(-pi/2,pi/2,m); % elevation
 %--------------------------------------------
 
 [Theta,Phi] = meshgrid(theta,phi);
+
+% Theta = Theta'; Theta = Theta(:);
+% Phi   = Phi';   Phi   = Phi(:);
+% R = ones(m*n,1);
+
+if ~use_map
+
+  R = r * ones([m n]);
+
+  for jj = 1:nbumptypes
+      
+    if mindist
+      % Make extra candidate vectors (30 times the required number)
+      %ptmp = normrnd(0,1,[30*prm(jj,1) 3]);
+      ptmp = randn([30*prm(jj,1) 3]);
+      % Make them unit length
+      ptmp = ptmp ./ (sqrt(sum(ptmp.^2,2))*[1 1 1]);
+      
+      % Matrix for the accepted vectors
+      p = zeros([prm(jj,1) 3]);
+      
+      % Compute distances (the same as angles, radius is one) between
+      % all the vectors.  Use the real function here---sometimes,
+      % some of the values might be slightly larger than one, in which
+      % case acos returns a complex number with a small imaginary part.
+      d = real(acos(ptmp * ptmp'));
+      
+      % Always accept the first vector
+      idx_accepted = [1];
+      n_accepted = 1;
+      % Loop over the remaining candidate vectors and keep the ones that
+      % are at least the minimum distance away from those already
+      % accepted.
+      idx = 2;
+      while idx <= size(ptmp,1)
+        if all(d(idx_accepted,idx)>=mindist)
+          idx_accepted = [idx_accepted idx];
+          n_accepted = n_accepted + 1;
+        end
+        if n_accepted==prm(jj,1)
+          break
+        end
+        idx = idx + 1;
+      end
+      
+      if n_accepted<prm(jj,1)
+        error('Could not find enough vectors to satisfy the minumum distance criterion.\nConsider reducing the value of ''mindist''.');
+      end
+      
+      p = ptmp(idx_accepted,:);
+      
+    else
+      %- pick n random directions
+      %p = normrnd(0,1,[prm(jj,1) 3]);
+      p = randn([prm(jj,1) 3]);
+    end
+    
+    [theta0,phi0,rtmp] = cart2sph(p(:,1),p(:,2),p(:,3));
+    
+    clear rtmp
+    
+    %-------------------
+    
+    for ii = 1:prm(jj,1)
+      deltatheta = abs(wrapAnglePi(Theta - theta0(ii)));
+      
+      %- https://en.wikipedia.org/wiki/Great-circle_distance:
+      d = acos(sin(Phi).*sin(phi0(ii))+cos(Phi).*cos(phi0(ii)).*cos(deltatheta));
+      
+      idx = find(d<prm(jj,2));
+      
+      R(idx) = R(idx) + f(d(idx),prm(jj,3:end));
+      
+    end
+    
+  end
+else
+  if mmap~=m || nmap~=n
+    theta2 = linspace(-pi,pi-2*pi/nmap,nmap); % azimuth
+    phi2 = linspace(-pi/2,pi/2,mmap); % elevation
+    [Theta2,Phi2] = meshgrid(theta2,phi2);
+    map = interp2(Theta2,Phi2,map,Theta,Phi);
+  end
+  R = r + ampl * map;
+end
+
 Theta = Theta'; Theta = Theta(:);
 Phi   = Phi';   Phi   = Phi(:);
-R = r * ones(m*n,1);
-
-for jj = 1:nbumptypes
-
-  if mindist
-    % Make extra candidate vectors (30 times the required number)
-    %ptmp = normrnd(0,1,[30*prm(jj,1) 3]);
-    ptmp = randn([30*prm(jj,1) 3]);
-    % Make them unit length
-    ptmp = ptmp ./ (sqrt(sum(ptmp.^2,2))*[1 1 1]);
-    
-    % Matrix for the accepted vectors
-    p = zeros([prm(jj,1) 3]);
-
-    % Compute distances (the same as angles, radius is one) between
-    % all the vectors.  Use the real function here---sometimes,
-    % some of the values might be slightly larger than one, in which
-    % case acos returns a complex number with a small imaginary part.
-    d = real(acos(ptmp * ptmp'));
-
-    % Always accept the first vector
-    idx_accepted = [1];
-    n_accepted = 1;
-    % Loop over the remaining candidate vectors and keep the ones that
-    % are at least the minimum distance away from those already
-    % accepted.
-    idx = 2;
-    while idx <= size(ptmp,1)
-      if all(d(idx_accepted,idx)>=mindist)
-         idx_accepted = [idx_accepted idx];
-         n_accepted = n_accepted + 1;
-      end
-      if n_accepted==prm(jj,1)
-        break
-      end
-      idx = idx + 1;
-    end
-
-    if n_accepted<prm(jj,1)
-       error('Could not find enough vectors to satisfy the minumum distance criterion.\nConsider reducing the value of ''mindist''.');
-    end
-
-    p = ptmp(idx_accepted,:);
-
-  else
-    %- pick n random directions
-    %p = normrnd(0,1,[prm(jj,1) 3]);
-    p = randn([prm(jj,1) 3]);
-  end
-
-  [theta0,phi0,rtmp] = cart2sph(p(:,1),p(:,2),p(:,3));
-  
-  clear rtmp
-
-  %-------------------
-  
-  for ii = 1:prm(jj,1)
-    deltatheta = abs(wrapAnglePi(Theta - theta0(ii)));
-    
-    %- https://en.wikipedia.org/wiki/Great-circle_distance:
-    d = acos(sin(Phi).*sin(phi0(ii))+cos(Phi).*cos(phi0(ii)).*cos(deltatheta));
-    
-    idx = find(d<3.5*prm(jj,3));
-    R(idx) = R(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));
-  end
-
-end
+R = R'; R = R(:);
 
 [X,Y,Z] = sph2cart(Theta,Phi,R);
 vertices = [X Y Z];
@@ -207,7 +242,6 @@ for ii = 1:m-1
 end
 %toc
 
-
 %-------------------
 
 
@@ -224,11 +258,11 @@ fprintf(fid,'# %s\n',datestr(now));
 fprintf(fid,'# Created with function %s.\n',mfilename);
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
 fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
-fprintf(fid,'#\n# Gaussian bump parameters (each row is bump type):\n');
-fprintf(fid,'#  # of bumps | Amplitude | Sigma\n');
-for ii = 1:nbumptypes
-  fprintf(fid,'#  %d           %4.2f       %4.2f\n',prm(ii,:));
-end
+% fprintf(fid,'#\n# Gaussian bump parameters (each row is bump type):\n');
+% fprintf(fid,'#  # of bumps | Amplitude | Sigma\n');
+% for ii = 1:nbumptypes
+%   fprintf(fid,'#  %d           %4.2f       %4.2f\n',prm(ii,:));
+% end
 if isempty(mtlfilename)
   fprintf(fid,'\n\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
@@ -246,7 +280,6 @@ else
   fprintf(fid,'# End faces\n\n');
 end
 fclose(fid);
-
 
 function theta = wrapAnglePi(theta)
 

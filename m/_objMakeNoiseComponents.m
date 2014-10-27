@@ -8,6 +8,11 @@ function Z = _objMakeNoiseComponents(nprm,mprm,X,Y,use_rms)
 
 % Toni Saarela, 2014
 % 2014-10-15 - ts - first version written
+% 2014-10-16 - ts - uses randn instead of normrnd (Octave users should
+%                    be fine with either, but normrnd in Matlab might
+%                    be in a toolbox not everyone has.  Plus randn is
+%                    slightly faster, maybe normrnd calls it.  Not sure
+%                    why I'm writing about this so extensively here).
 
 f = nprm(:,1);
 fw = nprm(:,2);
@@ -42,7 +47,8 @@ if ~isempty(mprm)
 
        C = zeros(m,n);
        for ii = 1:length(cidx)
-         I = normrnd(0,1,[m n]);
+         %I = normrnd(0,1,[m n]);
+         I = randn([m n]);
          I = imgFilterBand(I,f(cidx(ii)),fw(cidx(ii)),th(cidx(ii)),thw(cidx(ii)));%,0,pi/2);
          if use_rms
            C = C + a(cidx(ii)) * I / sqrt(I(:)'*I(:)/(m*n));
@@ -90,7 +96,8 @@ if ~isempty(mprm)
      % Make the (compound) carrier
      C = zeros(m,n);
      for ii = 1:length(cidx)
-       I = normrnd(0,1,[m n]);
+       %I = normrnd(0,1,[m n]);
+       I = randn([m n]);
        I = imgFilterBand(I,f(cidx(ii)),fw(cidx(ii)),th(cidx(ii)),thw(cidx(ii)));%,0,pi/2);
        if use_rms
          C = C + a(cidx(ii)) * I / sqrt(I(:)'*I(:)/(m*n));
@@ -123,7 +130,8 @@ else % there are no modulators
   % Only make the carriers here, add them up and you're done
   C = zeros(m,n);
   for ii = 1:nncomp
-    I = normrnd(0,1,[m n]);
+    %I = normrnd(0,1,[m n]);
+    I = randn([m n]);
     I = imgFilterBand(I,f(ii),fw(ii),th(ii),thw(ii));%,0,pi/2);
     if use_rms
       C = C + a(ii) * I / sqrt(I(:)'*I(:)/(m*n));

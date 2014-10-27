@@ -1,12 +1,20 @@
-function cylinder = objMakeCylinderNoise(nprm,varargin)
+function torus = objMakeTorusNoise(nprm,varargin)
 
-% OBJMAKECYLINDERNOISE
+% OBJMAKETORUSNOISE
 %
-% Usage: cylinder = objMakeCylinderNoise(...)
+% Usage: torus = objMakeTorusNoise(nprm,...)
+
 
 % Toni Saarela, 2014
-% 2014-10-15 - ts - first version written
+% 2014-10-16 - ts - first version written
+% 2014-10-19 - ts - added an option to set tube radius
+%                   renamed input option for torus radius parameters
 
+% TODO
+% Write stimulus paremeters into the obj-file
+% WRITE HELP!  
+
+%--------------------------------------------
 %--------------------------------------------------
 
 if ~nargin || isempty(nprm)
@@ -25,10 +33,13 @@ nprm(:,3:4) = pi * nprm(:,3:4)/180;
 
 % Set the default modulation parameters to empty indicating no modulator; set default filename.
 mprm  = [];
-filename = 'cylindernoisy.obj';
+filename = 'torusnoisy.obj';
 use_rms = false;
 mtlfilename = '';
 mtlname = '';
+r = 0.4;
+R = 1;
+rprm = []; % rprm = [0 0 0];
 
 % Number of vertices in y and x directions, default values
 m = 256;
@@ -46,7 +57,7 @@ if ~isempty(mprm)
   [nmcomp,ncol] = size(mprm);
   switch ncol
     case 1
-      mprm = [mprm ones(nccomp,1)*[.1 0 0 0]];
+      mprm = [mprm ones(nccomp,1)*[1 0 0 0]];
     case 2
       mprm = [mprm zeros(nccomp,3)];
     case 3
@@ -69,6 +80,20 @@ if ~isempty(par)
              n = par{ii}(2);
            else
              error('No value or a bad value given for option ''npoints''.');
+           end
+         case 'tube_radius'
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii + 1;
+             r = par{ii};
+           else
+             error('No value or a bad value given for option ''tube_radius''.');
+           end              
+         case {'rprm','radius_prm'}
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii + 1;
+             rprm = par{ii};
+           else
+             error('No value or a bad value given for option ''radius''.');
            end
          case 'material'
            if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
@@ -93,49 +118,56 @@ if isempty(regexp(filename,'\.obj$'))
   filename = [filename,'.obj'];
 end
 
-%nprm(:,1) = nprm(:,1)/(2*pi);
-%if ~isempty(mprm)
-%  mprm(:,1) = mprm(:,1)/(2*pi);
-%end
-r = 1; % radius
-h = 2*pi*r; % height
 theta = linspace(-pi,pi-2*pi/n,n); % azimuth
-y = linspace(-h/2,h/2,m); % 
+phi = linspace(-pi,pi-2*pi/m,m); % 
 
 %--------------------------------------------
 
-% HERE
+%--------------------------------------------
+%--------------------------------------------
+%fprintf('1\n');
+[Theta,Phi] = meshgrid(theta,phi);
+%Theta = Theta'; Theta = Theta(:);
+%Phi   = Phi';   Phi   = Phi(:);
+%fprintf('2\n');
 
-[Theta,Y] = meshgrid(theta,y);
-
-R = r + _objMakeNoiseComponents(nprm,mprm,Theta,Y,use_rms);
+Rmod = zeros(size(Theta));
+if ~isempty(rprm)
+  for ii = 1:size(rprm,1)
+    Rmod = Rmod + rprm(ii,2) * sin(rprm(ii,1)*Theta + rprm(ii,3));
+  end
+  R = R + Rmod;
+end
+%fprintf('3\n');
+%keyboard
+r = r + _objMakeNoiseComponents(nprm,mprm,Theta,Phi,use_rms);
+%keyboard
+%fprintf('4\n');
 
 Theta = Theta'; Theta = Theta(:);
-Y = Y'; Y = Y(:);
+Phi   = Phi';   Phi   = Phi(:);
 R = R'; R = R(:);
+r = r'; r = r(:);
 
-% Convert vertices to cartesian coordinates
-X = R .* cos(Theta);
-Z = R .* sin(Theta);
-
-%X = X'; X = X(:);
-%Y = Y'; Y = Y(:);
-%Z = Z'; Z = Z(:);
+X = (R + r.*cos(Phi)).*cos(Theta);
+Y = (R + r.*cos(Phi)).*sin(Theta);
+Z = r.*sin(Phi);
 
 vertices = [X Y Z];
 
 if ~isempty(mtlfilename)
-  %Phi = Phi';
-  %Theta = Theta';
-  U = (Theta-min(theta))/(max(theta)-min(theta));
-  V = (Y-min(y))/(max(y)-min(y));
+  Phi = Phi';
+  Theta = Theta';
+  U = (Theta(:)-min(theta))/(max(theta)-min(theta));
+  V = (Phi(:)-min(phi))/(max(phi)-min(phi));
   uvcoords = [U V];
 end
 
-faces = zeros((m-1)*n*2,3);
+faces = zeros(m*n*2,3);
 
-% Face indices
-
+% Face indices.
+% Good luck figuring out what goes on below.  This was the fastest way
+% I came up with so far and commenting is for losers.
 %tic
 F = ([1 1]'*[1:n]);
 F = F(:) * [1 1 1];
@@ -144,13 +176,17 @@ F(:,3) = F(:,3) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
 for ii = 1:m-1
   faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
 end
+F(:,1) = (m-1)*n+F(:,1);
+F(:,2) = [1; reshape([1 1]'*[2:n],[2*(n-1) 1]); 1];
+F(:,3) = [reshape([2:n; ((m-1)*n)+[2:n]],[2*(n-1) 1]); [1 (m-1)*n+1]'];
+faces((m-1)*n*2+1:m*n*2,:) = F;
 %toc
 
 if nargout
-  cylinder.vertices = vertices;
-  cylinder.faces = faces;
-  cylinder.npointsx = n;
-  cylinder.npointsy = m;
+  torus.vertices = vertices;
+  torus.faces = faces;
+  torus.npointsx = n;
+  torus.npointsy = m;
 end
 
 % Write to file
@@ -159,6 +195,20 @@ fprintf(fid,'# %s\n',datestr(now));
 fprintf(fid,'# Created with function %s.\n',mfilename);
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
 fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
+% fprintf(fid,'#\n# Modulation carrier parameters (each row is one component):\n');
+% fprintf(fid,'#  Frequency | Amplitude | Phase | Direction*\n');
+% for ii = 1:nccomp
+%   fprintf(fid,'#  %4.2f        %4.2f        %4.2f    %d\n',cprm(ii,:));
+% end
+% fprintf(fid,'# *Direction of modulation, 0 indicates azimuth, 1 elevation direction.\n');
+% if ~isempty(mprm)
+%   fprintf(fid,'#\n# Modulator parameters (each row is one component):\n');
+%   fprintf(fid,'#  Frequency | Amplitude | Phase | Direction*\n');
+%   for ii = 1:nmcomp
+%     fprintf(fid,'#  %4.2f        %4.2f        %4.2f    %d\n',mprm(ii,:));
+%   end
+%   fprintf(fid,'# *Direction of modulation, 0 indicates azimuth, 1 elevation direction.\n');
+% end
 
 if isempty(mtlfilename)
   fprintf(fid,'\n\n# Vertices:\n');
@@ -177,4 +227,3 @@ else
   fprintf(fid,'# End faces\n\n');
 end
 fclose(fid);
-
