@@ -1,18 +1,73 @@
 function sphere = objMakeSphereCustom(f,prm,varargin)
 
-% OBJMAKESPHERECUSTOM
-% 
-% Usage:          objMakeSphereCustom()
-
+  % OBJMAKESPHERECUSTOM
+  % 
+  % Make a sphere with a custom modulation for the radius.  The
+  % modulation values can be defined by an input matrix or an image.
+  % Alternatively, one can by providing a handle to a function that 
+  % determines the modulation.
+  %
+  % To provide the modulation in an input matrix:
+  % > objMakeSphereCustom(I,A), 
+  % where I is a two-dimensional matrix and A is a scalar, maps M onto
+  % the surface of the sphere and uses the values of I to modulate the
+  % sphere radius.  Maximum amplitude of modulation is A (the values
+  % of M are first normalized to [-1,1], the multiplied with A).
+  %
+  % To use an image:
+  % > objMakeSphereCustom(FILENAME,A)
+  % The image values are first normalized to [0,1], then multiplied by
+  % A.  These values are mapped onto the sphere to modulate the radius.
+  %
+  % With matrix of image as input, the default number of vertices is
+  % the size of the matrix/image.  To define a different number of
+  % vertices:
+  % > objMakeSphereCustom(I,A,'npoints',[M N])
+  % to have M vertices in the elevation direction and N in the azimuth
+  % direction.  The values of the matrix/image are interpolated.
+  % 
+  % Provide a function handle:
+  % > objMakeSphereCustom(@F,PRM)
+  % F is a function that takes distance as its first input argument
+  % and a vector of other parameters as the second.  The return values
+  % of F are used to modulate the sphere radius.  The format of the
+  % parameters is:
+  %    PRM = [N DCUT PRM1 PRM2 ...]
+  % where
+  %    N is the number of random locations at which the function 
+  %      is applied
+  %    DCUT is the cut-off distance after which no modulation is
+  %      applied, in degrees
+  %    [PRM1, PRM2...]  are the parameters passed to F
+  %
+  % To apply the function several times with different parameters:
+  %    PRM = [N1 DCUT1 PRM11 PRM12 ...
+  %           N2 DCUT2 PRM21 PRM22 ...
+  %           ...                     ]
+  %
+  % Function F will be called as:
+  % > F(D,[PRM1 PRM2 ...])
+  % where D is the distance from the randomly chosen midpoint.
+  %
+  % To restrict how close together the random location can be:
+  % > objMakeSphereCustom(@F,PRM,'mindist',DMIN)
+  % where DMIN is in degrees.
+  %
+  % The default number of vertices when providing a function handle as
+  % input is 128x256 (elevation x azimuth).  To define a different
+  % number of vertices:
+  % > objMakeSphereCustom(@F,PRM,'npoints',[N M])
+  %
+  % For texture mapping, see help to objMakeSphere or online help.
+         
 % Toni Saarela, 2014
 % 2014-10-18 - ts - first version
 % 2014-10-20 - ts - small fixes
+% 2014-10-28 - ts - a bunch of fixes and improvements; wrote help
 
 % TODO
 % - return the locations of bumps
-% - write help
 % - write more info to the obj-file and the returned structure
-% - when using a map, by default make the grid the same size as the
 
 
 %--------------------------------------------
@@ -37,8 +92,8 @@ if ischar(f)
 
 elseif isnumeric(f)
   map = f;
-  if ndims(map)>2
-    map = mean(map,3);
+  if ndims(map)~=2
+    error('The input matrix has to be two-dimensional.');
   end
 
   map = flipud(map/max(map(:)));
@@ -58,6 +113,8 @@ elseif isa(f,'function_handle')
   nbumps = sum(prm(:,1));
   use_map = false;
 
+  prm(:,2) = pi*prm(:,2)/180;
+
   m = 128;
   n = 256;
 
@@ -69,8 +126,6 @@ filename = 'spherecustom.obj';
 mtlfilename = '';
 mtlname = '';
 mindist = 0;
-%m = 128;
-%n = 256;
 
 [tmp,par] = parseparams(varargin);
 if ~isempty(par)
@@ -126,7 +181,9 @@ phi = linspace(-pi/2,pi/2,m); % elevation
 %if mindist>
 %  error('Yeah right.');
 %end
+
 %--------------------------------------------
+% Vertices
 
 [Theta,Phi] = meshgrid(theta,phi);
 
@@ -222,47 +279,78 @@ R = R'; R = R(:);
 [X,Y,Z] = sph2cart(Theta,Phi,R);
 vertices = [X Y Z];
 
+clear X Y Z
+
+%--------------------------------------------
+% Texture coordinates if material is defined
 if ~isempty(mtlfilename)
-  U = (Theta(:)-min(theta))/(max(theta)-min(theta));
-  V = (Phi(:)-min(phi))/(max(phi)-min(phi));
-  uvcoords = [U V];
+  %Phi = Phi';
+  %Theta = Theta';
+  %U = (Theta(:)-min(theta))/(max(theta)-min(theta));
+  %V = (Phi(:)-min(phi))/(max(phi)-min(phi));
+  
+  u = linspace(0,1,n+1);
+  v = linspace(0,1,m);
+  [U,V] = meshgrid(u,v);
+  U = U'; V = V';
+  uvcoords = [U(:) V(:)];
+  clear u v U V
 end
+
+%--------------------------------------------
+% Faces, vertex indices
 
 faces = zeros((m-1)*n*2,3);
 
-% Face indices
-
-%tic
 F = ([1 1]'*[1:n]);
 F = F(:) * [1 1 1];
-F(:,2) = F(:,2) + [repmat([n n+1]',[n-1 1]); [n 1]'];
-F(:,3) = F(:,3) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
+F(:,2) = F(:,2) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
+F(:,3) = F(:,3) + [repmat([n n+1]',[n-1 1]); [n 1]'];
 for ii = 1:m-1
   faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
 end
-%toc
 
-%-------------------
+% Faces, uv coordinate indices
+if ~isempty(mtlfilename)
+  facestxt = zeros((m-1)*n*2,3);
+  n2 = n + 1;
+  F = ([1 1]'*[1:n]);
+  F = F(:) * [1 1 1];
+  F(:,2) = reshape([1 1]'*[2:n2]+[1 0]'*n2*ones(1,n),[2*n 1]);
+  F(:,3) = n2 + [1; reshape([1 1]'*[2:n],[2*(n-1) 1]); n2];
+  for ii = 1:m-1
+    facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n2 + F;
+  end
+end
 
+%--------------------------------------------
+% Output argument
 
 if nargout
   sphere.vertices = vertices;
   sphere.faces = faces;
+  if ~isempty(mtlfilename)
+     sphere.uvcoords = uvcoords;
+  end
   sphere.npointsx = n;
   sphere.npointsy = m;
 end
 
+%--------------------------------------------
 % Write to file
+
 fid = fopen(filename,'w');
-fprintf(fid,'# %s\n',datestr(now));
-fprintf(fid,'# Created with function %s.\n',mfilename);
+fprintf(fid,'# %s\n',datestr(now,31));
+fprintf(fid,'# Created with function %s from ShapeToolbox.\n',mfilename);
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
 fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
-% fprintf(fid,'#\n# Gaussian bump parameters (each row is bump type):\n');
-% fprintf(fid,'#  # of bumps | Amplitude | Sigma\n');
-% for ii = 1:nbumptypes
-%   fprintf(fid,'#  %d           %4.2f       %4.2f\n',prm(ii,:));
-% end
+
+% TODO: 
+% Write specs here
+% - name of image
+% - some info about input matrix
+% - name of function called plus parameters
+
 if isempty(mtlfilename)
   fprintf(fid,'\n\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
@@ -276,10 +364,13 @@ else
   fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
   fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
   fprintf(fid,'# End texture coordinates\n\n# Faces:\n');
-  fprintf(fid,'f %d/%d %d/%d %d/%d\n',expmat(faces,[1,2])');
+  fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
   fprintf(fid,'# End faces\n\n');
 end
 fclose(fid);
+
+%---------------------------------------------
+% Functions
 
 function theta = wrapAnglePi(theta)
 

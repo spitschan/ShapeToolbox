@@ -15,6 +15,7 @@ function plane = objMakePlaneNoise(nprm,varargin)
 %                   carriers AND modulators only in group 0
 % 2014-10-15 - ts - added an option to compute texture coordinates and
 %                    include a mtl file reference
+% 2014-10-28 - ts - minor changes
 
 %--------------------------------------------
 
@@ -60,14 +61,15 @@ if ~isempty(mprm)
   [nmcomp,ncol] = size(mprm);
   switch ncol
     case 1
-      mprm = [mprm ones(nccomp,1)*[.1 0 0 0]];
+      mprm = [mprm ones(nmcomp,1)*[.1 0 0 0]];
     case 2
-      mprm = [mprm zeros(nccomp,3)];
+      mprm = [mprm zeros(nmcomp,3)];
     case 3
-      mprm = [mprm zeros(nccomp,2)];
+      mprm = [mprm zeros(nmcomp,2)];
     case 4
-      mprm = [mprm zeros(nccomp,1)];
+      mprm = [mprm zeros(nmcomp,1)];
   end
+  mprm(:,1) = mprm(:,1)*(2*pi);
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
 
@@ -117,9 +119,9 @@ y = linspace(-h/2,h/2,m)'; %
 
 %--------------------------------------------
 
-if a<0
-  error('Modulation amplitude has to be positive.');
-end
+%if a<0
+%  error('Modulation amplitude has to be positive.');
+%end
 
 %--------------------------------------------
 

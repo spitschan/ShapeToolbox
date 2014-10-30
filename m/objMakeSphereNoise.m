@@ -2,10 +2,18 @@ function sphere = objMakeSphereNoise(nprm,varargin)
 
 % OBJMAKESPHERENOISE
 %
-% Usage: sphere = objMakeSphereNoise(...)
+% Usage:           objMakeSphereNoise()
+%                  objMakeSphereNoise(NPRM,[OPTIONS])
+%                  objMakeSphereNoise(NPRM,MPRM,[OPTIONS])
+%         sphere = objMakeSphereNoise(...)
+%
+% 
 
 % Toni Saarela, 2014
 % 2014-10-15 - ts - first version written
+% 2014-10-28 - ts - polishing; improvements to computation of
+%                    faces, uv-coords, writing specs to obj-file
+
 
 %--------------------------------------------------
 
@@ -23,14 +31,15 @@ end
 
 nprm(:,3:4) = pi * nprm(:,3:4)/180;
 
-% Set the default modulation parameters to empty indicating no modulator; set default filename.
+% Set the default modulation parameters to empty indicating no
+% modulator; set default filename, material filename.
 mprm  = [];
 filename = 'spherenoisy.obj';
 use_rms = false;
 mtlfilename = '';
 mtlname = '';
 
-% Number of vertices in y and x directions, default values
+% Number of vertices in elevation and azimuth directions, default values
 m = 128;
 n = 256;
 
@@ -46,13 +55,13 @@ if ~isempty(mprm)
   [nmcomp,ncol] = size(mprm);
   switch ncol
     case 1
-      mprm = [mprm ones(nccomp,1)*[1 0 0 0]];
+      mprm = [mprm ones(nmcomp,1)*[1 0 0 0]];
     case 2
-      mprm = [mprm zeros(nccomp,3)];
+      mprm = [mprm zeros(nmcomp,3)];
     case 3
-      mprm = [mprm zeros(nccomp,2)];
+      mprm = [mprm zeros(nmcomp,2)];
     case 4
-      mprm = [mprm zeros(nccomp,1)];
+      mprm = [mprm zeros(nmcomp,1)];
   end
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
@@ -98,6 +107,7 @@ theta = linspace(-pi,pi-2*pi/n,n); % azimuth
 phi = linspace(-pi/2,pi/2,m)'; % elevation
 
 %--------------------------------------------
+% Vertices
 
 [Theta,Phi] = meshgrid(theta,phi);
 
@@ -112,41 +122,90 @@ Z = Z'; Z = Z(:);
 
 vertices = [X Y Z];
 
+clear X Y Z
+
+%--------------------------------------------
+% Texture coordinates if material is defined
 if ~isempty(mtlfilename)
-  Phi = Phi';
-  Theta = Theta';
-  U = (Theta(:)-min(theta))/(max(theta)-min(theta));
-  V = (Phi(:)-min(phi))/(max(phi)-min(phi));
-  uvcoords = [U V];
+  %Phi = Phi';
+  %Theta = Theta';
+  %U = (Theta(:)-min(theta))/(max(theta)-min(theta));
+  %V = (Phi(:)-min(phi))/(max(phi)-min(phi));
+  
+  u = linspace(0,1,n+1);
+  v = linspace(0,1,m);
+  [U,V] = meshgrid(u,v);
+  U = U'; V = V';
+  uvcoords = [U(:) V(:)];
+  clear u v U V
 end
 
+%--------------------------------------------
+% Faces, vertex indices
 faces = zeros((m-1)*n*2,3);
 
-% Face indices
-
-%tic
 F = ([1 1]'*[1:n]);
 F = F(:) * [1 1 1];
-F(:,2) = F(:,2) + [repmat([n n+1]',[n-1 1]); [n 1]'];
-F(:,3) = F(:,3) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
+F(:,2) = F(:,2) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
+F(:,3) = F(:,3) + [repmat([n n+1]',[n-1 1]); [n 1]'];
 for ii = 1:m-1
   faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
 end
-%toc
 
+% Faces, uv coordinate indices
+if ~isempty(mtlfilename)
+  facestxt = zeros((m-1)*n*2,3);
+  n2 = n + 1;
+  F = ([1 1]'*[1:n]);
+  F = F(:) * [1 1 1];
+  F(:,2) = reshape([1 1]'*[2:n2]+[1 0]'*n2*ones(1,n),[2*n 1]);
+  F(:,3) = n2 + [1; reshape([1 1]'*[2:n],[2*(n-1) 1]); n2];
+  for ii = 1:m-1
+    facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n2 + F;
+  end
+end
+
+%--------------------------------------------
+% Output argument
 if nargout
   sphere.vertices = vertices;
   sphere.faces = faces;
+  if ~isempty(mtlfilename)
+     sphere.uvcoords = uvcoords;
+  end
   sphere.npointsx = n;
   sphere.npointsy = m;
 end
 
+%--------------------------------------------
 % Write to file
+
 fid = fopen(filename,'w');
-fprintf(fid,'# %s\n',datestr(now));
-fprintf(fid,'# Created with function %s.\n',mfilename);
+fprintf(fid,'# %s\n',datestr(now,31));
+fprintf(fid,'# Created with function %s from ShapeToolbox.\n',mfilename);
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
 fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
+if isempty(mtlfilename)
+  fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
+else
+  fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
+end
+
+fprintf(fid,'#\n# Noise carrier parameters (each row is one component):\n');
+fprintf(fid,'#  Frequency | FWHH | Angle | FWHH | Amplitude | Group\n');
+for ii = 1:nncomp
+  fprintf(fid,'#  %9.2f   %4.2f   %5.2f   %4.2f   %9.2f       %d\n',nprm(ii,:));
+end
+
+if ~isempty(mprm)
+  fprintf(fid,'#\n# Modulator parameters (each row is one component):\n');
+  fprintf(fid,'#  Frequency | Amplitude | Phase | Angle | Group\n');
+  for ii = 1:nmcomp
+    fprintf(fid,'#     %6.2f      %6.2f  %6.2f  %6.2f       %d\n',mprm(ii,:));
+  end
+end
+
+fprintf(fid,'#\n# Angle (orientation) and its bandwidth are in radians above.\n');
 
 if isempty(mtlfilename)
   fprintf(fid,'\n\n# Vertices:\n');
@@ -161,7 +220,7 @@ else
   fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
   fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
   fprintf(fid,'# End texture coordinates\n\n# Faces:\n');
-  fprintf(fid,'f %d/%d %d/%d %d/%d\n',expmat(faces,[1,2])');
+  fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
   fprintf(fid,'# End faces\n\n');
 end
 fclose(fid);

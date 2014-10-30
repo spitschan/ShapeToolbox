@@ -30,8 +30,8 @@ if ischar(f)
 
 elseif isnumeric(f)
   map = f;
-  if ndims(map)>2
-    map = mean(map,3);
+  if ndims(map)~=2
+    error('The input matrix has to be two-dimensional.');
   end
 
   map = flipud(map/max(map(:)));

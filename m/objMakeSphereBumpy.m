@@ -23,6 +23,8 @@ function sphere = objMakeSphereBumpy(prm,varargin)
 %                   added an option for number of vertices
 %                   fixed an error in writing the bump specs in the
 %                     obj-file comments
+% 2014-10-28 - ts - bunch of small changes and improvements;
+%                    sigma is given in degrees now
 
 % TODO
 % - return the locations of bumps
@@ -30,22 +32,22 @@ function sphere = objMakeSphereBumpy(prm,varargin)
 % - write help
 % - write more info to the obj-file and the returned structure
 
-% [nbumps amplitude sigma sigma2 anoise snoise s2noise]
-
 %--------------------------------------------
 
 if ~nargin || isempty(prm)
-  prm = [20 .1 pi/12];
+  prm = [20 .1 8];
 end
 
 [nbumptypes,ncol] = size(prm);
 
 switch ncol
   case 1
-    prm = [prm ones(nccomp,1)*[.1 pi/12]];
+    prm = [prm ones(nccomp,1)*[.1 8]];
   case 2
-    prm = [prm ones(nccomp,1)*pi/12];
+    prm = [prm ones(nccomp,1)*8];
 end
+
+prm(:,3) = pi*prm(:,3)/180;
 
 nbumps = sum(prm(:,1));
 
@@ -100,6 +102,8 @@ if isempty(regexp(filename,'\.obj$'))
   filename = [filename,'.obj'];
 end
 
+mindist = pi*mindist/180;
+
 r = 1; % radius
 theta = linspace(-pi,pi-2*pi/n,n); % azimuth
 phi = linspace(-pi/2,pi/2,m); % elevation
@@ -111,7 +115,9 @@ phi = linspace(-pi/2,pi/2,m); % elevation
 %if mindist>
 %  error('Yeah right.');
 %end
+
 %--------------------------------------------
+% Vertices
 
 [Theta,Phi] = meshgrid(theta,phi);
 Theta = Theta'; Theta = Theta(:);
@@ -187,48 +193,77 @@ end
 [X,Y,Z] = sph2cart(Theta,Phi,R);
 vertices = [X Y Z];
 
+%--------------------------------------------
+% Texture coordinates if material is defined
 if ~isempty(mtlfilename)
-  U = (Theta(:)-min(theta))/(max(theta)-min(theta));
-  V = (Phi(:)-min(phi))/(max(phi)-min(phi));
-  uvcoords = [U V];
+  %Phi = Phi';
+  %Theta = Theta';
+  %U = (Theta(:)-min(theta))/(max(theta)-min(theta));
+  %V = (Phi(:)-min(phi))/(max(phi)-min(phi));
+  
+  u = linspace(0,1,n+1);
+  v = linspace(0,1,m);
+  [U,V] = meshgrid(u,v);
+  U = U'; V = V';
+  uvcoords = [U(:) V(:)];
+  clear u v U V
 end
 
+
+%--------------------------------------------
+% Faces, vertex indices
 faces = zeros((m-1)*n*2,3);
 
-% Face indices
-
-%tic
 F = ([1 1]'*[1:n]);
 F = F(:) * [1 1 1];
-F(:,2) = F(:,2) + [repmat([n n+1]',[n-1 1]); [n 1]'];
-F(:,3) = F(:,3) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
+F(:,2) = F(:,2) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
+F(:,3) = F(:,3) + [repmat([n n+1]',[n-1 1]); [n 1]'];
 for ii = 1:m-1
   faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
 end
-%toc
 
+% Faces, uv coordinate indices
+if ~isempty(mtlfilename)
+  facestxt = zeros((m-1)*n*2,3);
+  n2 = n + 1;
+  F = ([1 1]'*[1:n]);
+  F = F(:) * [1 1 1];
+  F(:,2) = reshape([1 1]'*[2:n2]+[1 0]'*n2*ones(1,n),[2*n 1]);
+  F(:,3) = n2 + [1; reshape([1 1]'*[2:n],[2*(n-1) 1]); n2];
+  for ii = 1:m-1
+    facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n2 + F;
+  end
+end
 
-%-------------------
-
+%--------------------------------------------
+% Output argument
 
 if nargout
   sphere.vertices = vertices;
   sphere.faces = faces;
+  if ~isempty(mtlfilename)
+     sphere.uvcoords = uvcoords;
+  end
   sphere.npointsx = n;
   sphere.npointsy = m;
 end
 
+%--------------------------------------------
 % Write to file
+
 fid = fopen(filename,'w');
-fprintf(fid,'# %s\n',datestr(now));
-fprintf(fid,'# Created with function %s.\n',mfilename);
+fprintf(fid,'# %s\n',datestr(now,31));
+fprintf(fid,'# Created with function %s from ShapeToolbox.\n',mfilename);
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
 fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
 fprintf(fid,'#\n# Gaussian bump parameters (each row is bump type):\n');
 fprintf(fid,'#  # of bumps | Amplitude | Sigma\n');
 for ii = 1:nbumptypes
-  fprintf(fid,'#  %d           %4.2f       %4.2f\n',prm(ii,:));
+  fprintf(fid,'#  %10d   %9.2f   %5.2f\n',prm(ii,:));
 end
+
+fprintf(fid,'#\n# Sigma is in radians above.\n');
+
 if isempty(mtlfilename)
   fprintf(fid,'\n\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
@@ -242,11 +277,13 @@ else
   fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
   fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
   fprintf(fid,'# End texture coordinates\n\n# Faces:\n');
-  fprintf(fid,'f %d/%d %d/%d %d/%d\n',expmat(faces,[1,2])');
+  fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
   fprintf(fid,'# End faces\n\n');
 end
 fclose(fid);
 
+%---------------------------------------------------------
+% Functions...
 
 function theta = wrapAnglePi(theta)
 

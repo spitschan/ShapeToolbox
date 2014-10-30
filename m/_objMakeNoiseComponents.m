@@ -13,6 +13,8 @@ function Z = _objMakeNoiseComponents(nprm,mprm,X,Y,use_rms)
 %                    be in a toolbox not everyone has.  Plus randn is
 %                    slightly faster, maybe normrnd calls it.  Not sure
 %                    why I'm writing about this so extensively here).
+% 2014-10-28 - ts - uses a separate function for computing the
+%                    modulators, copied from _objMakeSineComponents
 
 f = nprm(:,1);
 fw = nprm(:,2);
@@ -62,7 +64,8 @@ if ~isempty(mprm)
        if ~isempty(midx)          
          M = zeros(m,n);
          for ii = 1:length(midx)
-           M = M + mprm(midx(ii),2) * sin(2*pi*mprm(midx(ii),1)*(X*cos(mprm(midx(ii),4))-Y*sin(mprm(midx(ii),4)))+mprm(midx(ii),3));
+           %M = M + mprm(midx(ii),2) * sin(2*pi*mprm(midx(ii),1)*(X*cos(mprm(midx(ii),4))-Y*sin(mprm(midx(ii),4)))+mprm(midx(ii),3));
+           M = M + makeComp(mprm(midx(ii),:),X,Y);
          end % loop over modulator components
          M = .5 * (1 + M);
          if any(M(:)<0) || any(M(:)>1)
@@ -112,7 +115,8 @@ if ~isempty(mprm)
    if ~isempty(midx)
      M = zeros(m,n);
      for ii = 1:length(midx)
-       M = M + mprm(midx(ii),2) * sin(2*pi*mprm(midx(ii),1)*(X*cos(mprm(midx(ii),4))-Y*sin(mprm(midx(ii),4)))+mprm(midx(ii),3));
+       M = M + makeComp(mprm(midx(ii),:),X,Y);
+       %M = M + mprm(midx(ii),2) * sin(2*pi*mprm(midx(ii),1)*(X*cos(mprm(midx(ii),4))-Y*sin(mprm(midx(ii),4)))+mprm(midx(ii),3));
      end % loop over modulator components
      M = .5 * (1 + M);
      if any(M(:)<0) || any(M(:)>1)
@@ -192,3 +196,9 @@ function theta = wrapAnglePi(theta)
 theta = rem(theta,2*pi);
 theta(theta>pi) = -2*pi+theta(theta>pi);
 theta(theta<-pi) = 2*pi+theta(theta<-pi);
+
+
+function C = makeComp(prm,X,Y)
+
+%C = prm(2) * sin(prm(1)*(X*cos(prm(4))-2*Y*sin(prm(4)))+prm(3));
+C = prm(2) * sin(prm(1)*(X*cos(prm(4))-Y*sin(prm(4)))+prm(3));

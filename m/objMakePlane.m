@@ -119,6 +119,7 @@ function plane = objMakePlane(cprm,varargin)
 %                   carriers AND modulators only in group 0
 % 2014-10-14 - ts - added an option to compute texture coordinates and
 %                    include a mtl file reference
+% 2014-10-28 - ts - minor changes
 
 % TODO
 % Add option for noise in the amplitude
@@ -152,6 +153,7 @@ switch ncol
     cprm = [cprm zeros(nccomp,1)];
 end
 
+cprm(:,1) = cprm(:,1)*(2*pi);
 cprm(:,3:4) = pi * cprm(:,3:4)/180;
 
 % Set the default modulation parameters to empty indicating no modulator; set default filename.
@@ -184,6 +186,7 @@ if ~isempty(mprm)
     case 4
       mprm = [mprm zeros(nccomp,1)];
   end
+  mprm(:,1) = mprm(:,1)*(2*pi);
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
 
@@ -226,8 +229,6 @@ end
 
 w = 1; % width of the plane
 h = m/n * w;
-
-cprm(:,1) = cprm(:,1)*(2*pi);
 
 x = linspace(-w/2,w/2,n); % 
 y = linspace(-h/2,h/2,m)'; % 
