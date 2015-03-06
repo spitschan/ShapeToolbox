@@ -1,8 +1,8 @@
-function Z = _objMakeNoiseComponents(nprm,mprm,X,Y,use_rms)
+function Z = objMakeNoiseComponents(nprm,mprm,X,Y,use_rms)
 
-% _OBJMAKENOISECOMPONENTS
+% OBJMAKENOISECOMPONENTS
 %
-% Z = _objMakeNoiseComponents(nprm,mprm,X,Y,use_rms)
+% Z = objMakeNoiseComponents(nprm,mprm,X,Y,use_rms)
 %
 % A function called by a bunch of other functions in the toolbox.
 
@@ -15,6 +15,9 @@ function Z = _objMakeNoiseComponents(nprm,mprm,X,Y,use_rms)
 %                    why I'm writing about this so extensively here).
 % 2014-10-28 - ts - uses a separate function for computing the
 %                    modulators, copied from _objMakeSineComponents
+% 2014-11-10 - ts - renamed (removed leading underscore that's not
+%                    allowed by Matlab)
+
 
 f = nprm(:,1);
 fw = nprm(:,2);

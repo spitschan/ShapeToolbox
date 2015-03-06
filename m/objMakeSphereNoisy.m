@@ -1,19 +1,76 @@
-function sphere = objMakeSphereNoise(nprm,varargin)
+function sphere = objMakeSphereNoisy(nprm,varargin)
 
-% OBJMAKESPHERENOISE
+% OBJMAKESPHERENOISY
 %
-% Usage:           objMakeSphereNoise()
-%                  objMakeSphereNoise(NPRM,[OPTIONS])
-%                  objMakeSphereNoise(NPRM,MPRM,[OPTIONS])
-%         sphere = objMakeSphereNoise(...)
+% Usage:           objMakeSphereNoisy()
+%                  objMakeSphereNoisy(NPAR,[OPTIONS])
+%                  objMakeSphereNoisy(NPAR,MPAR,[OPTIONS])
+%         sphere = objMakeSphereNoisy(...)
 %
+% A 3D model sphere with the radius modulated by band-pass filtered
+% noise.
 % 
+% Without any input arguments, makes an example sphere with default
+% parameters and saves the model to spherenoisy.obj.
+%
+% The parameters for the filtered noise are given by the input
+% argument NPAR:
+%   NPAR = [FREQ FREQWDT OR ORWDT AMPL],
+% with
+%   FREQ    - middle frequency, in cycles/(2pi)
+%   FREQWDT - full width at half height, in octaves
+%   OR      - orientation in degrees (0 is 'vertical')
+%   ORWDT   - orientation bandwidth (FWHH), in degrees
+%   AMPL    - amplitude
+% 
+% The radius of the unmodulated sphere is 1. 
+% 
+% Several modulation components can be defined in the rows of NPAR.
+% The components are added.
+%   NPAR = [FREQ1 FREQWDT1 OR1 ORWDT1 AMPL1
+%           FREQ2 FREQWDT2 OR2 ORWDT2 AMPL2
+%           ...
+%           FREQN FREQWDTN ORN ORWDTN AMPLN]
+%
+% To produce more complex modulations, separate carrier and
+% modulator components can be defined.  The carrier components are
+% defined exactly as above.  The modulator modulates the amplitude
+% of the carrier.  The parameters of the modulator(s) are given in
+% the input argument MPAR.  The modulators are sinusoidal; their
+% parameters are identical to those in the function objMakeSphere.
+% The parameters are frequency, amplitude, orientation, and phase:
+%   MPAR = [FREQ AMPL OR PH]
+% 
+% You can also define group indices to noise carriers and modulators
+% to specify which modulators modulate which carriers.  See details in
+% the online help on in the help for objMakeSphere.
+%
+% By default, saves the object in spherenoisy.obj.  To save in a
+% different file, define the output file name as a string:
+%   > objMakeSphereNoisy(...,'newfilename',...)
+%
+% The default number of vertices when providing a function handle as
+% input is 128x256 (elevation x azimuth).  To define a different
+% number of vertices:
+%   > objMakeSphereNoisy(@...,'npoints',[N M],...)
+%
+% To turn on the computation of surface normals (which will increase
+% coputation time):
+%   > objMakeSphereNoisy(...,'NORMALS',true,...)
+%
+% For texture mapping, see help to objMakeSphere or online help.
+%
+% Examples:
+% TODO
 
 % Toni Saarela, 2014
 % 2014-10-15 - ts - first version written
 % 2014-10-28 - ts - polishing; improvements to computation of
 %                    faces, uv-coords, writing specs to obj-file
-
+% 2014-11-10 - ts - vertex normals, fixed call to renamed
+%                    objMakeNoiseComponents, renamed to
+%                    objMakeSphereNoisy, some help
+         
 
 %--------------------------------------------------
 
@@ -38,6 +95,7 @@ filename = 'spherenoisy.obj';
 use_rms = false;
 mtlfilename = '';
 mtlname = '';
+comp_normals = false;
 
 % Number of vertices in elevation and azimuth directions, default values
 m = 128;
@@ -89,6 +147,13 @@ if ~isempty(par)
            end
          case 'rms'
            use_rms = true;
+         case 'normals'
+           if ii<length(par) && (isnumeric(par{ii+1}) || islogical(par{ii+1}))
+             ii = ii + 1;
+             comp_normals = par{ii};
+           else
+             error('No value or a bad value given for option ''normals''.');
+           end
          otherwise
            filename = par{ii};
        end
@@ -111,7 +176,7 @@ phi = linspace(-pi/2,pi/2,m)'; % elevation
 
 [Theta,Phi] = meshgrid(theta,phi);
 
-R = r + _objMakeNoiseComponents(nprm,mprm,Theta,Phi,use_rms);
+R = r + objMakeNoiseComponents(nprm,mprm,Theta,Phi,use_rms);
 
 % Convert vertices to cartesian coordinates
 [X,Y,Z] = sph2cart(Theta,Phi,R);
@@ -126,12 +191,7 @@ clear X Y Z
 
 %--------------------------------------------
 % Texture coordinates if material is defined
-if ~isempty(mtlfilename)
-  %Phi = Phi';
-  %Theta = Theta';
-  %U = (Theta(:)-min(theta))/(max(theta)-min(theta));
-  %V = (Phi(:)-min(phi))/(max(phi)-min(phi));
-  
+if ~isempty(mtlfilename)  
   u = linspace(0,1,n+1);
   v = linspace(0,1,m);
   [U,V] = meshgrid(u,v);
@@ -165,6 +225,28 @@ if ~isempty(mtlfilename)
   end
 end
 
+if comp_normals
+  % Surface normals for the faces
+  fn = cross([vertices(faces(:,2),:)-vertices(faces(:,1),:)],...
+             [vertices(faces(:,3),:)-vertices(faces(:,1),:)]);
+  normals = zeros(m*n,3);
+  
+  % for ii = 1:m*n
+  %  idx = any(faces==ii,2);
+  %  vn = sum(fn(idx,:),1);
+  %  normals(ii,:) = vn / sqrt(vn*vn');
+  % end
+
+  % Vertex normals
+  nfaces = (m-1)*n*2;
+  for ii = 1:nfaces
+    normals(faces(ii,:),:) = normals(faces(ii,:),:) + [1 1 1]'*fn(ii,:);
+  end
+  normals = normals./sqrt(sum(normals.^2,2)*[1 1 1]);
+
+  clear fn
+end
+
 %--------------------------------------------
 % Output argument
 if nargout
@@ -172,6 +254,9 @@ if nargout
   sphere.faces = faces;
   if ~isempty(mtlfilename)
      sphere.uvcoords = uvcoords;
+  end
+  if comp_normals
+     sphere.normals = normals;
   end
   sphere.npointsx = n;
   sphere.npointsy = m;
@@ -189,6 +274,11 @@ if isempty(mtlfilename)
   fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
 else
   fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
+end
+if comp_normals
+  fprintf(fid,'# Vertex normals included: Yes.\n');
+else
+  fprintf(fid,'# Vertex normals included: No.\n');
 end
 
 fprintf(fid,'#\n# Noise carrier parameters (each row is one component):\n');
@@ -210,18 +300,39 @@ fprintf(fid,'#\n# Angle (orientation) and its bandwidth are in radians above.\n'
 if isempty(mtlfilename)
   fprintf(fid,'\n\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n\n# Faces:\n');
-  fprintf(fid,'f %d %d %d\n',faces');
-  fprintf(fid,'# End faces\n\n');
+  fprintf(fid,'# End vertices\n');
+  if comp_normals
+    fprintf(fid,'\n# Normals:\n');
+    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
+    fprintf(fid,'# End normals\n');
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d//%d %d//%d %d//%d\n',[faces(:,1) faces(:,1) faces(:,2) faces(:,2) faces(:,3) faces(:,3)]');
+  else
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d %d %d\n',faces');    
+  end
+  fprintf(fid,'# End faces\n');
 else
-  fprintf(fid,'\n\nmtllib %s\nusemtl %s\n\n',mtlfilename,mtlname);
-  fprintf(fid,'\n\n# Vertices:\n');
+  fprintf(fid,'\nmtllib %s\nusemtl %s\n',mtlfilename,mtlname);
+  fprintf(fid,'\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
   fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
-  fprintf(fid,'# End texture coordinates\n\n# Faces:\n');
-  fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
-  fprintf(fid,'# End faces\n\n');
+  fprintf(fid,'# End texture coordinates\n');
+  if comp_normals
+    fprintf(fid,'\n# Normals:\n');
+    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
+    fprintf(fid,'# End normals\n');
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
+            [faces(:,1) facestxt(:,1) faces(:,1)...
+             faces(:,2) facestxt(:,2) faces(:,2)...
+             faces(:,3) facestxt(:,3) faces(:,3)]');
+  else
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
+  end
+  fprintf(fid,'# End faces\n');
 end
 fclose(fid);
 

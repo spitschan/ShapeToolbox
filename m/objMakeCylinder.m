@@ -8,6 +8,7 @@ function cylinder = objMakeCylinder(cprm,varargin)
 % 2014-10-19 - ts - switched to using an external function to compute
 %                   the modulation
 % 2014-10-20 - ts - added texture mapping
+% 2015-01-16 - ts - fixed the call to renamed objMakeSineComponents
 
 % TODO
 % Add an option to define whether modulations are done in angle
@@ -113,7 +114,7 @@ y = linspace(-h/2,h/2,m); %
 Theta = Theta'; Theta = Theta(:);
 Y = Y'; Y = Y(:);
 
-R = r + _objMakeSineComponents(cprm,mprm,Theta,Y);;
+R = r + objMakeSineComponents(cprm,mprm,Theta,Y);;
 
 % Convert vertices to cartesian coordinates
 X = R .* cos(Theta);

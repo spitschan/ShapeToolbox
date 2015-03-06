@@ -1,13 +1,15 @@
-function Z = _objMakeSineComponents(cprm,mprm,X,Y)
+function Z = objMakeSineComponents(cprm,mprm,X,Y)
 
-% _OBJMAKESINECOMPONENTS
+% OBJMAKESINECOMPONENTS
 %
-% Z = _objMakeSineComponents(cprm,mprm,X,Y)
+% Z = objMakeSineComponents(cprm,mprm,X,Y)
 %
 % A function called by a bunch of other functions in the toolbox.
 
 % Toni Saarela, 2014
 % 2014-10-15 - ts - first version written
+% 2014-11-10 - ts - renamed (removed leading underscore that's not
+%                    allowed by Matlab)
 
 [m,n] = size(X);
 

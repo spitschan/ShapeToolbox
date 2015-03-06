@@ -10,6 +10,10 @@ function plane = objMakePlaneCustom(f,prm,varargin)
 
 %--------------------------------------------
 
+% NB!!!! Computation of normals is not working!!  It was copied here
+% from the sphere function but there's something wrong.  Needs to be
+% fixed.
+
 if ischar(f)
   map = double(imread(f));
   if ndims(map)>2
@@ -62,8 +66,8 @@ filename = 'planecustom.obj';
 mtlfilename = '';
 mtlname = '';
 mindist = 0;
-m = 256;
-n = 256;
+comp_normals = false;
+
 
 [tmp,par] = parseparams(varargin);
 if ~isempty(par)
@@ -93,6 +97,13 @@ if ~isempty(par)
              mtlname = par{ii}{2};
            else
              error('No value or a bad value given for option ''material''.');
+           end
+         case 'normals'
+           if ii<length(par) && (isnumeric(par{ii+1}) || islogical(par{ii+1}))
+             ii = ii + 1;
+             comp_normals = par{ii};
+           else
+             error('No value or a bad value given for option ''normals''.');
            end
         otherwise
           filename = par{ii};
@@ -227,11 +238,39 @@ for ii = 1:m-1
 end
 %toc
 
+if comp_normals
+  % Surface normals for the faces
+  fn = cross([vertices(faces(:,2),:)-vertices(faces(:,1),:)],...
+             [vertices(faces(:,3),:)-vertices(faces(:,1),:)]);
+  normals = zeros(m*n,3);
+  
+  % for ii = 1:m*n
+  %  idx = any(faces==ii,2);
+  %  vn = sum(fn(idx,:),1);
+  %  normals(ii,:) = vn / sqrt(vn*vn');
+  % end
+
+  % Vertex normals
+  nfaces = (m-1)*n*2;
+  for ii = 1:nfaces
+    normals(faces(ii,:),:) = normals(faces(ii,:),:) + [1 1 1]'*fn(ii,:);
+  end
+  normals = normals./sqrt(sum(normals.^2,2)*[1 1 1]);
+
+  clear fn
+end
+
 %-------------------
 
 if nargout
   plane.vertices = vertices;
   plane.faces = faces;
+  if ~isempty(mtlfilename)
+     sphere.uvcoords = uvcoords;
+  end
+  if comp_normals
+     sphere.normals = normals;
+  end
   plane.npointsx = n;
   plane.npointsy = m;
 end
@@ -247,21 +286,43 @@ fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
 % for ii = 1:nbumptypes
 %   fprintf(fid,'#  %d           %4.2f       %4.2f\n',prm(ii,:));
 % end
+
 if isempty(mtlfilename)
   fprintf(fid,'\n\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n\n# Faces:\n');
-  fprintf(fid,'f %d %d %d\n',faces');
-  fprintf(fid,'# End faces\n\n');
+  fprintf(fid,'# End vertices\n');
+  if comp_normals
+    fprintf(fid,'\n# Normals:\n');
+    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
+    fprintf(fid,'# End normals\n');
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d//%d %d//%d %d//%d\n',[faces(:,1) faces(:,1) faces(:,2) faces(:,2) faces(:,3) faces(:,3)]');
+  else
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d %d %d\n',faces');    
+  end
+  fprintf(fid,'# End faces\n');
 else
-  fprintf(fid,'\n\nmtllib %s\nusemtl %s\n\n',mtlfilename,mtlname);
-  fprintf(fid,'\n\n# Vertices:\n');
+  fprintf(fid,'\nmtllib %s\nusemtl %s\n',mtlfilename,mtlname);
+  fprintf(fid,'\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
   fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
-  fprintf(fid,'# End texture coordinates\n\n# Faces:\n');
-  fprintf(fid,'f %d/%d %d/%d %d/%d\n',expmat(faces,[1,2])');
-  fprintf(fid,'# End faces\n\n');
+  fprintf(fid,'# End texture coordinates\n');
+  if comp_normals
+    fprintf(fid,'\n# Normals:\n');
+    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
+    fprintf(fid,'# End normals\n');
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
+            [faces(:,1) faces(:,1) faces(:,1)...
+             faces(:,2) faces(:,2) faces(:,2)...
+             faces(:,3) faces(:,3) faces(:,3)]');
+  else
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) faces(:,1) faces(:,2) faces(:,2) faces(:,3) faces(:,3)]');
+  end
+  fprintf(fid,'# End faces\n');
 end
 fclose(fid);
 

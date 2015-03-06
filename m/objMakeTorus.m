@@ -39,6 +39,8 @@ function torus = objMakeTorus(cprm,varargin)
 % 2014-10-19 - ts - added tube radius as optional input arg,
 %                   better input argument parsing
 %                   renamed input option for torus radius parameters
+% 2015-03-05 - ts - updated function call to objMakeSineComponents
+
 % TODO
 % Set input arguments, optional arguments, default values
 % Include carriers and modulators?
@@ -176,7 +178,7 @@ if ~isempty(rprm)
   R = R + Rmod;
 end
 
-r = r + _objMakeSineComponents(cprm,mprm,Theta,Phi);
+r = r + objMakeSineComponents(cprm,mprm,Theta,Phi);
 
 Theta = Theta'; Theta = Theta(:);
 Phi   = Phi';   Phi   = Phi(:);

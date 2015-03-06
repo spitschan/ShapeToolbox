@@ -2,10 +2,9 @@ function sphere = objMakeSphereCustom(f,prm,varargin)
 
   % OBJMAKESPHERECUSTOM
   % 
-  % Make a sphere with a custom modulation for the radius.  The
-  % modulation values can be defined by an input matrix or an image.
-  % Alternatively, one can by providing a handle to a function that 
-  % determines the modulation.
+  % Make a sphere with a custom-modulated radius.  The modulation
+  % values can be defined by an input matrix or an image, or by
+  % providing a handle to a function that determines the modulation.
   %
   % To provide the modulation in an input matrix:
   % > objMakeSphereCustom(I,A), 
@@ -15,23 +14,26 @@ function sphere = objMakeSphereCustom(f,prm,varargin)
   % of M are first normalized to [-1,1], the multiplied with A).
   %
   % To use an image:
-  % > objMakeSphereCustom(FILENAME,A)
+  %   > objMakeSphereCustom(FILENAME,A)
   % The image values are first normalized to [0,1], then multiplied by
   % A.  These values are mapped onto the sphere to modulate the radius.
   %
-  % With matrix of image as input, the default number of vertices is
+  % With matrix or image as input, the default number of vertices is
   % the size of the matrix/image.  To define a different number of
-  % vertices:
-  % > objMakeSphereCustom(I,A,'npoints',[M N])
+  % vertices, do:
+  %   > objMakeSphereCustom(I,A,'npoints',[M N])
   % to have M vertices in the elevation direction and N in the azimuth
   % direction.  The values of the matrix/image are interpolated.
   % 
-  % Provide a function handle:
-  % > objMakeSphereCustom(@F,PRM)
+  % The radius of the sphere (before modulation) is one.
+  % 
+  % Alternatively, provide a handle to a function that defines the
+  % modulation:
+  %   > objMakeSphereCustom(@F,PRM)
   % F is a function that takes distance as its first input argument
   % and a vector of other parameters as the second.  The return values
   % of F are used to modulate the sphere radius.  The format of the
-  % parameters is:
+  % parameter vector is:
   %    PRM = [N DCUT PRM1 PRM2 ...]
   % where
   %    N is the number of random locations at which the function 
@@ -46,24 +48,33 @@ function sphere = objMakeSphereCustom(f,prm,varargin)
   %           ...                     ]
   %
   % Function F will be called as:
-  % > F(D,[PRM1 PRM2 ...])
-  % where D is the distance from the randomly chosen midpoint.
+  %   > F(D,[PRM1 PRM2 ...])
+  % where D is the distance from the midpoint in degrees.  The points 
+  % at which the function will be applied are chosen randomly.
   %
   % To restrict how close together the random location can be:
-  % > objMakeSphereCustom(@F,PRM,'mindist',DMIN)
+  %   > objMakeSphereCustom(@F,PRM,...,'mindist',DMIN,...)
   % where DMIN is in degrees.
   %
   % The default number of vertices when providing a function handle as
   % input is 128x256 (elevation x azimuth).  To define a different
   % number of vertices:
-  % > objMakeSphereCustom(@F,PRM,'npoints',[N M])
+  %   > objMakeSphereCustom(@F,PRM,...,'npoints',[N M],...)
+  %
+  % To turn on the computation of surface normals (which will increase
+  % coputation time):
+  %   > objMakeSphereCustom(...,'NORMALS',true,...)
   %
   % For texture mapping, see help to objMakeSphere or online help.
+  % 
+  % Examples:
+  % TODO
          
 % Toni Saarela, 2014
 % 2014-10-18 - ts - first version
 % 2014-10-20 - ts - small fixes
 % 2014-10-28 - ts - a bunch of fixes and improvements; wrote help
+% 2014-11-10 - ts - vertex normals, updated help, all units in degrees
 
 % TODO
 % - return the locations of bumps
@@ -73,7 +84,8 @@ function sphere = objMakeSphereCustom(f,prm,varargin)
 %--------------------------------------------
 
 if ischar(f)
-  map = double(imread(f));
+  imgname = f;
+  map = double(imread(imgname));
   if ndims(map)>2
     map = mean(map,3);
   end
@@ -126,6 +138,7 @@ filename = 'spherecustom.obj';
 mtlfilename = '';
 mtlname = '';
 mindist = 0;
+comp_normals = false;
 
 [tmp,par] = parseparams(varargin);
 if ~isempty(par)
@@ -156,6 +169,13 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''material''.');
            end
+         case 'normals'
+           if ii<length(par) && (isnumeric(par{ii+1}) || islogical(par{ii+1}))
+             ii = ii + 1;
+             comp_normals = par{ii};
+           else
+             error('No value or a bad value given for option ''normals''.');
+           end
         otherwise
           filename = par{ii};
       end
@@ -169,6 +189,8 @@ end
 if isempty(regexp(filename,'\.obj$'))
   filename = [filename,'.obj'];
 end
+
+mindist = pi*mindist/180;
 
 r = 1; % radius
 theta = linspace(-pi,pi-2*pi/n,n); % azimuth
@@ -257,7 +279,7 @@ if ~use_map
       
       idx = find(d<prm(jj,2));
       
-      R(idx) = R(idx) + f(d(idx),prm(jj,3:end));
+      R(idx) = R(idx) + f(180.0*d(idx)/pi,prm(jj,3:end));
       
     end
     
@@ -284,11 +306,6 @@ clear X Y Z
 %--------------------------------------------
 % Texture coordinates if material is defined
 if ~isempty(mtlfilename)
-  %Phi = Phi';
-  %Theta = Theta';
-  %U = (Theta(:)-min(theta))/(max(theta)-min(theta));
-  %V = (Phi(:)-min(phi))/(max(phi)-min(phi));
-  
   u = linspace(0,1,n+1);
   v = linspace(0,1,m);
   [U,V] = meshgrid(u,v);
@@ -323,6 +340,28 @@ if ~isempty(mtlfilename)
   end
 end
 
+if comp_normals
+  % Surface normals for the faces
+  fn = cross([vertices(faces(:,2),:)-vertices(faces(:,1),:)],...
+             [vertices(faces(:,3),:)-vertices(faces(:,1),:)]);
+  normals = zeros(m*n,3);
+  
+  % for ii = 1:m*n
+  %  idx = any(faces==ii,2);
+  %  vn = sum(fn(idx,:),1);
+  %  normals(ii,:) = vn / sqrt(vn*vn');
+  % end
+
+  % Vertex normals
+  nfaces = (m-1)*n*2;
+  for ii = 1:nfaces
+    normals(faces(ii,:),:) = normals(faces(ii,:),:) + [1 1 1]'*fn(ii,:);
+  end
+  normals = normals./sqrt(sum(normals.^2,2)*[1 1 1]);
+
+  clear fn
+end
+
 %--------------------------------------------
 % Output argument
 
@@ -331,6 +370,9 @@ if nargout
   sphere.faces = faces;
   if ~isempty(mtlfilename)
      sphere.uvcoords = uvcoords;
+  end
+  if comp_normals
+     sphere.normals = normals;
   end
   sphere.npointsx = n;
   sphere.npointsy = m;
@@ -344,28 +386,71 @@ fprintf(fid,'# %s\n',datestr(now,31));
 fprintf(fid,'# Created with function %s from ShapeToolbox.\n',mfilename);
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
 fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
+if isempty(mtlfilename)
+  fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
+else
+  fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
+end
+if comp_normals
+  fprintf(fid,'# Vertex normals included: Yes.\n');
+else
+  fprintf(fid,'# Vertex normals included: No.\n');
+end
 
-% TODO: 
-% Write specs here
-% - name of image
-% - some info about input matrix
-% - name of function called plus parameters
+if use_map
+  if exist(imgname)
+     fprintf(fid,'#\n# Modulation values defined by the (average) intensity\n');
+     fprintf(fid,'# of the image %s.\n',imgname);
+  else
+     fprintf(fid,'#\n# Modulation values defined by a custom matrix.\n');
+  end
+else    
+  fprintf(fid,'#\n#  Modulation defined by a custom user-defined function.\n');
+  fprintf(fid,'#  Modulation parameters:\n');
+  fprintf(fid,'#  # of locations | Cut-off dist. | Custom function arguments\n');
+  for ii = 1:nbumptypes
+    fprintf(fid,'#  %14d   %13.2f   ',prm(ii,1:2));
+    fprintf(fid,'%5.2f  ',prm(ii,3:end));
+    fprintf(fid,'\n');
+  end
+end
 
 if isempty(mtlfilename)
   fprintf(fid,'\n\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n\n# Faces:\n');
-  fprintf(fid,'f %d %d %d\n',faces');
-  fprintf(fid,'# End faces\n\n');
+  fprintf(fid,'# End vertices\n');
+  if comp_normals
+    fprintf(fid,'\n# Normals:\n');
+    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
+    fprintf(fid,'# End normals\n');
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d//%d %d//%d %d//%d\n',[faces(:,1) faces(:,1) faces(:,2) faces(:,2) faces(:,3) faces(:,3)]');
+  else
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d %d %d\n',faces');    
+  end
+  fprintf(fid,'# End faces\n');
 else
-  fprintf(fid,'\n\nmtllib %s\nusemtl %s\n\n',mtlfilename,mtlname);
-  fprintf(fid,'\n\n# Vertices:\n');
+  fprintf(fid,'\nmtllib %s\nusemtl %s\n',mtlfilename,mtlname);
+  fprintf(fid,'\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
   fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
-  fprintf(fid,'# End texture coordinates\n\n# Faces:\n');
-  fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
-  fprintf(fid,'# End faces\n\n');
+  fprintf(fid,'# End texture coordinates\n');
+  if comp_normals
+    fprintf(fid,'\n# Normals:\n');
+    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
+    fprintf(fid,'# End normals\n');
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
+            [faces(:,1) facestxt(:,1) faces(:,1)...
+             faces(:,2) facestxt(:,2) faces(:,2)...
+             faces(:,3) facestxt(:,3) faces(:,3)]');
+  else
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
+  end
+  fprintf(fid,'# End faces\n');
 end
 fclose(fid);
 

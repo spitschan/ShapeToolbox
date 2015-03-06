@@ -3,16 +3,54 @@ function sphere = objMakeSphereBumpy(prm,varargin)
 % OBJMAKESPHEREBUMPY
 % 
 % Usage:          objMakeSphereBumpy()
-%                 objMakeSphereBumpy()
-%        sphere = objMakeSphereBumpy()
-%        sphere = objMakeSphereBumpy()
+%                 objMakeSphereBumpy(PAR,[OPTIONS])
+%        SPHERE = objMakeSphereBumpy(...)
 %
+% Make a 3D model sphere with the radius perturbed by Gaussian
+% 'bumps'.  The input vector defines the number of bumps and their
+% amplitude and spread:
+%   PAR = [NBUMPS AMPL SD]
+% 
+% The radius of the unmodulated sphere is 1.  The bumbs are added to
+% this radius with the amplitude AMPL.  The amplitude can be negative
+% to produce dents. The spread (standard deviation) of the bumps is
+% given by SD, in degrees.
+%
+% To have different types of bumps in the same sphere, define several
+% sets of parameters in the rows of PAR:
+%   PAR = [NBUMPS1 AMPL1 SD1
+%          NBUMPS2 AMPL2 SD2
+%          ...
+%          NBUMPSN AMPLN SDN]
+%
+% Options:
+% 
+% By default, saves the object in spherebumpy.obj.  To save in a
+% different file, define the output file name as a string:
+%   > objMakeSphereBumpy(...,'newfilename',...)
+%
+% Other optional arguments are key-value pairs.  To set the minimum
+% distance between the bumps (in degrees), use:
+%  > objMakeSphereBumpy(...,'mindist',DMIN)
+%
+% The default number of vertices when providing a function handle as
+% input is 128x256 (elevation x azimuth).  To define a different
+% number of vertices:
+%   > objMakeSphereBumpy(@F,PRM,...,'npoints',[N M],...)
+%
+% To turn on the computation of surface normals (which will increase
+% coputation time):
+%   > objMakeSphereBumpy(...,'NORMALS',true,...)
+%
+% For texture mapping, see help to objMakeSphere or online help.
 %
 % Note: The minimum distance between bumps only applies to bumps of
 % the same type.  If several types of bumps are defined (in rows of
 % the imput argument prm), different types of bumps might be closer
-% together than mindist.  This might change in the future.  Then
-% again, it might not.
+% together than mindist.  This might change in the future.
+%
+% Examples:
+% TODO
 
 % Toni Saarela, 2014
 % 2014-05-06 - ts - first version
@@ -24,13 +62,12 @@ function sphere = objMakeSphereBumpy(prm,varargin)
 %                   fixed an error in writing the bump specs in the
 %                     obj-file comments
 % 2014-10-28 - ts - bunch of small changes and improvements;
-%                    sigma is given in degrees now
+%                     sigma is given in degrees now
+% 2014-11-10 - ts - vertex normals, basic help
 
 % TODO
 % - return the locations of bumps
 % - option to add noise to bump amplitudes/sigmas
-% - write help
-% - write more info to the obj-file and the returned structure
 
 %--------------------------------------------
 
@@ -58,6 +95,7 @@ mtlname = '';
 mindist = 0;
 m = 128;
 n = 256;
+comp_normals = false;
 
 [tmp,par] = parseparams(varargin);
 if ~isempty(par)
@@ -87,6 +125,13 @@ if ~isempty(par)
              mtlname = par{ii}{2};
            else
              error('No value or a bad value given for option ''material''.');
+           end
+         case 'normals'
+           if ii<length(par) && (isnumeric(par{ii+1}) || islogical(par{ii+1}))
+             ii = ii + 1;
+             comp_normals = par{ii};
+           else
+             error('No value or a bad value given for option ''normals''.');
            end
         otherwise
           filename = par{ii};
@@ -196,11 +241,6 @@ vertices = [X Y Z];
 %--------------------------------------------
 % Texture coordinates if material is defined
 if ~isempty(mtlfilename)
-  %Phi = Phi';
-  %Theta = Theta';
-  %U = (Theta(:)-min(theta))/(max(theta)-min(theta));
-  %V = (Phi(:)-min(phi))/(max(phi)-min(phi));
-  
   u = linspace(0,1,n+1);
   v = linspace(0,1,m);
   [U,V] = meshgrid(u,v);
@@ -208,7 +248,6 @@ if ~isempty(mtlfilename)
   uvcoords = [U(:) V(:)];
   clear u v U V
 end
-
 
 %--------------------------------------------
 % Faces, vertex indices
@@ -235,6 +274,28 @@ if ~isempty(mtlfilename)
   end
 end
 
+if comp_normals
+  % Surface normals for the faces
+  fn = cross([vertices(faces(:,2),:)-vertices(faces(:,1),:)],...
+             [vertices(faces(:,3),:)-vertices(faces(:,1),:)]);
+  normals = zeros(m*n,3);
+  
+  % for ii = 1:m*n
+  %  idx = any(faces==ii,2);
+  %  vn = sum(fn(idx,:),1);
+  %  normals(ii,:) = vn / sqrt(vn*vn');
+  % end
+
+  % Vertex normals
+  nfaces = (m-1)*n*2;
+  for ii = 1:nfaces
+    normals(faces(ii,:),:) = normals(faces(ii,:),:) + [1 1 1]'*fn(ii,:);
+  end
+  normals = normals./sqrt(sum(normals.^2,2)*[1 1 1]);
+
+  clear fn
+end
+
 %--------------------------------------------
 % Output argument
 
@@ -243,6 +304,9 @@ if nargout
   sphere.faces = faces;
   if ~isempty(mtlfilename)
      sphere.uvcoords = uvcoords;
+  end
+  if comp_normals
+     sphere.normals = normals;
   end
   sphere.npointsx = n;
   sphere.npointsy = m;
@@ -256,6 +320,17 @@ fprintf(fid,'# %s\n',datestr(now,31));
 fprintf(fid,'# Created with function %s from ShapeToolbox.\n',mfilename);
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
 fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
+if isempty(mtlfilename)
+  fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
+else
+  fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
+end
+if comp_normals
+  fprintf(fid,'# Vertex normals included: Yes.\n');
+else
+  fprintf(fid,'# Vertex normals included: No.\n');
+end
+
 fprintf(fid,'#\n# Gaussian bump parameters (each row is bump type):\n');
 fprintf(fid,'#  # of bumps | Amplitude | Sigma\n');
 for ii = 1:nbumptypes
@@ -267,18 +342,39 @@ fprintf(fid,'#\n# Sigma is in radians above.\n');
 if isempty(mtlfilename)
   fprintf(fid,'\n\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n\n# Faces:\n');
-  fprintf(fid,'f %d %d %d\n',faces');
-  fprintf(fid,'# End faces\n\n');
+  fprintf(fid,'# End vertices\n');
+  if comp_normals
+    fprintf(fid,'\n# Normals:\n');
+    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
+    fprintf(fid,'# End normals\n');
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d//%d %d//%d %d//%d\n',[faces(:,1) faces(:,1) faces(:,2) faces(:,2) faces(:,3) faces(:,3)]');
+  else
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d %d %d\n',faces');    
+  end
+  fprintf(fid,'# End faces\n');
 else
-  fprintf(fid,'\n\nmtllib %s\nusemtl %s\n\n',mtlfilename,mtlname);
-  fprintf(fid,'\n\n# Vertices:\n');
+  fprintf(fid,'\nmtllib %s\nusemtl %s\n',mtlfilename,mtlname);
+  fprintf(fid,'\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
   fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
-  fprintf(fid,'# End texture coordinates\n\n# Faces:\n');
-  fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
-  fprintf(fid,'# End faces\n\n');
+  fprintf(fid,'# End texture coordinates\n');
+  if comp_normals
+    fprintf(fid,'\n# Normals:\n');
+    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
+    fprintf(fid,'# End normals\n');
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
+            [faces(:,1) facestxt(:,1) faces(:,1)...
+             faces(:,2) facestxt(:,2) faces(:,2)...
+             faces(:,3) facestxt(:,3) faces(:,3)]');
+  else
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
+  end
+  fprintf(fid,'# End faces\n');
 end
 fclose(fid);
 

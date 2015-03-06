@@ -120,6 +120,7 @@ function plane = objMakePlane(cprm,varargin)
 % 2014-10-14 - ts - added an option to compute texture coordinates and
 %                    include a mtl file reference
 % 2014-10-28 - ts - minor changes
+% 2014-11-22 - ts - fixed call to newly named objMakeSineComponents
 
 % TODO
 % Add option for noise in the amplitude
@@ -241,7 +242,7 @@ vertices = zeros(m*n,3);
 [X,Y] = meshgrid(x,y);
 %Y = flipud(Y);
 
-Z = _objMakeSineComponents(cprm,mprm,X,Y);
+Z = objMakeSineComponents(cprm,mprm,X,Y);
 
 
 X = X'; X = X(:);

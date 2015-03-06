@@ -21,7 +21,7 @@ function sphere = objMakeSphere(cprm,varargin)
   % orientation of modulation: 
   %   CPAR = [FREQ AMPL PH ANGLE]
   %
-  % The frequency is in cycles per full circle, or cycle/(2*pi). The
+  % The frequency is in cycles per full circle, or cycle/(2*PI). The
   % values of azimuth go from -PI to PI-2*PI/N, where N is the number
   % of points (vertices) in that direction.  The values of elevation
   % (altitude) go from -PI/2 to PI/2. 
@@ -30,7 +30,7 @@ function sphere = objMakeSphere(cprm,varargin)
   % amplitude is in the units of the radius, so an amplitude of A will
   % result in a radius between 1-A and 1+A.
   %
-  % All modulation are sine modulations (phase 0 is the sine phase).
+  % All modulations are sine modulations (phase 0 is the sine phase).
   % Phase is given in degrees.
   %
   % Orientation (angle) is given in degrees.  0 is "vertical", that
@@ -66,7 +66,7 @@ function sphere = objMakeSphere(cprm,varargin)
   % index are added together, and their amplitude is modulated by the
   % modulator(s) with that same group index.  The modulated components
   % are then added together.  The group index is the (optional) fifth 
-  % component of the parameter vector:
+  % entry of the parameter vector:
   %   CPAR = [FREQ1 AMPL1 PH1 ANGLE1 GROUP1
   %           ...
   %           FREQN AMPLN PHN ANGLEN GROUPN]
@@ -90,20 +90,27 @@ function sphere = objMakeSphere(cprm,varargin)
   % 
   % 'NPOINTS' followed by a vector of two defines the number of vertices
   % in the two direction on the surface (elevation and azimuth):
-  %   objMakeSphere(...,'npoints',[m n],...)
+  %   > objMakeSphere(...,'npoints',[m n],...)
   % Default number of vertices is 128x256.
   % 
   % The model is saved in a text file with an .obj-extension.  The
   % default name of the output text file is 'sphere.obj'.  A different
   % filename can be gives as an optional string argument: 
-  %   objMakeSphere(...,'myfilename',...)
+  %   > objMakeSphere(...,'myfilename',...)
   % If the custom filename does not have an obj-extension, it will be
   % added.
   %
   % 'MATERIAL' followed by a cell array with two text cells can be
   % used to define a material (mtl) file and a material name for the
   % object:
-  %   objMakeSphere(...,'material',{'materialfile.mtl','mymaterial'},...)
+  %   > objMakeSphere(...,'material',{'materialfile.mtl','mymaterial'},...)
+  %
+  % 'NORMALS' followed by a boolean (or numeric) value to toggle the
+  % computation of vertex normals.  Default is false, meaning the
+  % normals are not computed.  Computing the normals will increase the
+  % file size and many rendering programs compute the normals with
+  % their own algorithm.  To turn the normal computation on:
+  %   > objMakeSphere(...,'NORMALS',true,...)
   %
   % If an output argument is specified, the vertices and faces plus
   % some other information about the model are returned in the fields
@@ -145,9 +152,9 @@ function sphere = objMakeSphere(cprm,varargin)
   % the poles, use a modulator in the elevation direction.  In this
   % example, use a modulator with a frequency of 1 (a single cycle,
   % from pole to pole), an amplitude of 1 (so that the modulation goes
-  % to zero at its minimum), and a phase of pi/2 (so that the
+  % to zero at its minimum), and a phase of 90 (so that the
   % modulation is at its minimum, or zero, at the poles): 
-  % > objMakeSphere([8 .2 0 0],[1 1 pi/2 90])
+  % > objMakeSphere([8 .2 0 0],[2 1 90 90])
   %
   % Compare this with the same without the modulator: 
   % > objMakeSphere([8 .2 0 0])
@@ -190,6 +197,7 @@ function sphere = objMakeSphere(cprm,varargin)
 %                    file comments; return also uv-coords; help
 %                    updated; fixed wrapping of uv-coordinates
 % 2014-10-28 - ts - improved face computation
+% 2014-10-29 - ts - added optional computation of vertex normals
 
 % TODO
 % Add option for noise in the amplitude
@@ -228,6 +236,7 @@ mprm  = [];
 filename = 'sphere.obj';
 mtlfilename = '';
 mtlname = '';
+comp_normals = false;
 
 % Number of vertices in azimuth and elevation directions, default values
 n = 256;
@@ -277,7 +286,14 @@ if ~isempty(par)
              mtlname = par{ii}{2};
            else
              error('No value or a bad value given for option ''material''.');
-           end              
+           end
+         case 'normals'
+           if ii<length(par) && (isnumeric(par{ii+1}) || islogical(par{ii+1}))
+             ii = ii + 1;
+             comp_normals = par{ii};
+           else
+             error('No value or a bad value given for option ''normals''.');
+           end
          otherwise
            filename = par{ii};
        end
@@ -306,7 +322,7 @@ end
 
 [Theta,Phi] = meshgrid(theta,phi);
 
-R = r + _objMakeSineComponents(cprm,mprm,Theta,Phi);
+R = r + objMakeSineComponents(cprm,mprm,Theta,Phi);
 
 % Convert vertices to cartesian coordinates
 [X,Y,Z] = sph2cart(Theta,Phi,R);
@@ -322,11 +338,6 @@ clear X Y Z
 %--------------------------------------------
 % Texture coordinates if material is defined
 if ~isempty(mtlfilename)
-  %Phi = Phi';
-  %Theta = Theta';
-  %U = (Theta(:)-min(theta))/(max(theta)-min(theta));
-  %V = (Phi(:)-min(phi))/(max(phi)-min(phi));
-  
   u = linspace(0,1,n+1);
   v = linspace(0,1,m);
   [U,V] = meshgrid(u,v);
@@ -360,6 +371,28 @@ if ~isempty(mtlfilename)
   end
 end
 
+if comp_normals
+  % Surface normals for the faces
+  fn = cross([vertices(faces(:,2),:)-vertices(faces(:,1),:)],...
+             [vertices(faces(:,3),:)-vertices(faces(:,1),:)]);
+  normals = zeros(m*n,3);
+  
+  % for ii = 1:m*n
+  %  idx = any(faces==ii,2);
+  %  vn = sum(fn(idx,:),1);
+  %  normals(ii,:) = vn / sqrt(vn*vn');
+  % end
+
+  % Vertex normals
+  nfaces = (m-1)*n*2;
+  for ii = 1:nfaces
+    normals(faces(ii,:),:) = normals(faces(ii,:),:) + [1 1 1]'*fn(ii,:);
+  end
+  normals = normals./sqrt(sum(normals.^2,2)*[1 1 1]);
+
+  clear fn
+end
+
 %--------------------------------------------
 % Output argument
 if nargout
@@ -367,6 +400,9 @@ if nargout
   sphere.faces = faces;
   if ~isempty(mtlfilename)
      sphere.uvcoords = uvcoords;
+  end
+  if comp_normals
+     sphere.normals = normals;
   end
   sphere.npointsx = n;
   sphere.npointsy = m;
@@ -384,6 +420,11 @@ if isempty(mtlfilename)
   fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
 else
   fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
+end
+if comp_normals
+  fprintf(fid,'# Vertex normals included: Yes.\n');
+else
+  fprintf(fid,'# Vertex normals included: No.\n');
 end
 
 fprintf(fid,'#\n# Modulation carrier parameters (each row is one component):\n');
@@ -405,18 +446,39 @@ fprintf(fid,'#\n# Phase and angle are in radians above.\n');
 if isempty(mtlfilename)
   fprintf(fid,'\n\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n\n# Faces:\n');
-  fprintf(fid,'f %d %d %d\n',faces');
-  fprintf(fid,'# End faces\n\n');
+  fprintf(fid,'# End vertices\n');
+  if comp_normals
+    fprintf(fid,'\n# Normals:\n');
+    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
+    fprintf(fid,'# End normals\n');
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d//%d %d//%d %d//%d\n',[faces(:,1) faces(:,1) faces(:,2) faces(:,2) faces(:,3) faces(:,3)]');
+  else
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d %d %d\n',faces');    
+  end
+  fprintf(fid,'# End faces\n');
 else
-  fprintf(fid,'\n\nmtllib %s\nusemtl %s\n\n',mtlfilename,mtlname);
-  fprintf(fid,'\n\n# Vertices:\n');
+  fprintf(fid,'\nmtllib %s\nusemtl %s\n',mtlfilename,mtlname);
+  fprintf(fid,'\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
   fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
-  fprintf(fid,'# End texture coordinates\n\n# Faces:\n');
-  fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
-  fprintf(fid,'# End faces\n\n');
+  fprintf(fid,'# End texture coordinates\n');
+  if comp_normals
+    fprintf(fid,'\n# Normals:\n');
+    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
+    fprintf(fid,'# End normals\n');
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
+            [faces(:,1) facestxt(:,1) faces(:,1)...
+             faces(:,2) facestxt(:,2) faces(:,2)...
+             faces(:,3) facestxt(:,3) faces(:,3)]');
+  else
+    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
+  end
+  fprintf(fid,'# End faces\n');
 end
 fclose(fid);
 

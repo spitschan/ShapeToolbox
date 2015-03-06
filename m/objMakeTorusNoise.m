@@ -9,6 +9,7 @@ function torus = objMakeTorusNoise(nprm,varargin)
 % 2014-10-16 - ts - first version written
 % 2014-10-19 - ts - added an option to set tube radius
 %                   renamed input option for torus radius parameters
+% 2015-03-05 - ts - updated function call to objMakeNoiseComponents
 
 % TODO
 % Write stimulus paremeters into the obj-file
@@ -140,7 +141,7 @@ if ~isempty(rprm)
 end
 %fprintf('3\n');
 %keyboard
-r = r + _objMakeNoiseComponents(nprm,mprm,Theta,Phi,use_rms);
+r = r + objMakeNoiseComponents(nprm,mprm,Theta,Phi,use_rms);
 %keyboard
 %fprintf('4\n');
 
