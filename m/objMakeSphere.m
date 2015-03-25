@@ -371,6 +371,8 @@ if ~isempty(mtlfilename)
   end
 end
 
+%--------------------------------------------
+% Vertex normals
 if comp_normals
   % Surface normals for the faces
   fn = cross([vertices(faces(:,2),:)-vertices(faces(:,1),:)],...

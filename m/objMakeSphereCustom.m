@@ -67,6 +67,7 @@ function sphere = objMakeSphereCustom(f,prm,varargin)
   %
   % For texture mapping, see help to objMakeSphere or online help.
   % 
+
   % Examples:
   % TODO
          

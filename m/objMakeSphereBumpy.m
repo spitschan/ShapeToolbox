@@ -33,10 +33,9 @@ function sphere = objMakeSphereBumpy(prm,varargin)
 % distance between the bumps (in degrees), use:
 %  > objMakeSphereBumpy(...,'mindist',DMIN)
 %
-% The default number of vertices when providing a function handle as
-% input is 128x256 (elevation x azimuth).  To define a different
-% number of vertices:
-%   > objMakeSphereBumpy(@F,PRM,...,'npoints',[N M],...)
+% The default number of vertices is 128x256 (elevation x azimuth).  
+% To define a different number of vertices:
+%   > objMakeSphereBumpy(...,'npoints',[N M],...)
 %
 % To turn on the computation of surface normals (which will increase
 % coputation time):
@@ -49,6 +48,7 @@ function sphere = objMakeSphereBumpy(prm,varargin)
 % the imput argument prm), different types of bumps might be closer
 % together than mindist.  This might change in the future.
 %
+
 % Examples:
 % TODO
 

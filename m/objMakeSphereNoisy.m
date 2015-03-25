@@ -52,14 +52,15 @@ function sphere = objMakeSphereNoisy(nprm,varargin)
 % The default number of vertices when providing a function handle as
 % input is 128x256 (elevation x azimuth).  To define a different
 % number of vertices:
-%   > objMakeSphereNoisy(@...,'npoints',[N M],...)
+%   > objMakeSphereNoisy(...,'npoints',[N M],...)
 %
 % To turn on the computation of surface normals (which will increase
-% coputation time):
-%   > objMakeSphereNoisy(...,'NORMALS',true,...)
+% computation time):
+%   > objMakeSphereNoisy(...,'normals',true,...)
 %
 % For texture mapping, see help to objMakeSphere or online help.
 %
+
 % Examples:
 % TODO
 
@@ -69,8 +70,7 @@ function sphere = objMakeSphereNoisy(nprm,varargin)
 %                    faces, uv-coords, writing specs to obj-file
 % 2014-11-10 - ts - vertex normals, fixed call to renamed
 %                    objMakeNoiseComponents, renamed to
-%                    objMakeSphereNoisy, some help
-         
+%                    objMakeSphereNoisy, some help         
 
 %--------------------------------------------------
 
@@ -115,11 +115,11 @@ if ~isempty(mprm)
     case 1
       mprm = [mprm ones(nmcomp,1)*[1 0 0 0]];
     case 2
-      mprm = [mprm zeros(nmcomp,3)];
+      mprm = [mprm zeros(nmcomp,4)];
     case 3
-      mprm = [mprm zeros(nmcomp,2)];
+      mprm = [mprm zeros(nmcomp,3)];
     case 4
-      mprm = [mprm zeros(nmcomp,1)];
+      mprm = [mprm zeros(nmcomp,2)];
   end
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end

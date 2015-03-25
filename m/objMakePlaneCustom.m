@@ -1,18 +1,27 @@
 function plane = objMakePlaneCustom(f,prm,varargin)
 
-% OBJMAKEPLANECUSTOM
-%
-% Usage: plane = objMakePlaneCustom(f,prm,...)
+  % OBJMAKEPLANECUSTOM
+  %
+  % Usage: plane = objMakePlaneCustom(f,prm,...)
+  %
+  % Makes a 3D model plane with custom perturbations in the
+  % z-direction. The perturbation can be defined by an input matrix or
+  % image, or by providing a handle to a function that determines the
+  % modulation.
+  %
+  % For details on the input arguments, see the help for
+  % objMakeSphereCustom.
 
 % Toni Saarela, 2014
 % 2014-10-19 - ts - first version
 % 2014-10-20 - ts - small fixes
+% 2015-03-05 - ts - fixed computation of faces (they were defined CW,
+%                    should be CCW.  oops.)
+% 2015-03-06 - ts - added a "help"
 
 %--------------------------------------------
 
-% NB!!!! Computation of normals is not working!!  It was copied here
-% from the sphere function but there's something wrong.  Needs to be
-% fixed.
+% TODO: Double-check the vertex normal computation
 
 if ischar(f)
   map = double(imread(f));
@@ -67,7 +76,6 @@ mtlfilename = '';
 mtlname = '';
 mindist = 0;
 comp_normals = false;
-
 
 [tmp,par] = parseparams(varargin);
 if ~isempty(par)
@@ -218,40 +226,46 @@ Y = Y'; Y = Y(:);
 Z = Z'; Z = Z(:);
 
 vertices = [X Y Z];
+clear X Y Z
 
+%--------------------------------------------
+% Texture coordinates if material is defined
 if ~isempty(mtlfilename)
   U = (X-min(x))/(max(x)-min(x));
   V = (Y-min(y))/(max(y)-min(y));
   uvcoords = [U V];
 end
 
-% Face indices
-faces = zeros((m-1)*n*2,3);
+%--------------------------------------------
+% Faces, vertex indices
+faces = zeros((m-1)*(n-1)*2,3);
 
-%tic
-F = ([1 1]'*[1:n-1]);
-F = F(:) * [1 1 1];
-F(:,2) = F(:,2) + repmat([n n+1]',[n-1 1]);
-F(:,3) = F(:,3) + repmat([n+1 1]',[n-1 1]);
+F(:,1) = [[1 1]'*[1:n-1]](:);
+F(:,2) = [n+2:2*n; 2:n](:);
+F(:,3) = [[[1 1]' * [n+1:2*n]](:)](2:end-1);
 for ii = 1:m-1
   faces((ii-1)*(n-1)*2+1:ii*(n-1)*2,:) = (ii-1)*n + F;
 end
-%toc
 
+%--------------------------------------------
+% Vertex normals
 if comp_normals
   % Surface normals for the faces
   fn = cross([vertices(faces(:,2),:)-vertices(faces(:,1),:)],...
              [vertices(faces(:,3),:)-vertices(faces(:,1),:)]);
+
+  % Vertex normals
   normals = zeros(m*n,3);
   
+  % Loop through vertices, slow
   % for ii = 1:m*n
   %  idx = any(faces==ii,2);
   %  vn = sum(fn(idx,:),1);
   %  normals(ii,:) = vn / sqrt(vn*vn');
   % end
 
-  % Vertex normals
-  nfaces = (m-1)*n*2;
+  % Loop through faces, somewhat faster
+  nfaces = (m-1)*(n-1)*2;
   for ii = 1:nfaces
     normals(faces(ii,:),:) = normals(faces(ii,:),:) + [1 1 1]'*fn(ii,:);
   end
@@ -260,32 +274,57 @@ if comp_normals
   clear fn
 end
 
-%-------------------
-
+%--------------------------------------------
+% Output argument
 if nargout
   plane.vertices = vertices;
   plane.faces = faces;
   if ~isempty(mtlfilename)
-     sphere.uvcoords = uvcoords;
+     plane.uvcoords = uvcoords;
   end
   if comp_normals
-     sphere.normals = normals;
+     plane.normals = normals;
   end
   plane.npointsx = n;
   plane.npointsy = m;
 end
 
+%--------------------------------------------
 % Write to file
+
 fid = fopen(filename,'w');
-fprintf(fid,'# %s\n',datestr(now));
-fprintf(fid,'# Created with function %s.\n',mfilename);
+fprintf(fid,'# %s\n',datestr(now,31));
+fprintf(fid,'# Created with function %s from ShapeToolbox.\n',mfilename);
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
 fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
-% fprintf(fid,'#\n# Gaussian bump parameters (each row is bump type):\n');
-% fprintf(fid,'#  # of bumps | Amplitude | Sigma\n');
-% for ii = 1:nbumptypes
-%   fprintf(fid,'#  %d           %4.2f       %4.2f\n',prm(ii,:));
-% end
+if isempty(mtlfilename)
+  fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
+else
+  fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
+end
+if comp_normals
+  fprintf(fid,'# Vertex normals included: Yes.\n');
+else
+  fprintf(fid,'# Vertex normals included: No.\n');
+end
+
+if use_map
+  if exist(imgname)
+     fprintf(fid,'#\n# Modulation values defined by the (average) intensity\n');
+     fprintf(fid,'# of the image %s.\n',imgname);
+  else
+     fprintf(fid,'#\n# Modulation values defined by a custom matrix.\n');
+  end
+else    
+  fprintf(fid,'#\n#  Modulation defined by a custom user-defined function.\n');
+  fprintf(fid,'#  Modulation parameters:\n');
+  fprintf(fid,'#  # of locations | Cut-off dist. | Custom function arguments\n');
+  for ii = 1:nbumptypes
+    fprintf(fid,'#  %14d   %13.2f   ',prm(ii,1:2));
+    fprintf(fid,'%5.2f  ',prm(ii,3:end));
+    fprintf(fid,'\n');
+  end
+end
 
 if isempty(mtlfilename)
   fprintf(fid,'\n\n# Vertices:\n');
