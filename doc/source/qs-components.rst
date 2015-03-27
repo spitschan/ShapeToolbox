@@ -14,13 +14,19 @@ same angle but with different frequencies::
          16 .05 0 0]
   objMakeSphere(par);
 
+.. image:: ../images/sphere007.png
+
 Or you can have two components at different angles::
 
   objMakeSphere([8 .1 0 0; 8 .1 90 90]);
 
+.. image:: ../images/sphere008.png
+
 The same but with non-cardinal angles::
 
   objMakeSphere([8 .1 0 60; 8 .1 0 -60]);
+
+.. image:: ../images/sphere009.png
 
 There is no limit to the number of components you can add.  Note,
 however, that there's not much error checking done on the input
