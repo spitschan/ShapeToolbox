@@ -43,13 +43,17 @@ They way to connect the carrier to the envelope is to use an
 additional parameter, the **group index**.  The format of the
 parameter vector is then::
   
-  par = [frequency amplitude phase angle groupid]
+  prm = [frequency amplitude phase angle groupid]
 
 This example sets group indices 1 and 2 for the first and second
 component. ::
 
-  prm_carr = [20 .1 0 60 1; 20 .1 0 -60 2];
-  prm_env  = [4 1 0 0 1; 4 1 180 0 2];
+  prm_carr = [20 .1 0  60 1
+              20 .1 0 -60 2];
+
+  prm_env  = [4 1   0 0 1
+              4 1 180 0 2];
+
   objMakeSphere(prm_carr,prm_env);
 
 .. image:: ../images/modsphere003.png
@@ -65,10 +69,15 @@ define the modulated carrier components as above, but in addition we
 add an orthogonal modulator to get rid of the high-frequency ridges at
 the poles.  We give this third envelope a group index of 0 so that it
 multiplies **all the other components after they have been added
-together**.  Zero is also the defaul group index if none is defined. ::
+together**.  Zero is also the default group index if none is defined. ::
 
-  prm_carr = [20 .1 0 60 1; 20 .1 0 -60 2];
-  prm_env  = [4 1 0 0 1; 4 1 180 0 2; 2 1 90 90 0];
+  prm_carr = [20 .1 0  60 1
+              20 .1 0 -60 2];
+
+  prm_env  = [4 1   0  0 1
+              4 1 180  0 2
+              2 1  90 90 0];
+
   objMakeSphere(prm_carr,prm_env);
 
 .. image:: ../images/modsphere004.png

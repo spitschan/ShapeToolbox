@@ -7,6 +7,10 @@
 |toolbox| manual
 ================
 
+**NOTE: This manual is a work in progress.  Currently only the
+Getting Started -section has any meaningful content.  More added as
+often as possible.**
+
 |toolbox| is a collection of Octave/Matlab functions for generating 3D
 objects of various shapes and saving them in the Wavefront .obj-file
 format.  The shapes available include spheres, planes, cylinders,

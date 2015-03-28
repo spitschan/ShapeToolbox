@@ -5,6 +5,9 @@
 Adding texture
 ==============
 
+TODO. 
+
+
 Have a picture that everyone can download and use that in a texture
 mapping example.
 
