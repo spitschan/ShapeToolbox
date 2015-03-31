@@ -4,29 +4,24 @@
 A modulated sphere
 *************************
 
-This Getting Started tutorial demonstrates the use of the function
-:ref:`ref-objmakesphere` that produces model spheres with a modulated
-radius (with the modulation consisting of sine wave components).
-There are many other functions that make other types of object
-(planes, cylinder, tori, or surfaces of revolution), but the logic for
-defining the modulation is the same in them all.  There are also
-functions for producing other types of perturbation (for example,
-based on filtered noise components).  The use of all those functions
-should be easy to learn after familiarizing yourself with the examples
-in this tutorial.
-
 Let's start simple.  The command::
   
   objMakeSphere();
 
 makes a model sphere, modulated with the default parameters: vertical
 modulation, eight cycles around the sphere, with an amplitude of 0.1.
-The model is saved in the file ``sphere.obj``.  You can view the saved
-model object with one of the programs suggested in the section
-:ref:`qs-viewing`.  Rendered, it would look something like this:
+The sphere has a radius of one, so this amplitude is 10% of the sphere
+radius.  The model is saved in the file ``sphere.obj``.  You can view
+the saved model object with one of the programs suggested in the
+section :ref:`qs-viewing`.  Rendered, it would look something like
+this:
 
 .. image:: ../images/sphere001.png
+.. image:: ../images/sphere001profile.png
 
+**Above:** A sphere with the default modulation parameters.  The
+right-hand panel shows the modulation of the radius as a function of
+the angle (azimuth) from :math:`-\pi` to :math:`\pi`.
 
 Next, we'll start changing some of the parameters of the modulation.
 The parameters are given as the first input argument to
@@ -55,11 +50,21 @@ You can also go lower in frequency, such as in the example below.
 Note that the frequency is given in cycles per :math:`2\pi` (that is,
 in number of cycles around the sphere).  If frequency is not an
 integer, the modulation will not wrap around the object smoothly and
-you will have a discontinuity at 0 and :math:`2\pi`::
+you will have a discontinuity at :math:`-\pi` and :math:`\pi`::
 
   objMakeSphere([3.5 .2 0 0]);
 
-.. image:: ../images/sphere003.png
+
+
+.. image:: ../images/sphere003.png   
+.. image:: ../images/sphere003profile.png
+
+**Above:** Modulation with non-integer number of cycles leads to a
+discontinuity.  The right-hand panel shows the profile of the
+modulation; x-axis is the angle from :math:`-\pi` to :math:`\pi`.
+
+
+
 
 To have the modulation in the elevation ("horizontal") instead of the
 azimuth direction, change the angle parameter.  The angle of the

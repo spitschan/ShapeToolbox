@@ -15,6 +15,10 @@ same angle but with different frequencies::
   objMakeSphere(par);
 
 .. image:: ../images/sphere007.png
+.. image:: ../images/sphere007profile.png
+   :width: 300 px
+
+The schematic on the right shows the individual and compound profiles.
 
 Or you can have two components at different angles::
 
