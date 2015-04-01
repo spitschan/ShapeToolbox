@@ -12,7 +12,7 @@ Getting Started -section has any meaningful content.  More added as
 often as possible.**
 
 |toolbox| is a collection of Octave/Matlab functions for generating 3D
-objects of various shapes and saving them in the Wavefront .obj-file
+models of various shapes and saving them in the Wavefront .obj-file
 format.  The shapes available include spheres, planes, cylinders,
 tori, and surfaces or revolution of your choice.
 
@@ -31,7 +31,8 @@ The range of base shapes is limited to a handful of simple shapes, but
 the options for modulation can result in very complex shapes.
 However, |toolbox| is *not* a general-purpose 3D-modeling software with
 which you can create arbitrary or real-world stimuli such as houses
-and faces.
+and faces.  Nor is it a rendering tool: after creating the models with
+|toolbox|, you have to render them using some other program to create images.
 
 For examples of the shapes you can produce with |toolbox|, have a look
 at the :ref:`gallery`.

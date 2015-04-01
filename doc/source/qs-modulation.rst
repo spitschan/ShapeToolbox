@@ -22,20 +22,20 @@ The envelope (or "modulator") parameters are given as the second input
 argument to :ref:`ref-objmakesphere`.  The format of the parameter
 vector is the same as that for the carrier components.  The example
 below has a single carrier component and a single envelope, or
-modulator::
+modulator, with the same parameters the illustration above uses::
 
   objMakeSphere([16 .1 0 0],[4 1 0 0]);
 
 .. image:: ../images/modsphere001.png
 
-If the envelope contrast is 1, the envelope values range from 0 to 1.
+If the envelope amplitude is 1, the envelope values range from 0 to 1.
 At the peak of the envelope, the carrier thus has the peak amplitude
-defined by its contrast parameter.  At the trough of the envelope, the
-carrier amplitude goes to zero.  If the envelope contrast is lower
+defined by its own amplitude parameter.  At the trough of the envelope, the
+carrier amplitude goes to zero.  If the envelope amplitude is lower
 than one, the range of envelope values is decreased (a trough will be
-higher than zero, peak will be lower than one).  An envelope contrast
+higher than zero, peak will be lower than one).  An envelope amplitude
 of 0 leads to a uniform envelope with a constant value of 0.5.  See
-more below in :ref:`qs-modulation-contrast`.
+more below in :ref:`qs-modulation-amplitude`.
 
 The carrier and the envelope do not need to have the same orientation.
 In the earlier examples, when using vertical carriers, the ridges in
@@ -99,14 +99,15 @@ Group index 0 is special: A **carrier** that has a group index of 0 is
 added to the other components as is, before being multiplied by any
 envelope.  These other components might be either single carriers or
 carriers already multiplied with an envelope (with a non-zero group
-index).  An **envelope** that has a group index 0 multiplies **all** the
-other components after they have been added together.  This is used in
-the following example, which is a modification of the one above.  We
-define the modulated carrier components as above, but in addition we
+index).  An **envelope** that has a group index 0 multiplies **all**
+the other components after they have been added together.  This is
+used in the following example, which is a modification of the one
+above.  We define the modulated carrier components as above, but we
 add an orthogonal modulator to get rid of the high-frequency ridges at
 the poles.  We give this third envelope a group index of 0 so that it
 multiplies **all the other components after they have been added
-together**.  Zero is also the default group index if none is defined. ::
+together**.  Zero is also the default group index if none is
+defined. ::
 
   prm_carr = [20 .1 0  60 1
               20 .1 0 -60 2];
@@ -124,11 +125,11 @@ first before being multiplied by the envelope.  If there is more than
 one envelope in a group, they are added together before they multiply
 the carriers.
 
-.. _qs-modulation-contrast:
+.. _qs-modulation-amplitude:
 
 
-Carrier and envelope contrast
-=============================
+Carrier and envelope amplitude
+==============================
 
 In this example, we'll ignore the orientation of the carriers and
 envelopes and work with a simple one-dimensional example to illustrate
@@ -157,4 +158,4 @@ Finally, the radius of the sphere, as a function of the angle, is:
    r(\theta) = 1 + m(\theta)c(\theta)
 
 That is, without any components to modulate the radius (or with a
-component amplitude of 0), the radius is one.
+carrier amplitude of 0), the radius is one.

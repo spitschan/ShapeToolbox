@@ -1,14 +1,16 @@
 
 .. _qs-viewing:
 
-===============================
-A note on viewing the 3D-models
-===============================
+===========================
+A note on viewing 3D-models
+===========================
 
 When developing a new 3D model and trying out or testing various
 parameters, it is useful to be able to quickly view the model and then
-make adjustments.  This section lists a few ways (there are others) to
-viewing the models.
+make adjustments.  This section lists a few ways to viewing the
+models.  There are certainly other programs that can be used as well,
+and this list is not meant to be exhaustive, nor does it claim to
+include the best options available.  It merely gives a few pointers.
 
 Note that the tips below are only for quick viewing of the models.
 For rendering images of the models, see :ref:`rendering`.
@@ -47,12 +49,14 @@ Blender
 =======
 
 `Blender <http://www.blender.org/>`_ is a full-fledged 3D graphics
-creation and rendering software.  You can import obj-files to Blender
-for quick viewing of the models.
+creation, animation, and rendering software.  You can import obj-files
+to Blender for quick viewing of the models.
 
-Note: While Blender is great for viewing the shapes produced, it does
-not always work well with the the material and texture-mapping options
-in |toolbox|.  If you want quick viewing of the shapes along with the
-materials and textures you've defined for the object, `view3dscene
+While Blender is great for viewing the shapes produced, it might be
+tricky to make the material properties associated with the Wavefront
+.obj-file work (it also might be that the author just did not spend
+enough time trying to figure it out).  If you want quick viewing of
+the shapes along with the materials and textures you've defined for
+the object, `view3dscene
 <http://castle-engine.sourceforge.net/view3dscene.php>`_ should do a
 good job.

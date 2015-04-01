@@ -16,6 +16,9 @@ can be useful for rendering the shapes, but they are not part of
 Radiance
 ========
 
+TODO: an example on how to do the texture mapping in radiance
+(obj2mesh, colorpict...).
+
 =======
 Blender
 =======

@@ -14,7 +14,10 @@ Octave/Matlab loop.
 
 The first example has a single component.  The frequency is varied
 from 2 to 16 cycles while the other properties stay constant.  An
-orthogonal envelope is used as in the previous examples. ::
+orthogonal envelope is used as in the previous examples.  The value of
+the variable feature, here frequency, is made part of the file name in
+which the model is saved.  The file names are ``sphere_f02.obj``,
+``sphere_f04.obj``, ... , ``sphere_f16.obj``. ::
 
   % Set a vector of frequencies
   freq = [2 4 8 16];
@@ -38,9 +41,8 @@ The code above produces a series of four objects which, rendered, will look like
 
 
 The next example also has a single component.  The amplitude varies
-from 0 to 1 with other properties constant.  With modulation amplitude
-0 the object is a sphere.  With higher amplitudes it's... well, most
-certainly not a sphere anymore::
+from 0 to 1 with other properties constant.  The amplitude is included
+in the file name::
 
   % Set a vector of amplitude
   a = 0:.2:1;
@@ -58,7 +60,9 @@ certainly not a sphere anymore::
     objMakeSphere([f a(ii) ph or],[2 1 90 90],filename);
   end
 
-which gives:
+The rendered objects are shown below.  With modulation amplitude 0 the
+object is a sphere.  With higher amplitudes it's...  certainly not a
+sphere anymore:
 
 .. image:: ../images/series002.png
 

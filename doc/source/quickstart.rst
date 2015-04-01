@@ -18,14 +18,14 @@ in this tutorial.
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    qs-viewing
    qs-sphere
    qs-components
    qs-modulation
    qs-series
+   qs-normals
    qs-material
    qs-texture
-   qs-normals
-
+   qs-objspecs
