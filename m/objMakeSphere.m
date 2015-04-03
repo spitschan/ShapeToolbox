@@ -160,7 +160,7 @@ function sphere = objMakeSphere(cprm,varargin)
   % > objMakeSphere([8 .2 0 0])
 
 
-% Toni Saarela, 2013
+% Copyright (C) 2013,2014,2015 Toni Saarela
 % 2013-10-09 - ts - first version
 % 2013-10-10 - ts - added option for different amplitudes for the two modulations
 %                   added a choice for multiplying or adding the two modulations
@@ -198,6 +198,10 @@ function sphere = objMakeSphere(cprm,varargin)
 %                    updated; fixed wrapping of uv-coordinates
 % 2014-10-28 - ts - improved face computation
 % 2014-10-29 - ts - added optional computation of vertex normals
+% 2015-04-02 - ts - calls the new objSaveModelSphere-function to
+%                    compute faces, normals, etc and save the model to a file
+%                   saving the model is optional, an existing model
+%                     can be updated
 
 % TODO
 % Add option for noise in the amplitude
@@ -233,10 +237,13 @@ cprm(:,3:4) = pi * cprm(:,3:4)/180;
 % Set the default modulation parameters to empty indicating no
 % modulator; set default filename, material filename.
 mprm  = [];
+nmcomp = 0;
 filename = 'sphere.obj';
 mtlfilename = '';
 mtlname = '';
 comp_normals = false;
+dosave = true;
+new_model = true;
 
 % Number of vertices in azimuth and elevation directions, default values
 n = 256;
@@ -288,11 +295,26 @@ if ~isempty(par)
              error('No value or a bad value given for option ''material''.');
            end
          case 'normals'
-           if ii<length(par) && (isnumeric(par{ii+1}) || islogical(par{ii+1}))
+           if ii<length(par) && isscalar(par{ii+1})
              ii = ii + 1;
              comp_normals = par{ii};
            else
              error('No value or a bad value given for option ''normals''.');
+           end
+         case 'save'
+           if ii<length(par) && isscalar(par{ii+1})
+             ii = ii + 1;
+             dosave = par{ii};
+           else
+             error('No value or a bad value given for option ''save''.');
+           end              
+         case 'model'
+           if ii<length(par) && isstruct(par{ii+1})
+             ii = ii + 1;
+             sphere = par{ii};
+             new_model = false;
+           else
+             error('No value or a bad value given for option ''model''.');
            end
          otherwise
            filename = par{ii};
@@ -307,181 +329,74 @@ if isempty(regexp(filename,'\.obj$'))
   filename = [filename,'.obj'];
 end
 
-r = 1; % radius
-theta = linspace(-pi,pi-2*pi/n,n); % azimuth
-phi = linspace(-pi/2,pi/2,m)'; % elevation
-
 %--------------------------------------------
+% Vertices
+
+if new_model
+  r = 1; % radius
+  theta = linspace(-pi,pi-2*pi/n,n); % azimuth
+  phi = linspace(-pi/2,pi/2,m)'; % elevation
+
+  [Theta,Phi] = meshgrid(theta,phi);
+  Theta = Theta'; Theta = Theta(:);
+  Phi   = Phi';   Phi   = Phi(:);
+else
+  m = sphere.m;
+  n = sphere.n;
+  Theta = sphere.Theta;
+  Phi = sphere.Phi;
+  r = sphere.R;
+end
 
 if any(cprm(:,2)>r)
   error('Modulation amplitude has to be less than sphere radius (1).');
 end
-
-%--------------------------------------------
-% Vertices
-
-[Theta,Phi] = meshgrid(theta,phi);
 
 R = r + objMakeSineComponents(cprm,mprm,Theta,Phi);
 
 % Convert vertices to cartesian coordinates
 [X,Y,Z] = sph2cart(Theta,Phi,R);
 
-X = X'; X = X(:);
-Y = Y'; Y = Y(:);
-Z = Z'; Z = Z(:);
-
 vertices = [X Y Z];
 
 clear X Y Z
 
-%--------------------------------------------
-% Texture coordinates if material is defined
-if ~isempty(mtlfilename)
-  u = linspace(0,1,n+1);
-  v = linspace(0,1,m);
-  [U,V] = meshgrid(u,v);
-  U = U'; V = V';
-  uvcoords = [U(:) V(:)];
-  clear u v U V
-end
-
-%--------------------------------------------
-% Faces, vertex indices
-faces = zeros((m-1)*n*2,3);
-
-F = ([1 1]'*[1:n]);
-F = F(:) * [1 1 1];
-F(:,2) = F(:,2) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
-F(:,3) = F(:,3) + [repmat([n n+1]',[n-1 1]); [n 1]'];
-for ii = 1:m-1
-  faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
-end
-
-% Faces, uv coordinate indices
-if ~isempty(mtlfilename)
-  facestxt = zeros((m-1)*n*2,3);
-  n2 = n + 1;
-  F = ([1 1]'*[1:n]);
-  F = F(:) * [1 1 1];
-  F(:,2) = reshape([1 1]'*[2:n2]+[1 0]'*n2*ones(1,n),[2*n 1]);
-  F(:,3) = n2 + [1; reshape([1 1]'*[2:n],[2*(n-1) 1]); n2];
-  for ii = 1:m-1
-    facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n2 + F;
-  end
-end
-
-%--------------------------------------------
-% Vertex normals
-if comp_normals
-  % Surface normals for the faces
-  fn = cross([vertices(faces(:,2),:)-vertices(faces(:,1),:)],...
-             [vertices(faces(:,3),:)-vertices(faces(:,1),:)]);
-  normals = zeros(m*n,3);
-  
-  % for ii = 1:m*n
-  %  idx = any(faces==ii,2);
-  %  vn = sum(fn(idx,:),1);
-  %  normals(ii,:) = vn / sqrt(vn*vn');
-  % end
-
-  % Vertex normals
-  nfaces = (m-1)*n*2;
-  for ii = 1:nfaces
-    normals(faces(ii,:),:) = normals(faces(ii,:),:) + [1 1 1]'*fn(ii,:);
-  end
-  normals = normals./sqrt(sum(normals.^2,2)*[1 1 1]);
-
-  clear fn
-end
-
-%--------------------------------------------
-% Output argument
-if nargout
-  sphere.vertices = vertices;
-  sphere.faces = faces;
-  if ~isempty(mtlfilename)
-     sphere.uvcoords = uvcoords;
-  end
-  if comp_normals
-     sphere.normals = normals;
-  end
-  sphere.npointsx = n;
-  sphere.npointsy = m;
-end
-
-%--------------------------------------------
-% Write to file
-
-fid = fopen(filename,'w');
-fprintf(fid,'# %s\n',datestr(now,31));
-fprintf(fid,'# Created with function %s from ShapeToolbox.\n',mfilename);
-fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
-fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
-if isempty(mtlfilename)
-  fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
+% The field prm can be made an array.  If the structure sphere is
+% passed to another objMakeSphere*-function, that function will add
+% its parameters to that array.
+if new_model
+  sphere.prm.cprm = cprm;
+  sphere.prm.mprm = mprm;
+  sphere.prm.nccomp = nccomp;
+  sphere.prm.nmcomp = nmcomp;
+  sphere.prm.mfilename = mfilename;
+  sphere.normals = [];
 else
-  fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
+  ii = length(sphere.prm)+1;
+  sphere.prm(ii).cprm = cprm;
+  sphere.prm(ii).mprm = mprm;
+  sphere.prm(ii).nccomp = nccomp;
+  sphere.prm(ii).nmcomp = nmcomp;
+  sphere.prm(ii).mfilename = mfilename;
+  sphere.normals = [];
 end
-if comp_normals
-  fprintf(fid,'# Vertex normals included: Yes.\n');
-else
-  fprintf(fid,'# Vertex normals included: No.\n');
+sphere.shape = 'sphere';
+sphere.filename = filename;
+sphere.mtlfilename = mtlfilename;
+sphere.mtlname = mtlname;
+sphere.comp_normals = comp_normals;
+sphere.n = n;
+sphere.m = m;
+sphere.Theta = Theta;
+sphere.Phi = Phi;
+sphere.R = R;
+sphere.vertices = vertices;
+
+if dosave
+  sphere = objSaveModelSphere(sphere);
 end
 
-fprintf(fid,'#\n# Modulation carrier parameters (each row is one component):\n');
-fprintf(fid,'#  Frequency | Amplitude | Phase | Angle | Group\n');
-for ii = 1:nccomp
-  fprintf(fid,'#     %6.2f      %6.2f  %6.2f  %6.2f       %d\n',cprm(ii,:));
+if ~nargout
+   clear sphere
 end
-
-if ~isempty(mprm)
-  fprintf(fid,'#\n# Modulator parameters (each row is one component):\n');
-  fprintf(fid,'#  Frequency | Amplitude | Phase | Angle | Group\n');
-  for ii = 1:nmcomp
-    fprintf(fid,'#     %6.2f      %6.2f  %6.2f  %6.2f       %d\n',mprm(ii,:));
-  end
-end
-
-fprintf(fid,'#\n# Phase and angle are in radians above.\n');
-
-if isempty(mtlfilename)
-  fprintf(fid,'\n\n# Vertices:\n');
-  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n');
-  if comp_normals
-    fprintf(fid,'\n# Normals:\n');
-    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
-    fprintf(fid,'# End normals\n');
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d//%d %d//%d %d//%d\n',[faces(:,1) faces(:,1) faces(:,2) faces(:,2) faces(:,3) faces(:,3)]');
-  else
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d %d %d\n',faces');    
-  end
-  fprintf(fid,'# End faces\n');
-else
-  fprintf(fid,'\nmtllib %s\nusemtl %s\n',mtlfilename,mtlname);
-  fprintf(fid,'\n# Vertices:\n');
-  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
-  fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
-  fprintf(fid,'# End texture coordinates\n');
-  if comp_normals
-    fprintf(fid,'\n# Normals:\n');
-    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
-    fprintf(fid,'# End normals\n');
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
-            [faces(:,1) facestxt(:,1) faces(:,1)...
-             faces(:,2) facestxt(:,2) faces(:,2)...
-             faces(:,3) facestxt(:,3) faces(:,3)]');
-  else
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
-  end
-  fprintf(fid,'# End faces\n');
-end
-fclose(fid);
-
 

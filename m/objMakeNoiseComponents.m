@@ -17,11 +17,16 @@ function Z = objMakeNoiseComponents(nprm,mprm,X,Y,use_rms)
 %                    modulators, copied from _objMakeSineComponents
 % 2014-11-10 - ts - renamed (removed leading underscore that's not
 %                    allowed by Matlab)
+% 2015-04-03 - ts - changed sign of noise filter orientation to make
+%                    consistent with the sign convention of sine wave
+%                    components --- positive is clock-wise
+
+
 
 
 f = nprm(:,1);
 fw = nprm(:,2);
-th = nprm(:,3);
+th = -nprm(:,3);
 thw = nprm(:,4);
 a = nprm(:,5);
 group = nprm(:,6);

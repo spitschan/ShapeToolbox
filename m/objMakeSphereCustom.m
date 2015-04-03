@@ -71,11 +71,15 @@ function sphere = objMakeSphereCustom(f,prm,varargin)
   % Examples:
   % TODO
          
-% Toni Saarela, 2014
+% Copyright (C) 2014,2015 Toni Saarela
 % 2014-10-18 - ts - first version
 % 2014-10-20 - ts - small fixes
 % 2014-10-28 - ts - a bunch of fixes and improvements; wrote help
 % 2014-11-10 - ts - vertex normals, updated help, all units in degrees
+% 2015-04-02 - ts - calls the new objSaveModelSphere-function to
+%                    compute faces, normals, etc and save the model to a file
+%                   saving the model is optional, an existing model
+%                     can be updated
 
 % TODO
 % - return the locations of bumps
@@ -140,6 +144,8 @@ mtlfilename = '';
 mtlname = '';
 mindist = 0;
 comp_normals = false;
+dosave = true;
+new_model = true;
 
 [tmp,par] = parseparams(varargin);
 if ~isempty(par)
@@ -177,6 +183,21 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''normals''.');
            end
+         case 'save'
+           if ii<length(par) && isscalar(par{ii+1})
+             ii = ii + 1;
+             dosave = par{ii};
+           else
+             error('No value or a bad value given for option ''save''.');
+           end              
+         case 'model'
+           if ii<length(par) && isstruct(par{ii+1})
+             ii = ii + 1;
+             sphere = par{ii};
+             new_model = false;
+           else
+             error('No value or a bad value given for option ''model''.');
+           end
         otherwise
           filename = par{ii};
       end
@@ -193,10 +214,6 @@ end
 
 mindist = pi*mindist/180;
 
-r = 1; % radius
-theta = linspace(-pi,pi-2*pi/n,n); % azimuth
-phi = linspace(-pi/2,pi/2,m); % elevation
-
 %--------------------------------------------
 % TODO:
 % Throw an error if the asked minimum distance is a ridiculously large
@@ -208,15 +225,27 @@ phi = linspace(-pi/2,pi/2,m); % elevation
 %--------------------------------------------
 % Vertices
 
-[Theta,Phi] = meshgrid(theta,phi);
-
-% Theta = Theta'; Theta = Theta(:);
-% Phi   = Phi';   Phi   = Phi(:);
-% R = ones(m*n,1);
+if new_model
+  r = 1; % radius
+  theta = linspace(-pi,pi-2*pi/n,n); % azimuth
+  phi = linspace(-pi/2,pi/2,m); % elevation
+  
+  [Theta,Phi] = meshgrid(theta,phi);
+  r = r * ones([m n]);
+else
+  m = sphere.m;
+  n = sphere.n;
+  Theta = sphere.Theta;
+  Phi = sphere.Phi;
+  R = sphere.R;
+  Theta = reshape(Theta,[n m])';
+  Phi = reshape(Phi,[n m])';
+  r = reshape(R,[n m])';
+end
 
 if ~use_map
 
-  R = r * ones([m n]);
+  R = r;
 
   for jj = 1:nbumptypes
       
@@ -304,156 +333,56 @@ vertices = [X Y Z];
 
 clear X Y Z
 
-%--------------------------------------------
-% Texture coordinates if material is defined
-if ~isempty(mtlfilename)
-  u = linspace(0,1,n+1);
-  v = linspace(0,1,m);
-  [U,V] = meshgrid(u,v);
-  U = U'; V = V';
-  uvcoords = [U(:) V(:)];
-  clear u v U V
-end
-
-%--------------------------------------------
-% Faces, vertex indices
-
-faces = zeros((m-1)*n*2,3);
-
-F = ([1 1]'*[1:n]);
-F = F(:) * [1 1 1];
-F(:,2) = F(:,2) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
-F(:,3) = F(:,3) + [repmat([n n+1]',[n-1 1]); [n 1]'];
-for ii = 1:m-1
-  faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
-end
-
-% Faces, uv coordinate indices
-if ~isempty(mtlfilename)
-  facestxt = zeros((m-1)*n*2,3);
-  n2 = n + 1;
-  F = ([1 1]'*[1:n]);
-  F = F(:) * [1 1 1];
-  F(:,2) = reshape([1 1]'*[2:n2]+[1 0]'*n2*ones(1,n),[2*n 1]);
-  F(:,3) = n2 + [1; reshape([1 1]'*[2:n],[2*(n-1) 1]); n2];
-  for ii = 1:m-1
-    facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n2 + F;
-  end
-end
-
-if comp_normals
-  % Surface normals for the faces
-  fn = cross([vertices(faces(:,2),:)-vertices(faces(:,1),:)],...
-             [vertices(faces(:,3),:)-vertices(faces(:,1),:)]);
-  normals = zeros(m*n,3);
-  
-  % for ii = 1:m*n
-  %  idx = any(faces==ii,2);
-  %  vn = sum(fn(idx,:),1);
-  %  normals(ii,:) = vn / sqrt(vn*vn');
-  % end
-
-  % Vertex normals
-  nfaces = (m-1)*n*2;
-  for ii = 1:nfaces
-    normals(faces(ii,:),:) = normals(faces(ii,:),:) + [1 1 1]'*fn(ii,:);
-  end
-  normals = normals./sqrt(sum(normals.^2,2)*[1 1 1]);
-
-  clear fn
-end
-
-%--------------------------------------------
-% Output argument
-
-if nargout
-  sphere.vertices = vertices;
-  sphere.faces = faces;
-  if ~isempty(mtlfilename)
-     sphere.uvcoords = uvcoords;
-  end
-  if comp_normals
-     sphere.normals = normals;
-  end
-  sphere.npointsx = n;
-  sphere.npointsy = m;
-end
-
-%--------------------------------------------
-% Write to file
-
-fid = fopen(filename,'w');
-fprintf(fid,'# %s\n',datestr(now,31));
-fprintf(fid,'# Created with function %s from ShapeToolbox.\n',mfilename);
-fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
-fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
-if isempty(mtlfilename)
-  fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
-else
-  fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
-end
-if comp_normals
-  fprintf(fid,'# Vertex normals included: Yes.\n');
-else
-  fprintf(fid,'# Vertex normals included: No.\n');
-end
-
-if use_map
-  if exist(imgname)
-     fprintf(fid,'#\n# Modulation values defined by the (average) intensity\n');
-     fprintf(fid,'# of the image %s.\n',imgname);
+% The field prm can be made an array.  If the structure sphere is
+% passed to another objMakeSphere*-function, that function will add
+% its parameters to that array.
+if new_model
+  sphere.prm.use_map = use_map;
+  if use_map
+    if exist(imgname)
+      sphere.prm.imgname = imgname;
+    end
   else
-     fprintf(fid,'#\n# Modulation values defined by a custom matrix.\n');
+    sphere.prm.prm = prm;
+    sphere.prm.nbumptypes = nbumptypes;
+    sphere.prm.nbumps = nbumps;
   end
-else    
-  fprintf(fid,'#\n#  Modulation defined by a custom user-defined function.\n');
-  fprintf(fid,'#  Modulation parameters:\n');
-  fprintf(fid,'#  # of locations | Cut-off dist. | Custom function arguments\n');
-  for ii = 1:nbumptypes
-    fprintf(fid,'#  %14d   %13.2f   ',prm(ii,1:2));
-    fprintf(fid,'%5.2f  ',prm(ii,3:end));
-    fprintf(fid,'\n');
+  sphere.prm.mfilename = mfilename;
+  sphere.normals = [];
+else
+  ii = length(sphere.prm)+1;
+  sphere.prm(ii).use_map = use_map;
+  if use_map
+    if exist(imgname)
+      sphere.prm(ii).imgname = imgname;
+    end
+  else
+    sphere.prm(ii).prm = prm;
+    sphere.prm(ii).nbumptypes = nbumptypes;
+    sphere.prm(ii).nbumps = nbumps;
   end
+  sphere.prm(ii).mfilename = mfilename;
+  sphere.normals = [];
+end
+sphere.shape = 'sphere';
+sphere.filename = filename;
+sphere.mtlfilename = mtlfilename;
+sphere.mtlname = mtlname;
+sphere.comp_normals = comp_normals;
+sphere.n = n;
+sphere.m = m;
+sphere.Theta = Theta;
+sphere.Phi = Phi;
+sphere.R = R;
+sphere.vertices = vertices;
+
+if dosave
+  sphere = objSaveModelSphere(sphere);
 end
 
-if isempty(mtlfilename)
-  fprintf(fid,'\n\n# Vertices:\n');
-  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n');
-  if comp_normals
-    fprintf(fid,'\n# Normals:\n');
-    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
-    fprintf(fid,'# End normals\n');
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d//%d %d//%d %d//%d\n',[faces(:,1) faces(:,1) faces(:,2) faces(:,2) faces(:,3) faces(:,3)]');
-  else
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d %d %d\n',faces');    
-  end
-  fprintf(fid,'# End faces\n');
-else
-  fprintf(fid,'\nmtllib %s\nusemtl %s\n',mtlfilename,mtlname);
-  fprintf(fid,'\n# Vertices:\n');
-  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
-  fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
-  fprintf(fid,'# End texture coordinates\n');
-  if comp_normals
-    fprintf(fid,'\n# Normals:\n');
-    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
-    fprintf(fid,'# End normals\n');
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
-            [faces(:,1) facestxt(:,1) faces(:,1)...
-             faces(:,2) facestxt(:,2) faces(:,2)...
-             faces(:,3) facestxt(:,3) faces(:,3)]');
-  else
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
-  end
-  fprintf(fid,'# End faces\n');
+if ~nargout
+   clear sphere
 end
-fclose(fid);
 
 %---------------------------------------------
 % Functions

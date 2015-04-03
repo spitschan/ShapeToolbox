@@ -35,9 +35,18 @@ if nargin<2 || isempty(func)
   func = 'surf';
 end
 
-X = reshape(obj.vertices(:,1),[obj.npointsy obj.npointsx]);
-Y = reshape(obj.vertices(:,2),[obj.npointsy obj.npointsx]);
-Z = reshape(obj.vertices(:,3),[obj.npointsy obj.npointsx]);
+% Temporary hack
+try
+   m = obj.m;
+   n = obj.n;
+catch
+  m = obj.npointsy;
+  n = obj.npointsx;
+end
+
+X = reshape(obj.vertices(:,1),[m n]);
+Y = reshape(obj.vertices(:,2),[m n]);
+Z = reshape(obj.vertices(:,3),[m n]);
 
 figure;
 switch lower(func)

@@ -12,16 +12,19 @@ function plane = objMakePlaneCustom(f,prm,varargin)
   % For details on the input arguments, see the help for
   % objMakeSphereCustom.
 
-% Toni Saarela, 2014
+% Copyright (C) 2014,2015 Toni Saarela
+
 % 2014-10-19 - ts - first version
 % 2014-10-20 - ts - small fixes
 % 2015-03-05 - ts - fixed computation of faces (they were defined CW,
 %                    should be CCW.  oops.)
 % 2015-03-06 - ts - added a "help"
+% 2015-04-03 - ts - calls the new objSaveModelPlane-function to
+%                    compute faces, normals, etc and save the model to a file
+%                   saving the model is optional, an existing model
+%                     can be updated
 
 %--------------------------------------------
-
-% TODO: Double-check the vertex normal computation
 
 if ischar(f)
   map = double(imread(f));
@@ -76,6 +79,8 @@ mtlfilename = '';
 mtlname = '';
 mindist = 0;
 comp_normals = false;
+dosave = true;
+new_model = true;
 
 [tmp,par] = parseparams(varargin);
 if ~isempty(par)
@@ -113,6 +118,21 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''normals''.');
            end
+         case 'save'
+           if ii<length(par) && isscalar(par{ii+1})
+             ii = ii + 1;
+             dosave = par{ii};
+           else
+             error('No value or a bad value given for option ''save''.');
+           end              
+         case 'model'
+           if ii<length(par) && isstruct(par{ii+1})
+             ii = ii + 1;
+             plane = par{ii};
+             new_model = false;
+           else
+             error('No value or a bad value given for option ''model''.');
+           end
         otherwise
           filename = par{ii};
       end
@@ -126,6 +146,8 @@ end
 if isempty(regexp(filename,'\.obj$'))
   filename = [filename,'.obj'];
 end
+
+%--------------------------------------------
 
 w = 1; % width of the plane
 h = m/n * w;
@@ -142,13 +164,30 @@ y = linspace(-h/2,h/2,m)'; %
 %end
 %--------------------------------------------
 
-vertices = zeros(m*n,3);
+if new_model
+  w = 1; % width of the plane
+  h = m/n * w;
+  
+  x = linspace(-w/2,w/2,n); % 
+  y = linspace(-h/2,h/2,m)'; % 
 
-[X,Y] = meshgrid(x,y);
+  [X,Y] = meshgrid(x,y);
+  Z = zeros(size(X));
+else
+  m = plane.m;
+  n = plane.n;
 
+  w = 1; % width of the plane
+  h = m/n * w;
+  x = linspace(-w/2,w/2,n); % 
+  y = linspace(-h/2,h/2,m)'; % 
+
+  X = reshape(plane.X,[n m])';
+  Y = reshape(plane.Y,[n m])';
+  Z = reshape(plane.Z,[n m])';
+end
 
 if ~use_map
-  Z = zeros([m n]);
   
   for jj = 1:nbumptypes
       
@@ -218,7 +257,7 @@ else
     [X2,Y2] = meshgrid(x2,y2);
     map = interp2(X2,Y2,map,X,Y);
   end
-  Z = ampl * map;
+  Z = Z + ampl * map;
 end
 
 X = X'; X = X(:);
@@ -226,142 +265,52 @@ Y = Y'; Y = Y(:);
 Z = Z'; Z = Z(:);
 
 vertices = [X Y Z];
-clear X Y Z
 
-%--------------------------------------------
-% Texture coordinates if material is defined
-if ~isempty(mtlfilename)
-  U = (X-min(x))/(max(x)-min(x));
-  V = (Y-min(y))/(max(y)-min(y));
-  uvcoords = [U V];
-end
-
-%--------------------------------------------
-% Faces, vertex indices
-faces = zeros((m-1)*(n-1)*2,3);
-
-F(:,1) = [[1 1]'*[1:n-1]](:);
-F(:,2) = [n+2:2*n; 2:n](:);
-F(:,3) = [[[1 1]' * [n+1:2*n]](:)](2:end-1);
-for ii = 1:m-1
-  faces((ii-1)*(n-1)*2+1:ii*(n-1)*2,:) = (ii-1)*n + F;
-end
-
-%--------------------------------------------
-% Vertex normals
-if comp_normals
-  % Surface normals for the faces
-  fn = cross([vertices(faces(:,2),:)-vertices(faces(:,1),:)],...
-             [vertices(faces(:,3),:)-vertices(faces(:,1),:)]);
-
-  % Vertex normals
-  normals = zeros(m*n,3);
-  
-  % Loop through vertices, slow
-  % for ii = 1:m*n
-  %  idx = any(faces==ii,2);
-  %  vn = sum(fn(idx,:),1);
-  %  normals(ii,:) = vn / sqrt(vn*vn');
-  % end
-
-  % Loop through faces, somewhat faster
-  nfaces = (m-1)*(n-1)*2;
-  for ii = 1:nfaces
-    normals(faces(ii,:),:) = normals(faces(ii,:),:) + [1 1 1]'*fn(ii,:);
-  end
-  normals = normals./sqrt(sum(normals.^2,2)*[1 1 1]);
-
-  clear fn
-end
-
-%--------------------------------------------
-% Output argument
-if nargout
-  plane.vertices = vertices;
-  plane.faces = faces;
-  if ~isempty(mtlfilename)
-     plane.uvcoords = uvcoords;
-  end
-  if comp_normals
-     plane.normals = normals;
-  end
-  plane.npointsx = n;
-  plane.npointsy = m;
-end
-
-%--------------------------------------------
-% Write to file
-
-fid = fopen(filename,'w');
-fprintf(fid,'# %s\n',datestr(now,31));
-fprintf(fid,'# Created with function %s from ShapeToolbox.\n',mfilename);
-fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
-fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
-if isempty(mtlfilename)
-  fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
-else
-  fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
-end
-if comp_normals
-  fprintf(fid,'# Vertex normals included: Yes.\n');
-else
-  fprintf(fid,'# Vertex normals included: No.\n');
-end
-
-if use_map
-  if exist(imgname)
-     fprintf(fid,'#\n# Modulation values defined by the (average) intensity\n');
-     fprintf(fid,'# of the image %s.\n',imgname);
+if new_model
+  plane.prm.use_map = use_map;
+  if use_map
+    if exist(imgname)
+      plane.prm.imgname = imgname;
+    end
   else
-     fprintf(fid,'#\n# Modulation values defined by a custom matrix.\n');
+    plane.prm.prm = prm;
+    plane.prm.nbumptypes = nbumptypes;
+    plane.prm.nbumps = nbumps;
   end
-else    
-  fprintf(fid,'#\n#  Modulation defined by a custom user-defined function.\n');
-  fprintf(fid,'#  Modulation parameters:\n');
-  fprintf(fid,'#  # of locations | Cut-off dist. | Custom function arguments\n');
-  for ii = 1:nbumptypes
-    fprintf(fid,'#  %14d   %13.2f   ',prm(ii,1:2));
-    fprintf(fid,'%5.2f  ',prm(ii,3:end));
-    fprintf(fid,'\n');
+  plane.prm.mfilename = mfilename;
+  plane.normals = [];
+else
+  ii = length(plane.prm)+1;
+  plane.prm(ii).use_map = use_map;
+  if use_map
+    if exist(imgname)
+      plane.prm(ii).imgname = imgname;
+    end
+  else
+    plane.prm(ii).prm = prm;
+    plane.prm(ii).nbumptypes = nbumptypes;
+    plane.prm(ii).nbumps = nbumps;
   end
+  plane.prm(ii).mfilename = mfilename;
+  plane.normals = [];
+end
+plane.shape = 'plane';
+plane.filename = filename;
+plane.mtlfilename = mtlfilename;
+plane.mtlname = mtlname;
+plane.comp_normals = comp_normals;
+plane.n = n;
+plane.m = m;
+plane.X = X;
+plane.Y = Y;
+plane.Z = Z;
+plane.vertices = vertices;
+
+if dosave
+  plane = objSaveModelPlane(plane);
 end
 
-if isempty(mtlfilename)
-  fprintf(fid,'\n\n# Vertices:\n');
-  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n');
-  if comp_normals
-    fprintf(fid,'\n# Normals:\n');
-    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
-    fprintf(fid,'# End normals\n');
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d//%d %d//%d %d//%d\n',[faces(:,1) faces(:,1) faces(:,2) faces(:,2) faces(:,3) faces(:,3)]');
-  else
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d %d %d\n',faces');    
-  end
-  fprintf(fid,'# End faces\n');
-else
-  fprintf(fid,'\nmtllib %s\nusemtl %s\n',mtlfilename,mtlname);
-  fprintf(fid,'\n# Vertices:\n');
-  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
-  fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
-  fprintf(fid,'# End texture coordinates\n');
-  if comp_normals
-    fprintf(fid,'\n# Normals:\n');
-    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
-    fprintf(fid,'# End normals\n');
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
-            [faces(:,1) faces(:,1) faces(:,1)...
-             faces(:,2) faces(:,2) faces(:,2)...
-             faces(:,3) faces(:,3) faces(:,3)]');
-  else
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) faces(:,1) faces(:,2) faces(:,2) faces(:,3) faces(:,3)]');
-  end
-  fprintf(fid,'# End faces\n');
+if ~nargout
+   clear plane
 end
-fclose(fid);
 

@@ -64,7 +64,7 @@ use the same texture as above::
 .. image:: ../images/texturesphere002.png
 
 By using a different image as texture and/or changing the material
-properties, you can have the texture modulation at a different
+properties, you can have the texture pattern at a different
 orientation, with a tint:
 
 .. image:: ../images/texturesphere003.png
@@ -81,7 +81,7 @@ psychophysics.
 Radiance
 ========
 
-The material and texture properties are not transferred to radiance
+The material and texture properties are not transferred to Radiance
 for the reasons explained in the previous section.  Texture mapping
 with Radiance is demonstrated in the :ref:`rendering` -section of this
 manual.

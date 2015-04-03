@@ -45,6 +45,8 @@ at the :ref:`gallery`.
    installation
    quickstart
    object_types
+   combinations
+   blending
    helperfuncs
    texture
    rendering
