@@ -1,8 +1,8 @@
-function torus = objMakeTorusNoise(nprm,varargin)
+function torus = objMakeTorusNoisy(nprm,varargin)
 
-% OBJMAKETORUSNOISE
+% OBJMAKETORUSNOISY
 %
-% Usage: torus = objMakeTorusNoise(nprm,...)
+% Usage: torus = objMakeTorusNoisy(nprm,...)
 
 
 % Toni Saarela, 2014
@@ -10,12 +10,15 @@ function torus = objMakeTorusNoise(nprm,varargin)
 % 2014-10-19 - ts - added an option to set tube radius
 %                   renamed input option for torus radius parameters
 % 2015-03-05 - ts - updated function call to objMakeNoiseComponents
+% 2015-04-04 - ts - calls the new objSaveModelTorus-function to
+%                    compute faces, normals, etc and save the model to a file
+%                   saving the model is optional, an existing model
+%                     can be updated, bunch of other minor improvements
 
 % TODO
 % Write stimulus paremeters into the obj-file
 % WRITE HELP!  
 
-%--------------------------------------------
 %--------------------------------------------------
 
 if ~nargin || isempty(nprm)
@@ -34,13 +37,17 @@ nprm(:,3:4) = pi * nprm(:,3:4)/180;
 
 % Set the default modulation parameters to empty indicating no modulator; set default filename.
 mprm  = [];
+nmcomp = 0;
 filename = 'torusnoisy.obj';
 use_rms = false;
 mtlfilename = '';
 mtlname = '';
-r = 0.4;
-R = 1;
-rprm = []; % rprm = [0 0 0];
+tube_radius = 0.4;
+radius = 1;
+rprm = [];
+comp_normals = false;
+dosave = true;
+new_model = true;
 
 % Number of vertices in y and x directions, default values
 m = 256;
@@ -85,7 +92,7 @@ if ~isempty(par)
          case 'tube_radius'
            if ii<length(par) && isnumeric(par{ii+1})
              ii = ii + 1;
-             r = par{ii};
+             tube_radius = par{ii};
            else
              error('No value or a bad value given for option ''tube_radius''.');
            end              
@@ -106,6 +113,28 @@ if ~isempty(par)
            end
          case 'rms'
            use_rms = true;
+         case 'normals'
+           if ii<length(par) && isscalar(par{ii+1})
+             ii = ii + 1;
+             comp_normals = par{ii};
+           else
+             error('No value or a bad value given for option ''normals''.');
+           end
+         case 'save'
+           if ii<length(par) && isscalar(par{ii+1})
+             ii = ii + 1;
+             dosave = par{ii};
+           else
+             error('No value or a bad value given for option ''save''.');
+           end              
+         case 'model'
+           if ii<length(par) && isstruct(par{ii+1})
+             ii = ii + 1;
+             torus = par{ii};
+             new_model = false;
+           else
+             error('No value or a bad value given for option ''model''.');
+           end
          otherwise
            filename = par{ii};
        end
@@ -119,31 +148,36 @@ if isempty(regexp(filename,'\.obj$'))
   filename = [filename,'.obj'];
 end
 
-theta = linspace(-pi,pi-2*pi/n,n); % azimuth
-phi = linspace(-pi,pi-2*pi/m,m); % 
-
 %--------------------------------------------
 
-%--------------------------------------------
-%--------------------------------------------
-%fprintf('1\n');
-[Theta,Phi] = meshgrid(theta,phi);
-%Theta = Theta'; Theta = Theta(:);
-%Phi   = Phi';   Phi   = Phi(:);
-%fprintf('2\n');
+if new_model
+  theta = linspace(-pi,pi-2*pi/n,n);
+  phi = linspace(-pi,pi-2*pi/m,m); 
+  [Theta,Phi] = meshgrid(theta,phi);
+  R = radius*ones(size(Theta));
+  r = tube_radius*ones(size(Theta));
+else
+  n = torus.n;
+  m = torus.m;
+  radius = torus.radius;
+  tube_radius = torus.tube_radius;
+  Theta = reshape(torus.Theta,[n m])';
+  Phi = reshape(torus.Phi,[n m])';
+  R = reshape(torus.R,[n m])';
+  r = reshape(torus.r,[n m])';
+end
 
-Rmod = zeros(size(Theta));
 if ~isempty(rprm)
+  Rmod = zeros(size(Theta));
   for ii = 1:size(rprm,1)
     Rmod = Rmod + rprm(ii,2) * sin(rprm(ii,1)*Theta + rprm(ii,3));
   end
   R = R + Rmod;
 end
-%fprintf('3\n');
-%keyboard
-r = r + objMakeNoiseComponents(nprm,mprm,Theta,Phi,use_rms);
-%keyboard
-%fprintf('4\n');
+
+if ~isempty(nprm)
+  r = r + objMakeNoiseComponents(nprm,mprm,Theta,Phi,use_rms);
+end
 
 Theta = Theta'; Theta = Theta(:);
 Phi   = Phi';   Phi   = Phi(:);
@@ -156,75 +190,46 @@ Z = r.*sin(Phi);
 
 vertices = [X Y Z];
 
-if ~isempty(mtlfilename)
-  Phi = Phi';
-  Theta = Theta';
-  U = (Theta(:)-min(theta))/(max(theta)-min(theta));
-  V = (Phi(:)-min(phi))/(max(phi)-min(phi));
-  uvcoords = [U V];
-end
-
-faces = zeros(m*n*2,3);
-
-% Face indices.
-% Good luck figuring out what goes on below.  This was the fastest way
-% I came up with so far and commenting is for losers.
-%tic
-F = ([1 1]'*[1:n]);
-F = F(:) * [1 1 1];
-F(:,2) = F(:,2) + [repmat([n n+1]',[n-1 1]); [n 1]'];
-F(:,3) = F(:,3) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
-for ii = 1:m-1
-  faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
-end
-F(:,1) = (m-1)*n+F(:,1);
-F(:,2) = [1; reshape([1 1]'*[2:n],[2*(n-1) 1]); 1];
-F(:,3) = [reshape([2:n; ((m-1)*n)+[2:n]],[2*(n-1) 1]); [1 (m-1)*n+1]'];
-faces((m-1)*n*2+1:m*n*2,:) = F;
-%toc
-
-if nargout
-  torus.vertices = vertices;
-  torus.faces = faces;
-  torus.npointsx = n;
-  torus.npointsy = m;
-end
-
-% Write to file
-fid = fopen(filename,'w');
-fprintf(fid,'# %s\n',datestr(now));
-fprintf(fid,'# Created with function %s.\n',mfilename);
-fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
-fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
-% fprintf(fid,'#\n# Modulation carrier parameters (each row is one component):\n');
-% fprintf(fid,'#  Frequency | Amplitude | Phase | Direction*\n');
-% for ii = 1:nccomp
-%   fprintf(fid,'#  %4.2f        %4.2f        %4.2f    %d\n',cprm(ii,:));
-% end
-% fprintf(fid,'# *Direction of modulation, 0 indicates azimuth, 1 elevation direction.\n');
-% if ~isempty(mprm)
-%   fprintf(fid,'#\n# Modulator parameters (each row is one component):\n');
-%   fprintf(fid,'#  Frequency | Amplitude | Phase | Direction*\n');
-%   for ii = 1:nmcomp
-%     fprintf(fid,'#  %4.2f        %4.2f        %4.2f    %d\n',mprm(ii,:));
-%   end
-%   fprintf(fid,'# *Direction of modulation, 0 indicates azimuth, 1 elevation direction.\n');
-% end
-
-if isempty(mtlfilename)
-  fprintf(fid,'\n\n# Vertices:\n');
-  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n\n# Faces:\n');
-  fprintf(fid,'f %d %d %d\n',faces');
-  fprintf(fid,'# End faces\n\n');
+if new_model
+  torus.prm.nprm = nprm;
+  torus.prm.mprm = mprm;
+  torus.prm.nncomp = nncomp;
+  torus.prm.nmcomp = nmcomp;
+  torus.prm.rprm = rprm;
+  torus.prm.use_rms = use_rms;
+  torus.prm.mfilename = mfilename;
+  torus.normals = [];
 else
-  fprintf(fid,'\n\nmtllib %s\nusemtl %s\n\n',mtlfilename,mtlname);
-  fprintf(fid,'\n\n# Vertices:\n');
-  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
-  fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
-  fprintf(fid,'# End texture coordinates\n\n# Faces:\n');
-  fprintf(fid,'f %d/%d %d/%d %d/%d\n',expmat(faces,[1,2])');
-  fprintf(fid,'# End faces\n\n');
+  ii = length(torus.prm)+1;
+  torus.prm(ii).nprm = nprm;
+  torus.prm(ii).mprm = mprm;
+  torus.prm(ii).nncomp = nncomp;
+  torus.prm(ii).nmcomp = nmcomp;
+  torus.prm(ii).rprm = rprm;
+  torus.prm(ii).use_rms = use_rms;
+  torus.prm(ii).mfilename = mfilename;
+  torus.normals = [];
 end
-fclose(fid);
+torus.shape = 'torus';
+torus.filename = filename;
+torus.mtlfilename = mtlfilename;
+torus.mtlname = mtlname;
+torus.comp_normals = comp_normals;
+torus.radius = radius;
+torus.tube_radius = tube_radius;
+torus.n = n;
+torus.m = m;
+torus.Theta = Theta;
+torus.Phi = Phi;
+torus.R = R;
+torus.r = r;
+torus.vertices = vertices;
+
+if dosave
+  torus = objSaveModelTorus(torus);
+end
+
+if ~nargout
+   clear torus
+end
+

@@ -1,61 +1,46 @@
-function cylinder = objMakeCylinder(cprm,varargin)
+function cylinder = objMakeCylinderNoisy(nprm,varargin)
 
-% OBJMAKECYLINDER 
+% OBJMAKECYLINDERNOISY
 %
+% Usage: cylinder = objMakeCylinderNoisy(...)
 
 % Copyright (C) 2014, 2015 Toni Saarela
-% 2014-10-10 - ts - first version
-% 2014-10-19 - ts - switched to using an external function to compute
-%                   the modulation
-% 2014-10-20 - ts - added texture mapping
-% 2015-01-16 - ts - fixed the call to renamed objMakeSineComponents
+% 2014-10-15 - ts - first version written
 % 2015-04-03 - ts - calls the new objSaveModelCylinder-function to
 %                    compute faces, normals, etc and save the model to a file
 %                   saving the model is optional, an existing model
-%                     can be updated
+%                     can be updated, many other improvements
 
+%--------------------------------------------------
 
-% TODO
-% Add an option to define whether modulations are done in angle
-% (theta) units or distance units.
-% Add modulators
-% More and better parsing of input arguments
-% HEEEEEEEEEEEELLLLLLLLLLLPPPPPPPPPP
-
-%--------------------------------------------
-
-if ~nargin || isempty(cprm)
-  cprm = [8 .1 0 0 0];
+if ~nargin || isempty(nprm)
+  nprm = [8 1 0 45 .1 0];
 end
 
-[nccomp,ncol] = size(cprm);
+[nncomp,ncol] = size(nprm);
 
-switch ncol
-  case 1
-    cprm = [cprm ones(nccomp,1)*[.1 0 0 0]];
-  case 2
-    cprm = [cprm zeros(nccomp,3)];
-  case 3
-    cprm = [cprm zeros(nccomp,2)];
-  case 4
-    cprm = [cprm zeros(nccomp,1)];
+if ncol==5
+  nprm = [nprm zeros(nncomp,1)];
+elseif ncol<5
+  error('Incorrect number of columns in input argument ''nprm''.');
 end
 
-cprm(:,3:4) = pi * cprm(:,3:4)/180;
+nprm(:,3:4) = pi * nprm(:,3:4)/180;
 
 % Set the default modulation parameters to empty indicating no
-% modulator; set default filename.
+% modulator; set default filename, material...
 mprm  = [];
 nmcomp = 0;
-filename = 'cylinder.obj';
+filename = 'cylindernoisy.obj';
+use_rms = false;
 mtlfilename = '';
 mtlname = '';
 comp_normals = false;
 dosave = true;
 new_model = true;
 
-% Number of vertices in the two directions
-m = 256; 
+% Number of vertices in the two directions, default values
+m = 256;
 n = 256;
 
 [modpar,par] = parseparams(varargin);
@@ -70,7 +55,7 @@ if ~isempty(mprm)
   [nmcomp,ncol] = size(mprm);
   switch ncol
     case 1
-      mprm = [mprm ones(nccomp,1)*[1 0 0 0]];
+      mprm = [mprm ones(nccomp,1)*[.1 0 0 0]];
     case 2
       mprm = [mprm zeros(nccomp,3)];
     case 3
@@ -102,8 +87,10 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''material''.');
            end
+         case 'rms'
+           use_rms = true;
          case 'normals'
-           if ii<length(par) && isscalar(par{ii+1})
+           if ii<length(par) && (isnumeric(par{ii+1}) || islogical(par{ii+1}))
              ii = ii + 1;
              comp_normals = par{ii};
            else
@@ -138,7 +125,6 @@ if isempty(regexp(filename,'\.obj$'))
 end
 
 %--------------------------------------------
-% Vertices
 
 if new_model
   r = 1; % radius
@@ -147,37 +133,44 @@ if new_model
   y = linspace(-h/2,h/2,m); % 
   
   [Theta,Y] = meshgrid(theta,y);
-  Theta = Theta'; Theta = Theta(:);
-  Y = Y'; Y = Y(:);
 else
-  m = cylinder.m;
-  n = cylinder.n;
   Theta = cylinder.Theta;
   Y = cylinder.Y;
   r = cylinder.R;
+  m = cylinder.m;
+  n = cylinder.n;
+  Theta = reshape(Theta,[n m])';
+  Y = reshape(Y,[n m])';
+  r = reshape(r,[n m])';
 end
 
-R = r + objMakeSineComponents(cprm,mprm,Theta,Y);;
+R = r + objMakeNoiseComponents(nprm,mprm,Theta,Y,use_rms);
+
+Theta = Theta'; Theta = Theta(:);
+Y = Y'; Y = Y(:);
+R = R'; R = R(:);
 
 % Convert vertices to cartesian coordinates
-X =  R .* cos(Theta);
+X = R .* cos(Theta);
 Z = -R .* sin(Theta);
 
 vertices = [X Y Z];
 
 if new_model
-  cylinder.prm.cprm = cprm;
+  cylinder.prm.nprm = nprm;
   cylinder.prm.mprm = mprm;
-  cylinder.prm.nccomp = nccomp;
+  cylinder.prm.nncomp = nncomp;
   cylinder.prm.nmcomp = nmcomp;
+  cylinder.prm.use_rms = use_rms;
   cylinder.prm.mfilename = mfilename;
   cylinder.normals = [];
 else
   ii = length(cylinder.prm)+1;
-  cylinder.prm(ii).cprm = cprm;
+  cylinder.prm(ii).nprm = nprm;
   cylinder.prm(ii).mprm = mprm;
-  cylinder.prm(ii).nccomp = nccomp;
+  cylinder.prm(ii).nncomp = nncomp;
   cylinder.prm(ii).nmcomp = nmcomp;
+  cylinder.prm(ii).use_rms = use_rms;
   cylinder.prm(ii).mfilename = mfilename;
   cylinder.normals = [];
 end
@@ -200,3 +193,4 @@ end
 if ~nargout
    clear cylinder
 end
+

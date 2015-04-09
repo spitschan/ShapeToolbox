@@ -199,14 +199,11 @@ if new_model
 
   [Theta,Phi] = meshgrid(theta,phi);
 else
-  Theta = sphere.Theta;
-  Phi = sphere.Phi;
-  r = sphere.R;
   n = sphere.n;
   m = sphere.m;
-  Theta = reshape(Theta,[n m])';
-  Phi = reshape(Phi,[n m])';
-  r = reshape(r,[n m])';
+  Theta = reshape(sphere.Theta,[n m])';
+  Phi = reshape(sphere.Phi,[n m])';
+  r = reshape(sphere.r,[n m])';
 end
 
 R = r + objMakeNoiseComponents(nprm,mprm,Theta,Phi,use_rms);

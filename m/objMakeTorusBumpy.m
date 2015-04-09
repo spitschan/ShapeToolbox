@@ -1,26 +1,16 @@
-function cylinder = objMakeCylinderBumpy(prm,varargin)
+function torus = objMakeTorusBumpy(prm,varargin)
 
-% OBJMAKECYLINDERBUMPY
-% 
-% Usage:          objMakeCylinderBumpy()
-
-% Copyright (C) 2014, 2015 Toni Saarela
-% 2014-10-19 - ts - first version
-% 2015-04-03 - ts - calls the new objSaveModelCylinder-function to
-%                    compute faces, normals, etc and save the model to a file
-%                   saving the model is optional, an existing model
-%                     can be updated
-
-
-% TODO
-% - return the locations of bumps
-% - write help
+% OBJMAKETORUSBUMPY
 %
+% Usage: torus = objMakeTorusBumpy(prm,varargin)
+
+% Copyright (C) 2015 Toni Saarela
+% 2015-04-05 - ts - first version
 
 %--------------------------------------------
 
 if ~nargin || isempty(prm)
-  prm = [20 .1 pi/12];
+  prm = [20 .1 pi/24];
 end
 
 [nbumptypes,ncol] = size(prm);
@@ -35,10 +25,13 @@ end
 nbumps = sum(prm(:,1));
 
 % Set default values before parsing the optional input arguments.
-filename = 'cylinderbumpy.obj';
+filename = 'torusbumpy.obj';
 mtlfilename = '';
 mtlname = '';
 mindist = 0;
+tube_radius = 0.4;
+radius = 1;
+rprm = [];
 m = 256;
 n = 256;
 comp_normals = false;
@@ -66,6 +59,20 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''npoints''.');
            end
+         case 'tube_radius'
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii + 1;
+             tube_radius = par{ii};
+           else
+             error('No value or a bad value given for option ''tube_radius''.');
+           end              
+         case {'rprm','radius_prm'}
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii + 1;
+             rprm = par{ii};
+           else
+             error('No value or a bad value given for option ''radius''.');
+           end
          case 'material'
            if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
              ii = ii + 1;
@@ -91,7 +98,7 @@ if ~isempty(par)
          case 'model'
            if ii<length(par) && isstruct(par{ii+1})
              ii = ii + 1;
-             cylinder = par{ii};
+             torus = par{ii};
              new_model = false;
            else
              error('No value or a bad value given for option ''model''.');
@@ -120,27 +127,34 @@ end
 %--------------------------------------------
 
 if new_model
-  r = 1; % radius
-  h = 2*pi*r; % height
-  theta = linspace(-pi,pi-2*pi/n,n); % azimuth
-  y = linspace(-h/2,h/2,m); % 
-  
-  [Theta,Y] = meshgrid(theta,y);
+  theta = linspace(-pi,pi-2*pi/n,n);
+  phi = linspace(-pi,pi-2*pi/m,m); 
+  [Theta,Phi] = meshgrid(theta,phi);
   Theta = Theta'; Theta = Theta(:);
-  Y = Y'; Y = Y(:);
-  R = r * ones([m*n,1]);
+  Phi   = Phi';   Phi   = Phi(:);
+  R = radius*ones(size(Theta));
+  r = tube_radius*ones(size(Theta));
 else
-  m = cylinder.m;
-  n = cylinder.n;
+  n = torus.n;
+  m = torus.m;
 
-  r = 1; % radius
-  h = 2*pi*r; % height
-  theta = linspace(-pi,pi-2*pi/n,n); % azimuth
-  y = linspace(-h/2,h/2,m); % 
+  theta = linspace(-pi,pi-2*pi/n,n);
+  phi = linspace(-pi,pi-2*pi/m,m); 
 
-  Theta = cylinder.Theta;
-  Y = cylinder.Y;
-  R = cylinder.R;
+  radius = torus.radius;
+  tube_radius = torus.tube_radius;
+  Theta = torus.Theta;
+  Phi = torus.Phi;
+  R = torus.R;
+  r = torus.r;
+end
+
+if ~isempty(rprm)
+  Rmod = zeros(size(Theta));
+  for ii = 1:size(rprm,1)
+    Rmod = Rmod + rprm(ii,2) * sin(rprm(ii,1)*Theta + rprm(ii,3));
+  end
+  R = R + Rmod;
 end
 
 for jj = 1:nbumptypes
@@ -150,13 +164,14 @@ for jj = 1:nbumptypes
     % Pick candidate locations (more than needed):
     nvec = 30*prm(jj,1);
     thetatmp = min(theta) + rand([nvec 1])*(max(theta)-min(theta));
-    ytmp = min(y) + rand([nvec 1])*(max(y)-min(y));
-
-    %d = sqrt((thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp').^2 + ...
-    %         (ytmp*ones([1 nvec])-ones([nvec 1])*ytmp').^2);
+    phitmp = min(phi) + rand([nvec 1])*(max(phi)-min(phi));
     
+    %d = sqrt((thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp').^2 + ...
+    %         (phitmp*ones([1 nvec])-ones([nvec 1])*phitmp').^2);
+
     d = sqrt(wrapAnglePi(thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp').^2 + ...
-             (ytmp*ones([1 nvec])-ones([nvec 1])*ytmp').^2);
+         wrapAnglePi(  phitmp*ones([1 nvec])-ones([nvec 1])*phitmp'  ).^2);
+
 
     % Always accept the first vector
     idx_accepted = [1];
@@ -181,70 +196,84 @@ for jj = 1:nbumptypes
     end
 
     theta0 = thetatmp(idx_accepted,:);
-    y0 = ytmp(idx_accepted,:);
+    phi0 = phitmp(idx_accepted,:);
 
   else
     %- pick n random locations
     theta0 = min(theta) + rand([prm(jj,1) 1])*(max(theta)-min(theta));
-    y0 = min(y) + rand([prm(jj,1) 1])*(max(y)-min(y));
+    phi0 = min(phi) + rand([prm(jj,1) 1])*(max(phi)-min(phi));
 
   end
     
-  clear thetatmp ytmp
+  clear thetatmp phitmp
 
   %-------------------
     
   for ii = 1:prm(jj,1)
     % See comment in objMakeCylinderCustom
+    % Get the angular difference for theta (azimuth direction)
     deltatheta = abs(wrapAnglePi(Theta - theta0(ii)));
-    deltax = deltatheta;% * r;
+    % Compute the distance in that direction.  Note this depends on
+    % the angle around the tube of the torus.
+    disttheta = deltatheta * (radius+tube_radius*cos(phi0(ii)));
     
-    deltay = Y - y0(ii);
-    d = sqrt(deltax.^2+deltay.^2);
-    
+    % Angular difference for phi, this is the angle around the tube.
+    deltaphi = abs(wrapAnglePi(Phi - phi0(ii)));
+    % Distance.  We're computing in distance not angle so that the
+    % bumps are symmetric.
+    distphi = deltaphi * tube_radius;
+
+    %d = sqrt(deltatheta.^2+deltaphi.^2);
+    d = sqrt(disttheta.^2+distphi.^2);
+
     idx = find(d<3.5*prm(jj,3));
-    R(idx) = R(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));      
+    r(idx) = r(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));      
     
   end
   
 end
 
-X = R .* cos(Theta);
-Z = -R .* sin(Theta);
+X = (R + r.*cos(Phi)).*cos(Theta);
+Y = (R + r.*cos(Phi)).*sin(Theta);
+Z = r.*sin(Phi);
+
 vertices = [X Y Z];
 
 if new_model
-  cylinder.prm.prm = prm;
-  cylinder.prm.bumptypes = nbumptypes;
-  cylinder.prm.nbumps = nbumps;
-  cylinder.prm.mfilename = mfilename;
-  cylinder.normals = [];
+  torus.prm.prm = prm;
+  torus.prm.bumptypes = nbumptypes;
+  torus.prm.nbumps = nbumps;
+  torus.prm.rprm = rprm;
+  torus.prm.mfilename = mfilename;
+  torus.normals = [];
 else
-  ii = length(cylinder.prm)+1;
-  cylinder.prm(ii).prm = prm;
-  cylinder.prm(ii).bumptypes = nbumptypes;
-  cylinder.prm(ii).nbumps = nbumps;
-  cylinder.prm(ii).mfilename = mfilename;
-  cylinder.normals = [];
+  ii = length(torus.prm)+1;
+  torus.prm(ii).prm = prm;
+  torus.prm(ii).bumptypes = nbumptypes;
+  torus.prm(ii).nbumps = nbumps;
+  torus.prm(ii).rprm = rprm;
+  torus.prm(ii).mfilename = mfilename;
+  torus.normals = [];
 end
-cylinder.shape = 'cylinder';
-cylinder.filename = filename;
-cylinder.mtlfilename = mtlfilename;
-cylinder.mtlname = mtlname;
-cylinder.comp_normals = comp_normals;
-cylinder.n = n;
-cylinder.m = m;
-cylinder.Theta = Theta;
-cylinder.Y = Y;
-cylinder.R = R;
-cylinder.vertices = vertices;
+torus.shape = 'torus';
+torus.filename = filename;
+torus.mtlfilename = mtlfilename;
+torus.mtlname = mtlname;
+torus.comp_normals = comp_normals;
+torus.n = n;
+torus.m = m;
+torus.Theta = Theta;
+torus.Phi = Phi;
+torus.R = R;
+torus.r = r;
+torus.vertices = vertices;
 
 if dosave
-  cylinder = objSaveModelCylinder(cylinder);
+  torus = objSaveModelTorus(torus);
 end
 
 if ~nargout
-   clear cylinder
+   clear torus
 end
 
 %----------------------------------------------------

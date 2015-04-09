@@ -1,61 +1,74 @@
-function p = objSaveModelPlane(p)
+function t = objSaveModelTorus(t)
 
-% OBJSAVEMODELPLANE
+% t = objSaveModelTorus(t)
 %
-% Usage: plane = objSaveModelPlane(plane)
+% Usage: t = objSaveModelTorus(t)
 %
-% A function called by the objMakePlane*-functions to compute
+% A function called by the objMakeTorus*-functions to compute
 % texture coordinates, faces, and so forth; and to write the model
 % to a file.
 
 % Copyright (C) 2015 Toni Saarela
-% 2015-04-03 - ts - first version, based on objMakePlane*-functions
-
-m = p.m;
-n = p.n;
-vertices = p.vertices;
+% 2015-04-04 - ts - first version
 
 %--------------------------------------------
+
+m = t.m;
+n = t.n;
+vertices = t.vertices;
+
+%--------------------------------------------
+
 % Texture coordinates if material is defined
-if ~isempty(p.mtlfilename)
-  U = (X-min(x))/(max(x)-min(x));
-  V = (Y-min(y))/(max(y)-min(y));
-  uvcoords = [U V];
+if ~isempty(t.mtlfilename)
+  u = linspace(0,1,n+1);
+  v = linspace(0,1,m+1);
+  [U,V] = meshgrid(u,v);
+  U = U'; V = V';
+  uvcoords = [U(:) V(:)];
+  clear u v U V
 end
 
 %--------------------------------------------
 % Faces, vertex indices
-faces = zeros((m-1)*(n-1)*2,3);
+faces = zeros(m*n*2,3);
 
-% Matlab does not allow the [](:) syntax below (Octave does; use
-% Octave) , so had to rewrite it using a temporary variable.  Uglier,
-% but surprisingly it's faster.
-%F(:,1) = [[1 1]'*[1:n-1]](:);
-%F(:,2) = [n+2:2*n; 2:n](:);
-%F(:,3) = [[[1 1]' * [n+1:2*n]](:)](2:end-1);
+% The first part is the same as with the sphere:
+F = ([1 1]'*[1:n]);
+F = F(:) * [1 1 1];
+F(:,2) = F(:,2) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
+F(:,3) = F(:,3) + [repmat([n n+1]',[n-1 1]); [n 1]'];
+% But loop until m, not m-1 as phi goes -pi to pi here, not -pi/2 to
+% pi/2.
+for ii = 1:m
+  faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
+end
+% Finally, to wrap around properly in the phi-direction:
+faces = 1 + mod(faces-1,m*n);
 
-ftmp = [[1 1]'*[1:n-1]];
-F(:,1) = ftmp(:);
-% OR:
-%F(:,1) = ceil([1:(2*n-2)]'/2);
-ftmp = [n+2:2*n; 2:n];
-F(:,2) = ftmp(:);
-ftmp = [[1 1]' * [n+1:2*n]];
-ftmp = ftmp(:);
-F(:,3) = ftmp(2:end-1);
-
-for ii = 1:m-1
-  faces((ii-1)*(n-1)*2+1:ii*(n-1)*2,:) = (ii-1)*n + F;
+% Faces, uv coordinate indices.  Not pretty but works.  May be
+% prettified in the future, but don't hold your breath.
+if ~isempty(t.mtlfilename)
+  facestxt = zeros(m*n*2,3);
+  F1 = [1 1]' * [1:n];
+  F1 = F1(:);
+  F2 = [(n+3):2*(n+1);2:(n+1)];
+  F2 = F2(:);
+  F3 = [1 1]' * [(n+2):2*(n+1)];
+  F3 = F3(:);
+  F3 = F3(2:end-1);
+  F = [F1 F2 F3];
+  for ii = 1:m
+    facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*(n+1) + F;
+  end
 end
 
 %--------------------------------------------
 % Vertex normals
-if p.comp_normals
+if t.comp_normals
   % Surface normals for the faces
   fn = cross([vertices(faces(:,2),:)-vertices(faces(:,1),:)],...
              [vertices(faces(:,3),:)-vertices(faces(:,1),:)]);
-
-  % Vertex normals
   normals = zeros(m*n,3);
   
   % Loop through vertices, slow
@@ -66,7 +79,7 @@ if p.comp_normals
   % end
 
   % Loop through faces, somewhat faster but still slow because of the loop
-  nfaces = (m-1)*(n-1)*2;
+  nfaces = m*n*2;
   for ii = 1:nfaces
     normals(faces(ii,:),:) = normals(faces(ii,:),:) + [1 1 1]'*fn(ii,:);
   end
@@ -77,72 +90,63 @@ end
 
 %--------------------------------------------
 % Output argument
-p.faces = faces;
-if ~isempty(p.mtlfilename)
-  p.uvcoords = uvcoords;
+
+t.faces = faces;
+if ~isempty(t.mtlfilename)
+  t.uvcoords = uvcoords;
 end
-if p.comp_normals
-  p.normals = normals;
+if t.comp_normals
+  t.normals = normals;
 end
 
 %--------------------------------------------
 % Write to file
 
-
-fid = fopen(p.filename,'w');
+fid = fopen(t.filename,'w');
 fprintf(fid,'# %s\n',datestr(now,31));
-for ii = 1:length(p.prm)
+for ii = 1:length(t.prm)
   if ii==1 verb = 'Created'; else verb = 'Modified'; end 
-  fprintf(fid,'# %d. %s with function %s from ShapeToolbox.\n',ii,verb,p.prm(ii).mfilename);
+  fprintf(fid,'# %d. %s with function %s from ShapeToolbox.\n',ii,verb,t.prm(ii).mfilename);
 end
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
 fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
-if isempty(p.mtlfilename)
+if isempty(t.mtlfilename)
   fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
 else
   fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
 end
-if p.comp_normals
+if t.comp_normals
   fprintf(fid,'# Vertex normals included: Yes.\n');
 else
   fprintf(fid,'# Vertex normals included: No.\n');
 end
 
-for ii = 1:length(p.prm)
-  fprintf(fid,'#\n# %s\n# %d. %s:\n',repmat('-',1,50),ii,p.prm(ii).mfilename);
-  switch p.prm(ii).mfilename
-    case 'objMakePlane'
-      %- Convert frequencies back to cycles/plane
-      p.prm(ii).cprm(:,1) = p.prm(ii).cprm(:,1)/(2*pi);
-      if ~isempty(p.prm(ii).mprm)
-        p.prm(ii).mprm(:,1) = p.prm(ii).mprm(:,1)/(2*pi);
-      end
-      writeSpecs(fid,p.prm(ii).cprm,p.prm(ii).mprm);
-    case 'objMakePlaneNoisy'
-      %- Convert frequencies back to cycles/plane
-      if ~isempty(p.prm(ii).mprm)
-        p.prm(ii).mprm(:,1) = p.prm(ii).mprm(:,1)/(2*pi);
-      end
-      writeSpecsNoisy(fid,p.prm(ii).nprm,p.prm(ii).mprm);
-      if p.prm(ii).use_rms
+for ii = 1:length(t.prm)
+  fprintf(fid,'#\n# %s\n# %d. %s:\n',repmat('-',1,50),ii,t.prm(ii).mfilename);
+  switch t.prm(ii).mfilename
+    case 'objMakeTorus'
+      writeSpecs(fid,t.prm(ii).cprm,t.prm(ii).mprm);
+    case 'objMakeTorusBumpy'
+      writeSpecsBumpy(fid,t.prm(ii).prm);
+    case 'objMakeTorusNoisy'
+      writeSpecsNoisy(fid,t.prm(ii).nprm,t.prm(ii).mprm);
+      if t.prm(ii).use_rms
         fprintf(fid,'# Use RMS contrast: Yes.\n');
       else
         fprintf(fid,'# Use RMS contrast: No.\n');
       end
-    case 'objMakePlaneBumpy'
-      writeSpecsBumpy(fid,p.prm(ii).prm)
-    case 'objMakePlaneCustom'
-      writeSpecsCustom(fid,p.prm(ii))
+    case 'objMakeTorusCustom'
+      writeSpecsCustom(fid,t.prm(ii))
   end
 end
 
 fprintf(fid,'#\n# Phase and angle (if present) are in radians above.\n');
 
-if isempty(p.mtlfilename)
+if isempty(t.mtlfilename)
   fprintf(fid,'\n\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n');
-  if p.comp_normals
+  if t.comp_normals
     fprintf(fid,'\n# Normals:\n');
     fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
     fprintf(fid,'# End normals\n');
@@ -154,24 +158,24 @@ if isempty(p.mtlfilename)
   end
   fprintf(fid,'# End faces\n');
 else
-  fprintf(fid,'\nmtllib %s\nusemtl %s\n',p.mtlfilename,p.mtlname);
+  fprintf(fid,'\nmtllib %s\nusemtl %s\n',t.mtlfilename,t.mtlname);
   fprintf(fid,'\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
   fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
   fprintf(fid,'# End texture coordinates\n');
-  if p.comp_normals
+  if t.comp_normals
     fprintf(fid,'\n# Normals:\n');
     fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
     fprintf(fid,'# End normals\n');
     fprintf(fid,'\n# Faces:\n');
     fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
-            [faces(:,1) faces(:,1) faces(:,1)...
-             faces(:,2) faces(:,2) faces(:,2)...
-             faces(:,3) faces(:,3) faces(:,3)]');
+            [faces(:,1) facestxt(:,1) faces(:,1)...
+             faces(:,2) facestxt(:,2) faces(:,2)...
+             faces(:,3) facestxt(:,3) faces(:,3)]');
   else
     fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) faces(:,1) faces(:,2) faces(:,2) faces(:,3) faces(:,3)]');
+    fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
   end
   fprintf(fid,'# End faces\n');
 end
@@ -198,7 +202,6 @@ if ~isempty(mprm)
     fprintf(fid,'#     %6.2f      %6.2f  %6.2f  %6.2f       %d\n',mprm(ii,:));
   end
 end
-
 
 function writeSpecsBumpy(fid,prm)
 

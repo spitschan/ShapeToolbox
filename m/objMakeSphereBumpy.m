@@ -172,7 +172,6 @@ end
 
 mindist = pi*mindist/180;
 
-
 %--------------------------------------------
 % TODO:
 % Throw an error if the asked minimum distance is a ridiculously large
@@ -238,7 +237,7 @@ for jj = 1:nbumptypes
     end
 
     if n_accepted<prm(jj,1)
-       error('Could not find enough vectors to satisfy the minumum distance criterion.\nConsider reducing the value of ''mindist''.');
+       error(sprintf('Could not find enough vectors to satisfy the minumum distance criterion.\nConsider reducing the value of ''mindist''.'));
     end
 
     p = ptmp(idx_accepted,:);

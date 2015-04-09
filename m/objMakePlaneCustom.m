@@ -27,7 +27,8 @@ function plane = objMakePlaneCustom(f,prm,varargin)
 %--------------------------------------------
 
 if ischar(f)
-  map = double(imread(f));
+  imgname = f;
+  map = double(imread(imgname));
   if ndims(map)>2
     map = mean(map,3);
   end
@@ -166,7 +167,7 @@ y = linspace(-h/2,h/2,m)'; %
 
 if new_model
   w = 1; % width of the plane
-  h = m/n * w;
+  h = 1; % m/n * w;
   
   x = linspace(-w/2,w/2,n); % 
   y = linspace(-h/2,h/2,m)'; % 
@@ -220,7 +221,7 @@ if ~use_map
       end
       
       if n_accepted<prm(jj,1)
-        error('Could not find enough vectors to satisfy the minumum distance criterion.\nConsider reducing the value of ''mindist''.');
+        error(sprintf('Could not find enough vectors to satisfy the minumum distance criterion.\nConsider reducing the value of ''mindist''.'));
       end
       
       x0 = xtmp(idx_accepted,:);

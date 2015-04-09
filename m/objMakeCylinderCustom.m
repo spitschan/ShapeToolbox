@@ -4,20 +4,24 @@ function cylinder = objMakeCylinderCustom(f,prm,varargin)
 % 
 % Usage:          objMakeCylinderCustom()
 
-% Toni Saarela, 2014
+% Copyright (C) 2014, 2015 Toni Saarela
 % 2014-10-18 - ts - first version
 % 2014-10-19 - ts - small fixes
 % 2014-10-20 - ts - small fixes
+% 2015-04-03 - ts - calls the new objSaveModelCylinder-function to
+%                    compute faces, normals, etc and save the model to a file
+%                   saving the model is optional, an existing model
+%                     can be updated, many other improvements
 
 % TODO
 % - return the locations of bumps
 % - write help
-% - write more info to the obj-file and the returned structure
 
 %--------------------------------------------
 
 if ischar(f)
-  map = double(imread(f));
+  imgname = f;
+  map = double(imread(imgname));
   if ndims(map)>2
     map = mean(map,3);
   end
@@ -68,8 +72,9 @@ filename = 'cylindercustom.obj';
 mtlfilename = '';
 mtlname = '';
 mindist = 0;
-%m = 128;
-%n = 256;
+comp_normals = false;
+dosave = true;
+new_model = true;
 
 [tmp,par] = parseparams(varargin);
 if ~isempty(par)
@@ -100,6 +105,28 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''material''.');
            end
+         case 'normals'
+           if ii<length(par) && (isnumeric(par{ii+1}) || islogical(par{ii+1}))
+             ii = ii + 1;
+             comp_normals = par{ii};
+           else
+             error('No value or a bad value given for option ''normals''.');
+           end
+         case 'save'
+           if ii<length(par) && isscalar(par{ii+1})
+             ii = ii + 1;
+             dosave = par{ii};
+           else
+             error('No value or a bad value given for option ''save''.');
+           end              
+         case 'model'
+           if ii<length(par) && isstruct(par{ii+1})
+             ii = ii + 1;
+             cylinder = par{ii};
+             new_model = false;
+           else
+             error('No value or a bad value given for option ''model''.');
+           end
         otherwise
           filename = par{ii};
       end
@@ -114,11 +141,6 @@ if isempty(regexp(filename,'\.obj$'))
   filename = [filename,'.obj'];
 end
 
-r = 1; % radius
-h = 2*pi*r; % height
-theta = linspace(-pi,pi-2*pi/n,n); % azimuth
-y = linspace(-h/2,h/2,m); % 
-
 %--------------------------------------------
 % TODO:
 % Throw an error if the asked minimum distance is a ridiculously large
@@ -128,74 +150,110 @@ y = linspace(-h/2,h/2,m); %
 %end
 %--------------------------------------------
 
-[Theta,Y] = meshgrid(theta,y);
+if new_model
+  r = 1; % radius
+  h = 2*pi*r; % height
+  theta = linspace(-pi,pi-2*pi/n,n); % azimuth
+  y = linspace(-h/2,h/2,m); % 
+  
+  [Theta,Y] = meshgrid(theta,y);
+  r = r * ones([m n]);
+else
+  m = cylinder.m;
+  n = cylinder.n;
+
+  r = 1; % radius
+  h = 2*pi*r; % height
+  theta = linspace(-pi,pi-2*pi/n,n); % azimuth
+  y = linspace(-h/2,h/2,m); % 
+
+  Theta = reshape(cylinder.Theta,[n m])';
+  Y = reshape(cylinder.Y,[n m])';
+  r = reshape(cylinder.R,[n m])';
+end
 
 if ~use_map
 
-  R = r * ones([m n]);
+  R = r;
 
   for jj = 1:nbumptypes
       
     if mindist
 
-    % Pick candidate locations (more than needed):
-    nvec = 30*prm(jj,1);
-    thetatmp = min(theta) + rand([nvec 1])*(max(theta)-min(theta));
-    ytmp = min(y) + rand([nvec 1])*(max(y)-min(y));
+      %- Pick candidate locations (more than needed):
+      nvec = 30*prm(jj,1);
+      thetatmp = min(theta) + rand([nvec 1])*(max(theta)-min(theta));
+      ytmp = min(y) + rand([nvec 1])*(max(y)-min(y));
 
+    %d = sqrt((thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp').^2 + ...
+    %         (ytmp*ones([1 nvec])-ones([nvec 1])*ytmp').^2);
     
-    d = sqrt((thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp').^2 + (ytmp*ones([1 nvec])-ones([nvec 1])*ytmp').^2);
+    d = sqrt(wrapAnglePi(thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp').^2 + ...
+             (ytmp*ones([1 nvec])-ones([nvec 1])*ytmp').^2);
 
-    % Always accept the first vector
-    idx_accepted = [1];
-    n_accepted = 1;
-    % Loop over the remaining candidate vectors and keep the ones that
-    % are at least the minimum distance away from those already
-    % accepted.
-    idx = 2;
-    while idx <= size(thetatmp,1)
-      if all(d(idx_accepted,idx)>=mindist)
-         idx_accepted = [idx_accepted idx];
-         n_accepted = n_accepted + 1;
+      %- Always accept the first vector
+      idx_accepted = [1];
+      n_accepted = 1;
+      %- Loop over the remaining candidate vectors and keep the ones that
+      %- are at least the minimum distance away from those already
+      %- accepted.
+      idx = 2;
+      while idx <= size(thetatmp,1)
+        if all(d(idx_accepted,idx)>=mindist)
+          idx_accepted = [idx_accepted idx];
+          n_accepted = n_accepted + 1;
+        end
+        if n_accepted==prm(jj,1)
+          break
+        end
+        idx = idx + 1;
       end
-      if n_accepted==prm(jj,1)
-        break
+
+      if n_accepted<prm(jj,1)
+        error(sprintf('Could not find enough vectors to satisfy the minumum distance criterion.\nConsider reducing the value of ''mindist''.'));
       end
-      idx = idx + 1;
-    end
 
-    if n_accepted<prm(jj,1)
-       error('Could not find enough vectors to satisfy the minumum distance criterion.\nConsider reducing the value of ''mindist''.');
-    end
+      theta0 = thetatmp(idx_accepted,:);
+      y0 = ytmp(idx_accepted,:);
 
-    theta0 = thetatmp(idx_accepted,:);
-    y0 = ytmp(idx_accepted,:);
-
-  else
-    %- pick n random locations
-    theta0 = min(theta) + rand([prm(jj,1) 1])*(max(theta)-min(theta));
-    y0 = min(y) + rand([prm(jj,1) 1])*(max(y)-min(y));
+    else
+      %- pick n random locations
+      theta0 = min(theta) + rand([prm(jj,1) 1])*(max(theta)-min(theta));
+      y0 = min(y) + rand([prm(jj,1) 1])*(max(y)-min(y));
 
     end
     
     clear thetatmp ytmp
 
-    
     %-------------------
     
     for ii = 1:prm(jj,1)
       deltatheta = abs(wrapAnglePi(Theta - theta0(ii)));
-      deltax = deltatheta * r;
+      %deltatheta = wrapAnglePi(Theta - theta0(ii));
+      %deltatheta = Theta - theta0(ii);
+
+      % To get distance on the surfae of the cylinder, we should
+      % multiply the angle by the radius.  This is fine if the radius
+      % is a scalar.  But we could be adding a modulation to an
+      % existing model, in which case the radius values are in matrix
+      % and not constant.  Maybe we should keep the original "base
+      % radius" and use that?  As for now, the base radius is 1 so
+      % this does not matter.  It becomes an issue if the user can
+      % define the object sizes (in this case, radius and height) at
+      % some point.
+      deltax = deltatheta;% * r;
 
       deltay = Y - y0(ii);
       d = sqrt(deltax.^2+deltay.^2);
-    
+      
       idx = find(d<prm(jj,2));
       %Z(idx) = Z(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));      
       %Z(idx) = Z(idx) + f(d(idx),prm(jj,3:end));
       R(idx) = R(idx) + f(d(idx),prm(jj,3:end));
-      
+      %keyboard
     end
+
+  %keyboard
     
   end
 else
@@ -208,75 +266,65 @@ else
   R = r + ampl * map;
 end
 
-X = R .* cos(Theta);
+Theta = Theta'; Theta = Theta(:);
+Y = Y'; Y = Y(:);
+R = R'; R = R(:);
+
+X =  R .* cos(Theta);
 Z = -R .* sin(Theta);
 
-X = X'; X = X(:);
-Y = Y'; Y = Y(:);
-Z = Z'; Z = Z(:);
 vertices = [X Y Z];
 
-if ~isempty(mtlfilename)
-  Theta = Theta'; Theta = Theta(:);
-  U = (Theta-min(theta))/(max(theta)-min(theta));
-  V = (Y-min(y))/(max(y)-min(y));
-  uvcoords = [U V];
-end
-
-faces = zeros((m-1)*n*2,3);
-
-% Face indices
-
-%tic
-F = ([1 1]'*[1:n]);
-F = F(:) * [1 1 1];
-F(:,2) = F(:,2) + [repmat([n n+1]',[n-1 1]); [n 1]'];
-F(:,3) = F(:,3) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
-for ii = 1:m-1
-  faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
-end
-%toc
-
-%-------------------
-
-
-if nargout
-  cylinder.vertices = vertices;
-  cylinder.faces = faces;
-  cylinder.npointsx = n;
-  cylinder.npointsy = m;
-end
-
-
-% Write to file
-fid = fopen(filename,'w');
-fprintf(fid,'# %s\n',datestr(now));
-fprintf(fid,'# Created with function %s.\n',mfilename);
-fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
-fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
-% fprintf(fid,'#\n# Gaussian bump parameters (each row is bump type):\n');
-% fprintf(fid,'#  # of bumps | Amplitude | Sigma\n');
-% for ii = 1:nbumptypes
-%   fprintf(fid,'#  %d           %4.2f       %4.2f\n',prm(ii,:));
-% end
-if isempty(mtlfilename)
-  fprintf(fid,'\n\n# Vertices:\n');
-  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n\n# Faces:\n');
-  fprintf(fid,'f %d %d %d\n',faces');
-  fprintf(fid,'# End faces\n\n');
+if new_model
+  cylinder.prm.use_map = use_map;
+  if use_map
+    if exist(imgname)
+      cylinder.prm.imgname = imgname;
+    end
+  else
+    cylinder.prm.prm = prm;
+    cylinder.prm.nbumptypes = nbumptypes;
+    cylinder.prm.nbumps = nbumps;
+  end
+  cylinder.prm.mfilename = mfilename;
+  cylinder.normals = [];
 else
-  fprintf(fid,'\n\nmtllib %s\nusemtl %s\n\n',mtlfilename,mtlname);
-  fprintf(fid,'\n\n# Vertices:\n');
-  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
-  fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
-  fprintf(fid,'# End texture coordinates\n\n# Faces:\n');
-  fprintf(fid,'f %d/%d %d/%d %d/%d\n',expmat(faces,[1,2])');
-  fprintf(fid,'# End faces\n\n');
+  ii = length(cylinder.prm)+1;
+  cylinder.prm(ii).use_map = use_map;
+  if use_map
+    if exist(imgname)
+      cylinder.prm(ii).imgname = imgname;
+    end
+  else
+    cylinder.prm(ii).prm = prm;
+    cylinder.prm(ii).nbumptypes = nbumptypes;
+    cylinder.prm(ii).nbumps = nbumps;
+  end
+  cylinder.prm(ii).mfilename = mfilename;
+  cylinder.normals = [];
 end
-fclose(fid);
+cylinder.shape = 'cylinder';
+cylinder.filename = filename;
+cylinder.mtlfilename = mtlfilename;
+cylinder.mtlname = mtlname;
+cylinder.comp_normals = comp_normals;
+cylinder.n = n;
+cylinder.m = m;
+cylinder.Theta = Theta;
+cylinder.Y = Y;
+cylinder.R = R;
+cylinder.vertices = vertices;
 
+if dosave
+  cylinder = objSaveModelCylinder(cylinder);
+end
+
+if ~nargout
+   clear cylinder
+end
+
+
+%--------------------------------------------------
 
 function theta = wrapAnglePi(theta)
 

@@ -207,7 +207,7 @@ end
 
 if new_model
   w = 1; % width of the plane
-  h = m/n * w;
+  h = 1; % m/n * w;
   
   x = linspace(-w/2,w/2,n); % 
   y = linspace(-h/2,h/2,m)'; % 

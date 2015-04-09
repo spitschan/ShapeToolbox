@@ -1,10 +1,10 @@
 function s = objSaveModelSphere(s)
 
-  % OBJSAVEMODELSPHERE
+  % OBJSAVEMODEL
   %
-  % Usage: s = objSaveModelSphere(s)
+  % Usage: model = objSaveModel(model)
   %
-  % A function called by the objMakeSphere*-functions to compute
+  % A function called by the objMake*-functions to compute
   % texture coordinates, faces, and so forth; and to write the model
   % to a file.
   %
@@ -14,47 +14,107 @@ function s = objSaveModelSphere(s)
   % (Octave allows it.  Use Octave.)
 
   % Copyright (C) 2015 Toni Saarela
-  % 2015-04-02 - ts - first version, based on objMakeSphere*-functions
-  % 2015-04-03 - ts - writes use_rms-flag to comments for noise models
+  % 2015-04-06 - ts - first version, based on the model-type-specific
+  %                    functions
+
 
 m = s.m;
 n = s.n;
 vertices = s.vertices;
 
 %--------------------------------------------
+% Faces, vertex indices
+
+switch s.shape
+  case {'sphere','cylinder','revolution'}
+    faces = zeros((m-1)*n*2,3);
+    F = ([1 1]'*[1:n]);
+    F = F(:) * [1 1 1];
+    F(:,2) = F(:,2) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
+    F(:,3) = F(:,3) + [repmat([n n+1]',[n-1 1]); [n 1]'];
+    for ii = 1:m-1
+      faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
+    end
+  case 'plane'
+    faces = zeros((m-1)*(n-1)*2,3);
+    ftmp = [[1 1]'*[1:n-1]];
+    F(:,1) = ftmp(:);
+    % OR:
+    %F(:,1) = ceil([1:(2*n-2)]'/2);
+    ftmp = [n+2:2*n; 2:n];
+    F(:,2) = ftmp(:);
+    ftmp = [[1 1]' * [n+1:2*n]];
+    ftmp = ftmp(:);
+    F(:,3) = ftmp(2:end-1);    
+    for ii = 1:m-1
+      faces((ii-1)*(n-1)*2+1:ii*(n-1)*2,:) = (ii-1)*n + F;
+    end
+  case 'torus'
+    faces = zeros(m*n*2,3);
+    % The first part is the same as with the sphere:
+    F = ([1 1]'*[1:n]);
+    F = F(:) * [1 1 1];
+    F(:,2) = F(:,2) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
+    F(:,3) = F(:,3) + [repmat([n n+1]',[n-1 1]); [n 1]'];
+    % But loop until m, not m-1 as phi goes -pi to pi here, not -pi/2 to
+    % pi/2.
+    for ii = 1:m
+      faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
+    end
+    % Finally, to wrap around properly in the phi-direction:
+    faces = 1 + mod(faces-1,m*n);
+end
+
 % Texture coordinates if material is defined
 if ~isempty(s.mtlfilename)
-  u = linspace(0,1,n+1);
-  v = linspace(0,1,m);
-  [U,V] = meshgrid(u,v);
-  U = U'; V = V';
-  uvcoords = [U(:) V(:)];
-  clear u v U V
-end
+  switch s.shape
+    case {'sphere','cylinder','revolution'}
+      u = linspace(0,1,n+1);
+      v = linspace(0,1,m);
+      [U,V] = meshgrid(u,v);
+      U = U'; V = V';
+      uvcoords = [U(:) V(:)];
 
-%--------------------------------------------
-% Faces, vertex indices
-faces = zeros((m-1)*n*2,3);
+      % Faces, uv coordinate indices
+      facestxt = zeros((m-1)*n*2,3);
+      n2 = n + 1;
+      F = ([1 1]'*[1:n]);
+      F = F(:) * [1 1 1];
+      F(:,2) = reshape([1 1]'*[2:n2]+[1 0]'*n2*ones(1,n),[2*n 1]);
+      F(:,3) = n2 + [1; reshape([1 1]'*[2:n],[2*(n-1) 1]); n2];
+      for ii = 1:m-1
+        facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n2 + F;
+      end
+    case 'plane'
+      U = (s.X-min(s.X))/(max(s.X)-min(s.X));
+      V = (s.Y-min(s.Y))/(max(s.Y)-min(s.Y));
+      uvcoords = [U V];
 
-F = ([1 1]'*[1:n]);
-F = F(:) * [1 1 1];
-F(:,2) = F(:,2) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
-F(:,3) = F(:,3) + [repmat([n n+1]',[n-1 1]); [n 1]'];
-for ii = 1:m-1
-  faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
-end
+      facestxt = faces;
 
-% Faces, uv coordinate indices
-if ~isempty(s.mtlfilename)
-  facestxt = zeros((m-1)*n*2,3);
-  n2 = n + 1;
-  F = ([1 1]'*[1:n]);
-  F = F(:) * [1 1 1];
-  F(:,2) = reshape([1 1]'*[2:n2]+[1 0]'*n2*ones(1,n),[2*n 1]);
-  F(:,3) = n2 + [1; reshape([1 1]'*[2:n],[2*(n-1) 1]); n2];
-  for ii = 1:m-1
-    facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n2 + F;
+    case 'torus'
+      u = linspace(0,1,n+1);
+      v = linspace(0,1,m+1);
+      [U,V] = meshgrid(u,v);
+      U = U'; V = V';
+      uvcoords = [U(:) V(:)];
+
+      facestxt = zeros(m*n*2,3);
+      F1 = [1 1]' * [1:n];
+      F1 = F1(:);
+      F2 = [(n+3):2*(n+1);2:(n+1)];
+      F2 = F2(:);
+      F3 = [1 1]' * [(n+2):2*(n+1)];
+      F3 = F3(:);
+      F3 = F3(2:end-1);
+      F = [F1 F2 F3];
+      for ii = 1:m
+        facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*(n+1) + F;
+      end
   end
+  clear u v U V
+
+
 end
 
 %--------------------------------------------
@@ -63,6 +123,8 @@ if s.comp_normals
   % Surface normals for the faces
   fn = cross([vertices(faces(:,2),:)-vertices(faces(:,1),:)],...
              [vertices(faces(:,3),:)-vertices(faces(:,1),:)]);
+
+  % Vertex normals
   normals = zeros(m*n,3);
   
   % Loop through vertices, slow
@@ -72,8 +134,16 @@ if s.comp_normals
   %  normals(ii,:) = vn / sqrt(vn*vn');
   % end
 
-  % Loop through faces, somewhat faster but still slow because of the loop
-  nfaces = (m-1)*n*2;
+  % Loop through faces, somewhat faster but still slow because of the
+  % loop
+  switch s.shape
+    case {'sphere','cylinder','revolution'}
+      nfaces = (m-1)*n*2;
+    case 'plane'
+      nfaces = (m-1)*(n-1)*2;
+    case 'torus'
+      nfaces = m*n*2;
+  end
   for ii = 1:nfaces
     normals(faces(ii,:),:) = normals(faces(ii,:),:) + [1 1 1]'*fn(ii,:);
   end
@@ -115,21 +185,47 @@ else
   fprintf(fid,'# Vertex normals included: No.\n');
 end
 
+modsine = {'objMakeSphere','objMakePlane',...
+           'objMakeCylinder','objMakeTorus',...
+           'objMakeRevolution'};
+modnoise = {'objMakeSphereNoisy','objMakePlaneNoisy',...
+           'objMakeCylinderNoisy','objMakeTorusNoisy',...
+           'objMakeRevolutionNoisy'};
+modbumpy = {'objMakeSphereBumpy','objMakePlaneBumpy',...
+           'objMakeCylinderBumpy','objMakeTorusBumpy',...
+           'objMakeRevolutionBumpy'};
+modcustom = {'objMakeSphereCustom','objMakePlaneCustom',...
+           'objMakeCylinderCustom','objMakeTorusCustom',...
+           'objMakeRevolutionCustom'};
+
 for ii = 1:length(s.prm)
   fprintf(fid,'#\n# %s\n# %d. %s:\n',repmat('-',1,50),ii,s.prm(ii).mfilename);
   switch s.prm(ii).mfilename
-    case 'objMakeSphere'
+    case modsine
+      if strcmp(s.shape,'plane')
+        %- Convert frequencies back to cycles/plane
+        s.prm(ii).cprm(:,1) = s.prm(ii).cprm(:,1)/(2*pi);
+        if ~isempty(s.prm(ii).mprm)
+          s.prm(ii).mprm(:,1) = s.prm(ii).mprm(:,1)/(2*pi);
+        end         
+      end
       writeSpecs(fid,s.prm(ii).cprm,s.prm(ii).mprm);
-    case 'objMakeSphereBumpy'
+    case modbumpy
       writeSpecsBumpy(fid,s.prm(ii).prm);
-    case 'objMakeSphereNoisy'
+    case modnoise
+      if strcmp(s.shape,'plane')
+        %- Convert frequencies back to cycles/plane
+        if ~isempty(p.prm(ii).mprm)
+          p.prm(ii).mprm(:,1) = p.prm(ii).mprm(:,1)/(2*pi);
+        end
+      end
       writeSpecsNoisy(fid,s.prm(ii).nprm,s.prm(ii).mprm);
       if s.prm(ii).use_rms
         fprintf(fid,'# Use RMS contrast: Yes.\n');
       else
         fprintf(fid,'# Use RMS contrast: No.\n');
       end
-    case 'objMakeSphereCustom'
+    case modcustom
       writeSpecsCustom(fid,s.prm(ii))
   end
 end
@@ -152,7 +248,7 @@ if isempty(s.mtlfilename)
   end
   fprintf(fid,'# End faces\n');
 else
-  fprintf(fid,'\nmtllib %s\nusemtl %s\n',s.mtlfilename,s.mtlname);
+  fprintf(fid,'\n# Materials:\nmtllib %s\nusemtl %s\n',s.mtlfilename,s.mtlname);
   fprintf(fid,'\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');

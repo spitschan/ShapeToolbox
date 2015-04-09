@@ -223,7 +223,7 @@ end
 
 switch ncol
   case 1
-    cprm = [cprm ones(nccomp,1)*[.05 0 0 0]];
+    cprm = [cprm ones(nccomp,1)*[.1 0 0 0]];
   case 2
     cprm = [cprm zeros(nccomp,3)];
   case 3
