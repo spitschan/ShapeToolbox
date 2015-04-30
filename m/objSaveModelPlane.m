@@ -18,8 +18,8 @@ vertices = p.vertices;
 %--------------------------------------------
 % Texture coordinates if material is defined
 if ~isempty(p.mtlfilename)
-  U = (X-min(x))/(max(x)-min(x));
-  V = (Y-min(y))/(max(y)-min(y));
+  U = (p.X-min(p.X))/(max(p.X)-min(p.X));
+  V = (p.Y-min(p.Y))/(max(p.Y)-min(p.Y));
   uvcoords = [U V];
 end
 

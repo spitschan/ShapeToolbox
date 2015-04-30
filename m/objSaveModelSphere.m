@@ -16,6 +16,9 @@ function s = objSaveModelSphere(s)
   % Copyright (C) 2015 Toni Saarela
   % 2015-04-02 - ts - first version, based on objMakeSphere*-functions
   % 2015-04-03 - ts - writes use_rms-flag to comments for noise models
+  % 2015-04-30 - ts - uses option comp_uv for uv-coords instead of
+  %                    checking whether mtl filename is empty
+
 
 m = s.m;
 n = s.n;
@@ -23,7 +26,7 @@ vertices = s.vertices;
 
 %--------------------------------------------
 % Texture coordinates if material is defined
-if ~isempty(s.mtlfilename)
+if s.comp_uv
   u = linspace(0,1,n+1);
   v = linspace(0,1,m);
   [U,V] = meshgrid(u,v);
@@ -45,7 +48,7 @@ for ii = 1:m-1
 end
 
 % Faces, uv coordinate indices
-if ~isempty(s.mtlfilename)
+if s.comp_uv
   facestxt = zeros((m-1)*n*2,3);
   n2 = n + 1;
   F = ([1 1]'*[1:n]);
@@ -86,7 +89,7 @@ end
 % Output argument
 
 s.faces = faces;
-if ~isempty(s.mtlfilename)
+if s.comp_uv
   s.uvcoords = uvcoords;
 end
 if s.comp_normals
@@ -104,7 +107,7 @@ for ii = 1:length(s.prm)
 end
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
 fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
-if isempty(s.mtlfilename)
+if ~s.comp_uv
   fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
 else
   fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
@@ -136,7 +139,7 @@ end
 
 fprintf(fid,'#\n# Phase and angle (if present) are in radians above.\n');
 
-if isempty(s.mtlfilename)
+if ~s.comp_uv
   fprintf(fid,'\n\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n');
@@ -152,7 +155,9 @@ if isempty(s.mtlfilename)
   end
   fprintf(fid,'# End faces\n');
 else
-  fprintf(fid,'\nmtllib %s\nusemtl %s\n',s.mtlfilename,s.mtlname);
+  if ~isempty(s.mtlfilename)
+    fprintf(fid,'\nmtllib %s\nusemtl %s\n',s.mtlfilename,s.mtlname);
+  end
   fprintf(fid,'\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');

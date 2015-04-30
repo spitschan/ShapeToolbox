@@ -80,6 +80,8 @@ function sphere = objMakeSphereCustom(f,prm,varargin)
 %                    compute faces, normals, etc and save the model to a file
 %                   saving the model is optional, an existing model
 %                     can be updated
+% 2015-04-30 - ts - "switched" y and z directions: reference plane is
+%                    x-z, y is "up"; added uv-option without materials
 
 % TODO
 % - return the locations of bumps
@@ -142,6 +144,7 @@ end
 filename = 'spherecustom.obj';
 mtlfilename = '';
 mtlname = '';
+comp_uv = false;
 mindist = 0;
 comp_normals = false;
 dosave = true;
@@ -173,8 +176,16 @@ if ~isempty(par)
              ii = ii + 1;
              mtlfilename = par{ii}{1};
              mtlname = par{ii}{2};
+             comp_uv = true;
            else
              error('No value or a bad value given for option ''material''.');
+           end
+         case 'uvcoords'
+           if ii<length(par) && isscalar(par{ii+1})
+             ii = ii + 1;
+             comp_uv = par{ii};
+           else
+             error('No value or a bad value given for option ''uvcoords''.');
            end
          case 'normals'
            if ii<length(par) && (isnumeric(par{ii+1}) || islogical(par{ii+1}))
@@ -329,7 +340,10 @@ Phi   = Phi';   Phi   = Phi(:);
 R = R'; R = R(:);
 
 [X,Y,Z] = sph2cart(Theta,Phi,R);
-vertices = [X Y Z];
+
+% Switch z- and y-coordinates so that the reference plane is the x-z
+% plane and y is "up", for consistency across all functions.
+vertices = [X Z -Y];
 
 clear X Y Z
 
@@ -368,6 +382,7 @@ sphere.shape = 'sphere';
 sphere.filename = filename;
 sphere.mtlfilename = mtlfilename;
 sphere.mtlname = mtlname;
+sphere.comp_uv = comp_uv;
 sphere.comp_normals = comp_normals;
 sphere.n = n;
 sphere.m = m;

@@ -68,6 +68,8 @@ function sphere = objMakeSphereBumpy(prm,varargin)
 %                    compute faces, normals, etc and save the model to a file
 %                   saving the model is optional, an existing model
 %                     can be updated
+% 2015-04-30 - ts - "switched" y and z directions: reference plane is
+%                    x-z, y is "up"; added uv-option without materials
 
 
 % TODO
@@ -96,6 +98,7 @@ nbumps = sum(prm(:,1));
 % Set default values before parsing the optional input arguments.
 filename = 'spherebumpy.obj';
 mtlfilename = '';
+comp_uv = false;
 mtlname = '';
 mindist = 0;
 m = 128;
@@ -131,9 +134,17 @@ if ~isempty(par)
              ii = ii + 1;
              mtlfilename = par{ii}{1};
              mtlname = par{ii}{2};
+             comp_uv = true;
            else
              error('No value or a bad value given for option ''material''.');
            end
+         case 'uvcoords'
+           if ii<length(par) && isscalar(par{ii+1})
+             ii = ii + 1;
+             comp_uv = par{ii};
+           else
+             error('No value or a bad value given for option ''uvcoords''.');
+           end                
          case 'normals'
            if ii<length(par) && isscalar(par{ii+1})
              ii = ii + 1;
@@ -267,7 +278,11 @@ for jj = 1:nbumptypes
 end
 
 [X,Y,Z] = sph2cart(Theta,Phi,R);
-vertices = [X Y Z];
+
+% Switch z- and y-coordinates so that the reference plane is the x-z
+% plane and y is "up", for consistency across all functions.
+vertices = [X Z -Y];
+
 clear X Y Z
 
 % The field prm can be made an array.  If the structure sphere is
@@ -291,6 +306,7 @@ sphere.shape = 'sphere';
 sphere.filename = filename;
 sphere.mtlfilename = mtlfilename;
 sphere.mtlname = mtlname;
+sphere.comp_uv = comp_uv;
 sphere.comp_normals = comp_normals;
 sphere.n = n;
 sphere.m = m;

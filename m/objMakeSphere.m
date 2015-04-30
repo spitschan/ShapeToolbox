@@ -202,6 +202,8 @@ function sphere = objMakeSphere(cprm,varargin)
 %                    compute faces, normals, etc and save the model to a file
 %                   saving the model is optional, an existing model
 %                     can be updated
+% 2015-04-30 - ts - "switched" y and z directions: reference plane is
+%                    x-z, y is "up"; added uv-option without materials
 
 % TODO
 % Add option for noise in the amplitude
@@ -241,6 +243,7 @@ nmcomp = 0;
 filename = 'sphere.obj';
 mtlfilename = '';
 mtlname = '';
+comp_uv = false;
 comp_normals = false;
 dosave = true;
 new_model = true;
@@ -291,9 +294,17 @@ if ~isempty(par)
              ii = ii + 1;
              mtlfilename = par{ii}{1};
              mtlname = par{ii}{2};
+             comp_uv = true;
            else
              error('No value or a bad value given for option ''material''.');
            end
+         case 'uvcoords'
+           if ii<length(par) && isscalar(par{ii+1})
+             ii = ii + 1;
+             comp_uv = par{ii};
+           else
+             error('No value or a bad value given for option ''uvcoords''.');
+           end                
          case 'normals'
            if ii<length(par) && isscalar(par{ii+1})
              ii = ii + 1;
@@ -357,7 +368,9 @@ R = r + objMakeSineComponents(cprm,mprm,Theta,Phi);
 % Convert vertices to cartesian coordinates
 [X,Y,Z] = sph2cart(Theta,Phi,R);
 
-vertices = [X Y Z];
+% Switch z- and y-coordinates so that the reference plane is the x-z
+% plane and y is "up", for consistency across all functions.
+vertices = [X Z -Y];
 
 clear X Y Z
 
@@ -384,6 +397,7 @@ sphere.shape = 'sphere';
 sphere.filename = filename;
 sphere.mtlfilename = mtlfilename;
 sphere.mtlname = mtlname;
+sphere.comp_uv = comp_uv;
 sphere.comp_normals = comp_normals;
 sphere.n = n;
 sphere.m = m;

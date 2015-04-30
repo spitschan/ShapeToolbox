@@ -6,6 +6,9 @@ function torus = objMakeTorusBumpy(prm,varargin)
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-04-05 - ts - first version
+% 2015-04-30 - ts - "switched" y and z directions: reference plane is
+%                    x-z, y is "up"
+
 
 %--------------------------------------------
 
@@ -169,8 +172,16 @@ for jj = 1:nbumptypes
     %d = sqrt((thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp').^2 + ...
     %         (phitmp*ones([1 nvec])-ones([nvec 1])*phitmp').^2);
 
-    d = sqrt(wrapAnglePi(thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp').^2 + ...
-         wrapAnglePi(  phitmp*ones([1 nvec])-ones([nvec 1])*phitmp'  ).^2);
+    %d = sqrt(wrapAnglePi(thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp').^2 + ...
+    %     wrapAnglePi(  phitmp*ones([1 nvec])-ones([nvec 1])*phitmp'  ).^2);
+
+    deltatheta = wrapAnglePi(thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp');
+    deltaphi   = wrapAnglePi(  phitmp*ones([1 nvec])-ones([nvec 1])*phitmp'  );
+
+    disttheta = 
+
+    d = sqrt(.^2 + ...
+         .^2);
 
 
     % Always accept the first vector
@@ -210,7 +221,17 @@ for jj = 1:nbumptypes
   %-------------------
     
   for ii = 1:prm(jj,1)
-    % See comment in objMakeCylinderCustom
+    % Note that this is a total hack.  The spread of the bumps is in
+    % units of the theta angle, the angle around the torus.  Convert
+    % that to distance along the surface in that direction.  Then
+    % compute the distance on the surface in the phi-direction, the
+    % direction around the tube of the torus.  Use those to compute
+    % total distance.  NOTE: This is not the correct way to do it.
+    % Computing actual distance on the surface of a torus requires
+    % more (using calculus of variations).  This is a very crude
+    % approximation that only works reasonably well at short
+    % distances, that is, with small bumps.
+
     % Get the angular difference for theta (azimuth direction)
     deltatheta = abs(wrapAnglePi(Theta - theta0(ii)));
     % Compute the distance in that direction.  Note this depends on
@@ -237,7 +258,9 @@ X = (R + r.*cos(Phi)).*cos(Theta);
 Y = (R + r.*cos(Phi)).*sin(Theta);
 Z = r.*sin(Phi);
 
-vertices = [X Y Z];
+% Switch z- and y-coordinates so that the reference plane is the x-z
+% plane and y is "up", for consistency across all functions.
+vertices = [X Z -Y];
 
 if new_model
   torus.prm.prm = prm;

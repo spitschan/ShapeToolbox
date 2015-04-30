@@ -14,6 +14,8 @@ function torus = objMakeTorusNoisy(nprm,varargin)
 %                    compute faces, normals, etc and save the model to a file
 %                   saving the model is optional, an existing model
 %                     can be updated, bunch of other minor improvements
+% 2015-04-30 - ts - "switched" y and z directions: reference plane is
+%                    x-z, y is "up"
 
 % TODO
 % Write stimulus paremeters into the obj-file
@@ -188,7 +190,9 @@ X = (R + r.*cos(Phi)).*cos(Theta);
 Y = (R + r.*cos(Phi)).*sin(Theta);
 Z = r.*sin(Phi);
 
-vertices = [X Y Z];
+% Switch z- and y-coordinates so that the reference plane is the x-z
+% plane and y is "up", for consistency across all functions.
+vertices = [X Z -Y];
 
 if new_model
   torus.prm.nprm = nprm;
