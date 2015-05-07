@@ -1,23 +1,25 @@
 function s = objSaveModel(s)
 
-  % OBJSAVEMODEL
-  %
-  % Usage: model = objSaveModel(model)
-  %
-  % A function called by the objMake*-functions to compute
-  % texture coordinates, faces, and so forth; and to write the model
-  % to a file.
-  %
-  % I'd love to start the names of these helper functions with an
-  % underscore (_) to make it clear they're helper functions not to
-  % be directly called by the user, but Matlab doesn't allow it
-  % (Octave allows it.  Use Octave.)
+% OBJSAVEMODEL
+%
+% Usage: model = objSaveModel(model)
+%
+% A function called by the objMake*-functions to compute
+% texture coordinates, faces, and so forth; and to write the model
+% to a file.
+%
+% I'd love to start the names of these helper functions with an
+% underscore (_) to make it clear they're helper functions not to
+% be directly called by the user, but Matlab doesn't allow it
+% (Octave allows it.  Use Octave.)
 
-  % Copyright (C) 2015 Toni Saarela
-  % 2015-04-06 - ts - first version, based on the model-type-specific
-  %                    functions
-  % 2015-05-04 - ts - uses option comp_uv for uv-coords instead of
-  %                    checking whether mtl filename is empty
+% Copyright (C) 2015 Toni Saarela
+% 2015-04-06 - ts - first version, based on the model-type-specific
+%                    functions
+% 2015-05-04 - ts - uses option comp_uv for uv-coords instead of
+%                    checking whether mtl filename is empty
+% 2015-05-07 - ts - bettered the writing of vertices etc to file.
+%                    it's better now.
 
 m = s.m;
 n = s.n;
@@ -168,9 +170,13 @@ end
 
 fid = fopen(s.filename,'w');
 fprintf(fid,'# %s\n',datestr(now,31));
-for ii = 1:length(s.prm)
-  if ii==1 verb = 'Created'; else verb = 'Modified'; end 
-  fprintf(fid,'# %d. %s with function %s from ShapeToolbox.\n',ii,verb,s.prm(ii).mfilename);
+if length(s.prm)==1
+   fprintf(fid,'# Created with function %s from ShapeToolbox.\n',s.prm(ii).mfilename);
+else
+  for ii = 1:length(s.prm)
+    if ii==1 verb = 'Created'; else verb = 'Modified'; end 
+    fprintf(fid,'# %d. %s with function %s from ShapeToolbox.\n',ii,verb,s.prm(ii).mfilename);
+  end
 end
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
 fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
@@ -201,7 +207,11 @@ modcustom = {'objMakeSphereCustom','objMakePlaneCustom',...
            'objMakeRevolutionCustom'};
 
 for ii = 1:length(s.prm)
-  fprintf(fid,'#\n# %s\n# %d. %s:\n',repmat('-',1,50),ii,s.prm(ii).mfilename);
+    if length(s.prm)==1
+      fprintf(fid,'#\n# %s\n# %s parameters:\n',repmat('-',1,50),s.prm(ii).mfilename);
+    else
+      fprintf(fid,'#\n# %s\n# %d. %s parameters:\n',repmat('-',1,50),ii,s.prm(ii).mfilename);
+    end
   switch s.prm(ii).mfilename
     %---------------------------------------------------
     case modsine
@@ -239,45 +249,52 @@ end
 
 fprintf(fid,'#\n# Phase and angle (if present) are in radians above.\n');
 
-if ~s.comp_uv
-  fprintf(fid,'\n\n# Vertices:\n');
-  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n');
-  if s.comp_normals
-    fprintf(fid,'\n# Normals:\n');
-    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
-    fprintf(fid,'# End normals\n');
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d//%d %d//%d %d//%d\n',[faces(:,1) faces(:,1) faces(:,2) faces(:,2) faces(:,3) faces(:,3)]');
-  else
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d %d %d\n',faces');    
-  end
-  fprintf(fid,'# End faces\n');
-else
-  if ~isempty(s.mtlfilename)
-    fprintf(fid,'\n# Materials:\nmtllib %s\nusemtl %s\n',s.mtlfilename,s.mtlname);
-  end
-  fprintf(fid,'\n# Vertices:\n');
-  fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
-  fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');
+if ~isempty(s.mtlfilename)
+  fprintf(fid,'\n# Materials:\nmtllib %s\nusemtl %s\n',s.mtlfilename,s.mtlname);
+end
+
+fprintf(fid,'\n# Vertices:\n');
+fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
+fprintf(fid,'# End vertices\n');
+
+if s.comp_uv
+  fprintf(fid,'\n# Texture coordinates:\n');
   fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
   fprintf(fid,'# End texture coordinates\n');
+end
+
+if s.comp_normals
+  fprintf(fid,'\n# Normals:\n');
+  fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
+  fprintf(fid,'# End normals\n');
+end
+
+# Write face defitions to file.  These are written differently
+# depending on whether uvcoordinates and/or normals are included.
+fprintf(fid,'\n# Faces:\n');
+if ~s.comp_uv
   if s.comp_normals
-    fprintf(fid,'\n# Normals:\n');
-    fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
-    fprintf(fid,'# End normals\n');
-    fprintf(fid,'\n# Faces:\n');
+    fprintf(fid,'f %d//%d %d//%d %d//%d\n',...
+            [faces(:,1) faces(:,1) ...
+             faces(:,2) faces(:,2) ...
+             faces(:,3) faces(:,3)]');
+  else
+    fprintf(fid,'f %d %d %d\n',faces');    
+  end
+else
+  if s.comp_normals
     fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
             [faces(:,1) facestxt(:,1) faces(:,1)...
              faces(:,2) facestxt(:,2) faces(:,2)...
              faces(:,3) facestxt(:,3) faces(:,3)]');
   else
-    fprintf(fid,'\n# Faces:\n');
-    fprintf(fid,'f %d/%d %d/%d %d/%d\n',[faces(:,1) facestxt(:,1) faces(:,2) facestxt(:,2) faces(:,3) facestxt(:,3)]');
+    fprintf(fid,'f %d/%d %d/%d %d/%d\n',...
+            [faces(:,1) facestxt(:,1) ...
+             faces(:,2) facestxt(:,2) ...
+             faces(:,3) facestxt(:,3)]');
   end
-  fprintf(fid,'# End faces\n');
 end
+fprintf(fid,'# End faces\n');
 fclose(fid);
 
 %--------------------------------------------
