@@ -28,11 +28,11 @@ which the model is saved.  The file names are ``sphere_f02.obj``,
   or = 0;   % angle/orientation
   
   % Loop through frequencies
-  for ii = 1:length(freq)
+  for f = freq
     % Set filename with frequency value
-    filename = sprintf('sphere_f%02d.obj',freq(ii));
+    filename = sprintf('sphere_f%02d.obj',f);
     % Make the model
-    objMakeSphere([freq(ii) a ph or],[2 1 90 90],filename);
+    objMakeSphere([f a ph or],[2 1 90 90],filename);
   end
 
 The code above produces a series of four objects which, rendered, will look like:
@@ -83,7 +83,7 @@ to little-bit-of-both-components to component-2-only::
   or2  =  60;    % angle/orientation of component 2
   
   % Loop through frequencies
-  for ii = 1:length(freq)
+  for ii = 1:length(a1)
     % Set filename with frequency value
     filename = sprintf('sphere_%03d_%03d.obj',100*a1(ii),100*a2(ii));
     % Make the model

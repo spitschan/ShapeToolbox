@@ -135,6 +135,8 @@ function plane = objMakePlane(cprm,varargin)
 %                    compute faces, normals, etc and save the model to a file
 %                   saving the model is optional, an existing model
 %                     can be updated
+% 2015-05-04 - ts - added uv-option without materials;
+%                   calls objParseArgs and objSaveModel
 
 
 % TODO
@@ -175,16 +177,10 @@ cprm(:,3:4) = pi * cprm(:,3:4)/180;
 % Set the default modulation parameters to empty indicating no modulator; set default filename.
 mprm  = [];
 nmcomp = 0;
-filename = 'plane.obj';
-mtlfilename = '';
-mtlname = '';
-comp_normals = false;
-dosave = true;
-new_model = true;
 
-% Number of vertices in y and x directions, default values
-m = 256;
-n = 256;
+opts.filename = 'plane.obj';
+opts.m = 256;
+opts.n = 256;
 
 [modpar,par] = parseparams(varargin);
 
@@ -210,65 +206,20 @@ if ~isempty(mprm)
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
 
-if ~isempty(par)
-   ii = 1;
-   while ii<=length(par)
-     if ischar(par{ii})
-       switch lower(par{ii})
-         case 'npoints'
-           if ii<length(par) && isnumeric(par{ii+1}) && length(par{ii+1}(:))==2
-             ii = ii + 1;
-             m = par{ii}(1);
-             n = par{ii}(2);
-           else
-             error('No value or a bad value given for option ''npoints''.');
-           end
-         case 'material'
-           if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
-             ii = ii + 1;
-             mtlfilename = par{ii}{1};
-             mtlname = par{ii}{2};
-           else
-             error('No value or a bad value given for option ''material''.');
-           end
-         case 'normals'
-           if ii<length(par) && (isnumeric(par{ii+1}) || islogical(par{ii+1}))
-             ii = ii + 1;
-             comp_normals = par{ii};
-           else
-             error('No value or a bad value given for option ''normals''.');
-           end
-         case 'save'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             dosave = par{ii};
-           else
-             error('No value or a bad value given for option ''save''.');
-           end              
-         case 'model'
-           if ii<length(par) && isstruct(par{ii+1})
-             ii = ii + 1;
-             plane = par{ii};
-             new_model = false;
-           else
-             error('No value or a bad value given for option ''model''.');
-           end
-         otherwise
-           filename = par{ii};
-       end
-     end
-     ii = ii + 1;
-   end
-end
+% Check other optional input arguments
+[opts,plane] = objParseArgs(opts,par);
   
 % Add file name extension if needed
-if isempty(regexp(filename,'\.obj$'))
-  filename = [filename,'.obj'];
+if isempty(regexp(opts.filename,'\.obj$'))
+  opts.filename = [opts.filename,'.obj'];
 end
 
 %--------------------------------------------
 
-if new_model
+if opts.new_model
+  m = opts.m;
+  n = opts.n;
+
   w = 1; % width of the plane
   h = 1; % m/n * w;
   
@@ -291,7 +242,7 @@ Z = Z + objMakeSineComponents(cprm,mprm,X,Y);
 
 vertices = [X Y Z];
 
-if new_model
+if opts.new_model
   plane.prm.cprm = cprm;
   plane.prm.mprm = mprm;
   plane.prm.nccomp = nccomp;
@@ -308,10 +259,11 @@ else
   plane.normals = [];
 end
 plane.shape = 'plane';
-plane.filename = filename;
-plane.mtlfilename = mtlfilename;
-plane.mtlname = mtlname;
-plane.comp_normals = comp_normals;
+plane.filename = opts.filename;
+plane.mtlfilename = opts.mtlfilename;
+plane.mtlname = opts.mtlname;
+plane.comp_uv = opts.comp_uv;
+plane.comp_normals = opts.comp_normals;
 plane.n = n;
 plane.m = m;
 plane.X = X;
@@ -319,8 +271,8 @@ plane.Y = Y;
 plane.Z = Z;
 plane.vertices = vertices;
 
-if dosave
-  plane = objSaveModelPlane(plane);
+if opts.dosave
+  plane = objSaveModel(plane);
 end
 
 if ~nargout

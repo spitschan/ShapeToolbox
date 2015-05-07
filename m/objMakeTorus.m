@@ -42,7 +42,8 @@ function torus = objMakeTorus(cprm,varargin)
 %                     can be updated, bunch of other minor improvements
 % 2015-04-30 - ts - "switched" y and z directions: reference plane is
 %                    x-z, y is "up"
-
+% 2015-05-04 - ts - added uv-option without materials
+%                   calls objParseArgs and objSaveModel
 
 % TODO
 % Set input arguments, optional arguments, default values
@@ -78,19 +79,13 @@ cprm(:,3:4) = pi * cprm(:,3:4)/180;
 % Set the default modulation parameters to empty indicating no modulator; set default filename.
 mprm  = [];
 nmcomp = 0;
-filename = 'torus.obj';
-mtlfilename = '';
-mtlname = '';
-tube_radius = 0.4;
-radius = 1;
-rprm = [];
-comp_normals = false;
-dosave = true;
-new_model = true;
 
-% Number of vertices in azimuth and elevation directions, default values
-n = 256;
-m = 256;
+opts.filename = 'torus.obj';
+opts.tube_radius = 0.4;
+opts.radius = 1; %% not possible to change at the moment
+opts.rprm = [];
+opts.n = 256;
+opts.m = 256;
 
 [modpar,par] = parseparams(varargin);
 
@@ -104,91 +99,35 @@ if ~isempty(mprm)
   [nmcomp,ncol] = size(mprm);
   switch ncol
     case 1
-      mprm = [mprm ones(nccomp,1)*[1 0 0 0]];
+      mprm = [mprm ones(nmcomp,1)*[1 0 0 0]];
     case 2
-      mprm = [mprm zeros(nccomp,3)];
+      mprm = [mprm zeros(nmcomp,3)];
     case 3
-      mprm = [mprm zeros(nccomp,2)];
+      mprm = [mprm zeros(nmcomp,2)];
     case 4
-      mprm = [mprm zeros(nccomp,1)];
+      mprm = [mprm zeros(nmcomp,1)];
   end
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
 
 % Check other optional input arguments
-if ~isempty(par)
-   ii = 1;
-   while ii<=length(par)
-     if ischar(par{ii})
-       switch lower(par{ii})
-         case 'npoints'
-           if ii<length(par) && isnumeric(par{ii+1}) && length(par{ii+1}(:))==2
-             ii = ii + 1;
-             m = par{ii}(1);
-             n = par{ii}(2);
-           else
-             error('No value or a bad value given for option ''npoints''.');
-           end
-         case 'tube_radius'
-           if ii<length(par) && isnumeric(par{ii+1})
-             ii = ii + 1;
-             tube_radius = par{ii};
-           else
-             error('No value or a bad value given for option ''tube_radius''.');
-           end              
-         case {'rprm','radius_prm'}
-           if ii<length(par) && isnumeric(par{ii+1})
-             ii = ii + 1;
-             rprm = par{ii};
-           else
-             error('No value or a bad value given for option ''radius''.');
-           end
-         case 'material'
-           if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
-             ii = ii + 1;
-             mtlfilename = par{ii}{1};
-             mtlname = par{ii}{2};
-           else
-             error('No value or a bad value given for option ''material''.');
-           end              
-         case 'normals'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             comp_normals = par{ii};
-           else
-             error('No value or a bad value given for option ''normals''.');
-           end
-         case 'save'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             dosave = par{ii};
-           else
-             error('No value or a bad value given for option ''save''.');
-           end              
-         case 'model'
-           if ii<length(par) && isstruct(par{ii+1})
-             ii = ii + 1;
-             torus = par{ii};
-             new_model = false;
-           else
-             error('No value or a bad value given for option ''model''.');
-           end
-         otherwise
-           filename = par{ii};
-       end
-     end
-     ii = ii + 1;
-   end
-end
+[opts,torus] = objParseArgs(opts,par);
   
 % Add file name extension if needed
-if isempty(regexp(filename,'\.obj$'))
-  filename = [filename,'.obj'];
+if isempty(regexp(opts.filename,'\.obj$'))
+  opts.filename = [opts.filename,'.obj'];
 end
+
+rprm = opts.rprm;
 
 %--------------------------------------------
 
-if new_model
+if opts.new_model
+  m = opts.m;
+  n = opts.n;
+  radius = opts.radius;
+  tube_radius = opts.tube_radius;
+
   theta = linspace(-pi,pi-2*pi/n,n);
   phi = linspace(-pi,pi-2*pi/m,m); 
   [Theta,Phi] = meshgrid(theta,phi);
@@ -227,7 +166,7 @@ Z = r.*sin(Phi);
 % plane and y is "up", for consistency across all functions.
 vertices = [X Z -Y];
 
-if new_model
+if opts.new_model
   torus.prm.cprm = cprm;
   torus.prm.mprm = mprm;
   torus.prm.nccomp = nccomp;
@@ -246,10 +185,11 @@ else
   torus.normals = [];
 end
 torus.shape = 'torus';
-torus.filename = filename;
-torus.mtlfilename = mtlfilename;
-torus.mtlname = mtlname;
-torus.comp_normals = comp_normals;
+torus.filename = opts.filename;
+torus.mtlfilename = opts.mtlfilename;
+torus.mtlname = opts.mtlname;
+torus.comp_uv = opts.comp_uv;
+torus.comp_normals = opts.comp_normals;
 torus.radius = radius;
 torus.tube_radius = tube_radius;
 torus.n = n;
@@ -260,8 +200,8 @@ torus.R = R;
 torus.r = r;
 torus.vertices = vertices;
 
-if dosave
-  torus = objSaveModelTorus(torus);
+if opts.dosave
+  torus = objSaveModel(torus);
 end
 
 if ~nargout

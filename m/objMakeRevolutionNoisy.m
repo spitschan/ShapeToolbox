@@ -10,12 +10,14 @@ function solid = objMakeRevolutionNoisy(curve,nprm,varargin)
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-04-05 - ts - first version
+% 2015-05-04 - ts - added uv-option without materials
+%                   calls objParseArgs and objSaveModel
 
 %--------------------------------------------------
 
 ncurve = length(curve);
-m = ncurve;
-n = ncurve;
+opts.m = ncurve;
+opts.n = ncurve;
 
 if nargin<2 || isempty(nprm)
   nprm = [8 1 0 45 .1 0];
@@ -35,17 +37,9 @@ nprm(:,3:4) = pi * nprm(:,3:4)/180;
 % modulator; set default filename, material...
 mprm  = [];
 nmcomp = 0;
-filename = 'revolutionnoisy.obj';
-use_rms = false;
-mtlfilename = '';
-mtlname = '';
-comp_normals = false;
-dosave = true;
-new_model = true;
 
-% Number of vertices in the two directions, default values
-%m = 256;
-%n = 256;
+opts.filename = 'revolutionnoisy.obj';
+opts.use_rms = false;
 
 [modpar,par] = parseparams(varargin);
 
@@ -59,79 +53,32 @@ if ~isempty(mprm)
   [nmcomp,ncol] = size(mprm);
   switch ncol
     case 1
-      mprm = [mprm ones(nncomp,1)*[.1 0 0 0]];
+      mprm = [mprm ones(nmcomp,1)*[.1 0 0 0]];
     case 2
-      mprm = [mprm zeros(nncomp,3)];
+      mprm = [mprm zeros(nmcomp,3)];
     case 3
-      mprm = [mprm zeros(nncomp,2)];
+      mprm = [mprm zeros(nmcomp,2)];
     case 4
-      mprm = [mprm zeros(nncomp,1)];
+      mprm = [mprm zeros(nmcomp,1)];
   end
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
 
-if ~isempty(par)
-   ii = 1;
-   while ii<=length(par)
-     if ischar(par{ii})
-       switch lower(par{ii})
-         case 'npoints'
-           if ii<length(par) && isnumeric(par{ii+1}) && length(par{ii+1}(:))==2
-             ii = ii + 1;
-             m = par{ii}(1);
-             n = par{ii}(2);
-           else
-             error('No value or a bad value given for option ''npoints''.');
-           end
-         case 'material'
-           if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
-             ii = ii + 1;
-             mtlfilename = par{ii}{1};
-             mtlname = par{ii}{2};
-           else
-             error('No value or a bad value given for option ''material''.');
-           end
-         case 'rms'
-           use_rms = true;
-         case 'normals'
-           if ii<length(par) && (isnumeric(par{ii+1}) || islogical(par{ii+1}))
-             ii = ii + 1;
-             comp_normals = par{ii};
-           else
-             error('No value or a bad value given for option ''normals''.');
-           end
-         case 'save'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             dosave = par{ii};
-           else
-             error('No value or a bad value given for option ''save''.');
-           end              
-         case 'model'
-           if ii<length(par) && isstruct(par{ii+1})
-             ii = ii + 1;
-             solid = par{ii};
-             new_model = false;
-           else
-             error('No value or a bad value given for option ''model''.');
-           end
-         otherwise
-           filename = par{ii};
-       end
-     end
-     ii = ii + 1;
-   end
-end
-  
+% Check other optional input arguments
+[opts,solid] = objParseArgs(opts,par);
+
 % Add file name extension if needed
-if isempty(regexp(filename,'\.obj$'))
-  filename = [filename,'.obj'];
+if isempty(regexp(opts.filename,'\.obj$'))
+  opts.filename = [opts.filename,'.obj'];
 end
 
 %--------------------------------------------
 % Vertices 
 
-if new_model
+if opts.new_model
+  m = opts.m;
+  n = opts.n;
+
   r = 1; % radius
   h = 2*pi*r; % height
   theta = linspace(-pi,pi-2*pi/n,n); % azimuth
@@ -155,7 +102,7 @@ else
   R = reshape(solid.R,[n m])';
 end
 
-R = R + objMakeNoiseComponents(nprm,mprm,Theta,Y,use_rms);
+R = R + objMakeNoiseComponents(nprm,mprm,Theta,Y,opts.use_rms);
 
 Theta = Theta'; Theta = Theta(:);
 Y = Y'; Y = Y(:);
@@ -166,12 +113,12 @@ Z = -R .* sin(Theta);
 
 vertices = [X Y Z];
 
-if new_model
+if opts.new_model
   solid.prm.nprm = nprm;
   solid.prm.mprm = mprm;
   solid.prm.nncomp = nncomp;
   solid.prm.nmcomp = nmcomp;
-  solid.prm.use_rms = use_rms;
+  solid.prm.use_rms = opts.use_rms;
   solid.prm.mfilename = mfilename;
   solid.normals = [];
 else
@@ -180,15 +127,16 @@ else
   solid.prm(ii).mprm = mprm;
   solid.prm(ii).nncomp = nncomp;
   solid.prm(ii).nmcomp = nmcomp;
-  solid.prm(ii).use_rms = use_rms;
+  solid.prm(ii).use_rms = opts.use_rms;
   solid.prm(ii).mfilename = mfilename;
   solid.normals = [];
 end
 solid.shape = 'revolution';
-solid.filename = filename;
-solid.mtlfilename = mtlfilename;
-solid.mtlname = mtlname;
-solid.comp_normals = comp_normals;
+solid.filename = opts.filename;
+solid.mtlfilename = opts.mtlfilename;
+solid.mtlname = opts.mtlname;
+solid.comp_uv = opts.comp_uv;
+solid.comp_normals = opts.comp_normals;
 solid.curve = curve;
 solid.n = n;
 solid.m = m;
@@ -197,8 +145,8 @@ solid.Y = Y;
 solid.R = R;
 solid.vertices = vertices;
 
-if dosave
-  solid = objSaveModelCylinder(solid);
+if opts.dosave
+  solid = objSaveModel(solid);
 end
 
 if ~nargout

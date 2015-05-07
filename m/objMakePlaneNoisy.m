@@ -84,6 +84,8 @@ function plane = objMakePlaneNoisy(nprm,varargin)
 %                    compute faces, normals, etc and save the model to a file
 %                   saving the model is optional, an existing model
 %                     can be updated
+% 2015-05-04 - ts - added uv-option without materials;
+%                   calls objParseArgs and objSaveModel
 
 %--------------------------------------------
 
@@ -109,17 +111,11 @@ nprm(:,3:4) = pi * nprm(:,3:4)/180;
 % Set the default modulation parameters to empty indicating no modulator; set default filename.
 mprm  = [];
 nmcomp = 0;
-filename = 'planenoisy.obj';
-use_rms = false;
-mtlfilename = '';
-mtlname = '';
-comp_normals = false;
-dosave = true;
-new_model = true;
 
-% Number of vertices in y and x directions, default values
-m = 256;
-n = 256;
+opts.filename = 'planenoisy.obj';
+opts.m = 256;
+opts.n = 256;
+opts.use_rms = false;
 
 [modpar,par] = parseparams(varargin);
 
@@ -135,77 +131,30 @@ if ~isempty(mprm)
     case 1
       mprm = [mprm ones(nmcomp,1)*[1 0 0 0]];
     case 2
-      mprm = [mprm zeros(nmcomp,3)];
+      mprm = [mprm zeros(nmcomp,4)];
     case 3
-      mprm = [mprm zeros(nmcomp,2)];
+      mprm = [mprm zeros(nmcomp,3)];
     case 4
-      mprm = [mprm zeros(nmcomp,1)];
+      mprm = [mprm zeros(nmcomp,2)];
   end
   mprm(:,1) = mprm(:,1)*(2*pi);
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
 
-if ~isempty(par)
-   ii = 1;
-   while ii<=length(par)
-     if ischar(par{ii})
-       switch lower(par{ii})
-         case 'npoints'
-           if ii<length(par) && isnumeric(par{ii+1}) && length(par{ii+1}(:))==2
-             ii = ii + 1;
-             m = par{ii}(1);
-             n = par{ii}(2);
-           else
-             error('No value or a bad value given for option ''npoints''.');
-           end
-         case 'material'
-           if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
-             ii = ii + 1;
-             mtlfilename = par{ii}{1};
-             mtlname = par{ii}{2};
-           else
-             error('No value or a bad value given for option ''material''.');
-           end
-         case 'normals'
-           if ii<length(par) && (isnumeric(par{ii+1}) || islogical(par{ii+1}))
-             ii = ii + 1;
-             comp_normals = par{ii};
-           else
-             error('No value or a bad value given for option ''normals''.');
-           end
-         case 'rms'
-           use_rms = true;
-         case 'save'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             dosave = par{ii};
-           else
-             error('No value or a bad value given for option ''save''.');
-           end              
-         case 'model'
-           if ii<length(par) && isstruct(par{ii+1})
-             ii = ii + 1;
-             plane = par{ii};
-             new_model = false;
-           else
-             error('No value or a bad value given for option ''model''.');
-           end
-         otherwise
-           filename = par{ii};
-       end
-     end
-     ii = ii + 1;
-   end
-end
+% Check other optional input arguments
+[opts,plane] = objParseArgs(opts,par);
   
 % Add file name extension if needed
-if isempty(regexp(filename,'\.obj$'))
-  filename = [filename,'.obj'];
+if isempty(regexp(opts.filename,'\.obj$'))
+  opts.filename = [opts.filename,'.obj'];
 end
 
 %--------------------------------------------
 
-if new_model
+if opts.new_model
+  m = opts.m;
+  n = opts.n;
+
   w = 1; % width of the plane
   h = 1; % m/n * w;
   
@@ -224,7 +173,7 @@ end
 
 %--------------------------------------
 
-Z = Z + objMakeNoiseComponents(nprm,mprm,X,Y,use_rms);
+Z = Z + objMakeNoiseComponents(nprm,mprm,X,Y,opts.use_rms);
 
 X = X'; X = X(:);
 Y = Y'; Y = Y(:);
@@ -233,12 +182,12 @@ Z = Z'; Z = Z(:);
 vertices = [X Y Z];
 
 
-if new_model
+if opts.new_model
   plane.prm.nprm = nprm;
   plane.prm.mprm = mprm;
   plane.prm.nncomp = nncomp;
   plane.prm.nmcomp = nmcomp;
-  plane.prm.use_rms = use_rms;
+  plane.prm.use_rms = opts.use_rms;
   plane.prm.mfilename = mfilename;
   plane.normals = [];
 else
@@ -247,15 +196,16 @@ else
   plane.prm(ii).mprm = mprm;
   plane.prm(ii).nncomp = nncomp;
   plane.prm(ii).nmcomp = nmcomp;
-  plane.prm(ii).use_rms = use_rms;
+  plane.prm(ii).use_rms = opts.use_rms;
   plane.prm(ii).mfilename = mfilename;
   plane.normals = [];
 end
 plane.shape = 'plane';
-plane.filename = filename;
-plane.mtlfilename = mtlfilename;
-plane.mtlname = mtlname;
-plane.comp_normals = comp_normals;
+plane.filename = opts.filename;
+plane.mtlfilename = opts.mtlfilename;
+plane.mtlname = opts.mtlname;
+plane.comp_uv = opts.comp_uv;
+plane.comp_normals = opts.comp_normals;
 plane.n = n;
 plane.m = m;
 plane.X = X;
@@ -263,8 +213,8 @@ plane.Y = Y;
 plane.Z = Z;
 plane.vertices = vertices;
 
-if dosave
-  plane = objSaveModelPlane(plane);
+if opts.dosave
+  plane = objSaveModel(plane);
 end
 
 if ~nargout

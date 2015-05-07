@@ -1,4 +1,4 @@
-function s = objSaveModelSphere(s)
+function s = objSaveModel(s)
 
   % OBJSAVEMODEL
   %
@@ -16,7 +16,8 @@ function s = objSaveModelSphere(s)
   % Copyright (C) 2015 Toni Saarela
   % 2015-04-06 - ts - first version, based on the model-type-specific
   %                    functions
-
+  % 2015-05-04 - ts - uses option comp_uv for uv-coords instead of
+  %                    checking whether mtl filename is empty
 
 m = s.m;
 n = s.n;
@@ -56,8 +57,8 @@ switch s.shape
     F = F(:) * [1 1 1];
     F(:,2) = F(:,2) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
     F(:,3) = F(:,3) + [repmat([n n+1]',[n-1 1]); [n 1]'];
-    % But loop until m, not m-1 as phi goes -pi to pi here, not -pi/2 to
-    % pi/2.
+    % But loop until m, not m-1 as phi goes -pi to pi here (not -pi/2 to
+    % pi/2) and faces wrap around the "tube".
     for ii = 1:m
       faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
     end
@@ -66,7 +67,7 @@ switch s.shape
 end
 
 % Texture coordinates if material is defined
-if ~isempty(s.mtlfilename)
+if s.comp_uv
   switch s.shape
     case {'sphere','cylinder','revolution'}
       u = linspace(0,1,n+1);
@@ -134,8 +135,7 @@ if s.comp_normals
   %  normals(ii,:) = vn / sqrt(vn*vn');
   % end
 
-  % Loop through faces, somewhat faster but still slow because of the
-  % loop
+  % Loop through faces, somewhat faster but still slow
   switch s.shape
     case {'sphere','cylinder','revolution'}
       nfaces = (m-1)*n*2;
@@ -156,7 +156,7 @@ end
 % Output argument
 
 s.faces = faces;
-if ~isempty(s.mtlfilename)
+if s.comp_uv
   s.uvcoords = uvcoords;
 end
 if s.comp_normals
@@ -174,11 +174,13 @@ for ii = 1:length(s.prm)
 end
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
 fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
-if isempty(s.mtlfilename)
-  fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
-else
+
+if s.comp_uv
   fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
+else
+  fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
 end
+
 if s.comp_normals
   fprintf(fid,'# Vertex normals included: Yes.\n');
 else
@@ -201,6 +203,7 @@ modcustom = {'objMakeSphereCustom','objMakePlaneCustom',...
 for ii = 1:length(s.prm)
   fprintf(fid,'#\n# %s\n# %d. %s:\n',repmat('-',1,50),ii,s.prm(ii).mfilename);
   switch s.prm(ii).mfilename
+    %---------------------------------------------------
     case modsine
       if strcmp(s.shape,'plane')
         %- Convert frequencies back to cycles/plane
@@ -210,13 +213,15 @@ for ii = 1:length(s.prm)
         end         
       end
       writeSpecs(fid,s.prm(ii).cprm,s.prm(ii).mprm);
+    %---------------------------------------------------
     case modbumpy
       writeSpecsBumpy(fid,s.prm(ii).prm);
+    %---------------------------------------------------
     case modnoise
       if strcmp(s.shape,'plane')
         %- Convert frequencies back to cycles/plane
-        if ~isempty(p.prm(ii).mprm)
-          p.prm(ii).mprm(:,1) = p.prm(ii).mprm(:,1)/(2*pi);
+        if ~isempty(s.prm(ii).mprm)
+          s.prm(ii).mprm(:,1) = s.prm(ii).mprm(:,1)/(2*pi);
         end
       end
       writeSpecsNoisy(fid,s.prm(ii).nprm,s.prm(ii).mprm);
@@ -225,14 +230,16 @@ for ii = 1:length(s.prm)
       else
         fprintf(fid,'# Use RMS contrast: No.\n');
       end
+    %---------------------------------------------------
     case modcustom
       writeSpecsCustom(fid,s.prm(ii))
-  end
+    %---------------------------------------------------
+ end
 end
 
 fprintf(fid,'#\n# Phase and angle (if present) are in radians above.\n');
 
-if isempty(s.mtlfilename)
+if ~s.comp_uv
   fprintf(fid,'\n\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n');
@@ -248,7 +255,9 @@ if isempty(s.mtlfilename)
   end
   fprintf(fid,'# End faces\n');
 else
-  fprintf(fid,'\n# Materials:\nmtllib %s\nusemtl %s\n',s.mtlfilename,s.mtlname);
+  if ~isempty(s.mtlfilename)
+    fprintf(fid,'\n# Materials:\nmtllib %s\nusemtl %s\n',s.mtlfilename,s.mtlname);
+  end
   fprintf(fid,'\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');

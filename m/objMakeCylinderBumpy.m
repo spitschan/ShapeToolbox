@@ -10,6 +10,8 @@ function cylinder = objMakeCylinderBumpy(prm,varargin)
 %                    compute faces, normals, etc and save the model to a file
 %                   saving the model is optional, an existing model
 %                     can be updated
+% 2015-05-04 - ts - added uv-option without materials
+%                   calls objParseArgs and objSaveModel
 
 
 % TODO
@@ -35,80 +37,22 @@ end
 nbumps = sum(prm(:,1));
 
 % Set default values before parsing the optional input arguments.
-filename = 'cylinderbumpy.obj';
-mtlfilename = '';
-mtlname = '';
-mindist = 0;
-m = 256;
-n = 256;
-comp_normals = false;
-dosave = true;
-new_model = true;
+opts.filename = 'cylinderbumpy.obj';
+opts.mindist = 0;
+opts.m = 256;
+opts.n = 256;
 
 [tmp,par] = parseparams(varargin);
-if ~isempty(par)
-  ii = 1;
-  while ii<=length(par)
-    if ischar(par{ii})
-      switch lower(par{ii})
-        case 'mindist'
-          if ii<length(par) && isnumeric(par{ii+1})
-             ii = ii+1;
-             mindist = par{ii};
-          else
-             error('No value or a bad value given for option ''mindist''.');
-          end
-         case 'npoints'
-           if ii<length(par) && isnumeric(par{ii+1}) && length(par{ii+1}(:))==2
-             ii = ii + 1;
-             m = par{ii}(1);
-             n = par{ii}(2);
-           else
-             error('No value or a bad value given for option ''npoints''.');
-           end
-         case 'material'
-           if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
-             ii = ii + 1;
-             mtlfilename = par{ii}{1};
-             mtlname = par{ii}{2};
-           else
-             error('No value or a bad value given for option ''material''.');
-           end
-         case 'normals'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             comp_normals = par{ii};
-           else
-             error('No value or a bad value given for option ''normals''.');
-           end
-         case 'save'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             dosave = par{ii};
-           else
-             error('No value or a bad value given for option ''save''.');
-           end
-         case 'model'
-           if ii<length(par) && isstruct(par{ii+1})
-             ii = ii + 1;
-             cylinder = par{ii};
-             new_model = false;
-           else
-             error('No value or a bad value given for option ''model''.');
-           end
-        otherwise
-          filename = par{ii};
-      end
-    else
-        
-    end
-    ii = ii + 1;
-  end % while over par
+
+% Check other optional input arguments
+[opts,cylinder] = objParseArgs(opts,par);
+  
+% Add file name extension if needed
+if isempty(regexp(opts.filename,'\.obj$'))
+  opts.filename = [opts.filename,'.obj'];
 end
 
-if isempty(regexp(filename,'\.obj$'))
-  filename = [filename,'.obj'];
-end
+mindist = opts.mindist;
 
 %--------------------------------------------
 % TODO:
@@ -119,7 +63,10 @@ end
 %end
 %--------------------------------------------
 
-if new_model
+if opts.new_model
+  m = opts.m;
+  n = opts.n;
+
   r = 1; % radius
   h = 2*pi*r; % height
   theta = linspace(-pi,pi-2*pi/n,n); % azimuth
@@ -213,10 +160,11 @@ X = R .* cos(Theta);
 Z = -R .* sin(Theta);
 vertices = [X Y Z];
 
-if new_model
+if opts.new_model
   cylinder.prm.prm = prm;
   cylinder.prm.bumptypes = nbumptypes;
   cylinder.prm.nbumps = nbumps;
+  cylinder.prm.mindist = mindist;
   cylinder.prm.mfilename = mfilename;
   cylinder.normals = [];
 else
@@ -224,14 +172,16 @@ else
   cylinder.prm(ii).prm = prm;
   cylinder.prm(ii).bumptypes = nbumptypes;
   cylinder.prm(ii).nbumps = nbumps;
+  cylinder.prm(ii).mindist = mindist;
   cylinder.prm(ii).mfilename = mfilename;
   cylinder.normals = [];
 end
 cylinder.shape = 'cylinder';
-cylinder.filename = filename;
-cylinder.mtlfilename = mtlfilename;
-cylinder.mtlname = mtlname;
-cylinder.comp_normals = comp_normals;
+cylinder.filename = opts.filename;
+cylinder.mtlfilename = opts.mtlfilename;
+cylinder.mtlname = opts.mtlname;
+cylinder.comp_uv = opts.comp_uv;
+cylinder.comp_normals = opts.comp_normals;
 cylinder.n = n;
 cylinder.m = m;
 cylinder.Theta = Theta;
@@ -239,8 +189,8 @@ cylinder.Y = Y;
 cylinder.R = R;
 cylinder.vertices = vertices;
 
-if dosave
-  cylinder = objSaveModelCylinder(cylinder);
+if opts.dosave
+  cylinder = objSaveModel(cylinder);
 end
 
 if ~nargout

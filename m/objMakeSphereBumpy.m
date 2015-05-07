@@ -70,6 +70,7 @@ function sphere = objMakeSphereBumpy(prm,varargin)
 %                     can be updated
 % 2015-04-30 - ts - "switched" y and z directions: reference plane is
 %                    x-z, y is "up"; added uv-option without materials
+% 2015-05-04 - ts - calls objParseArgs and objSaveModel
 
 
 % TODO
@@ -96,92 +97,22 @@ prm(:,3) = pi*prm(:,3)/180;
 nbumps = sum(prm(:,1));
 
 % Set default values before parsing the optional input arguments.
-filename = 'spherebumpy.obj';
-mtlfilename = '';
-comp_uv = false;
-mtlname = '';
-mindist = 0;
-m = 128;
-n = 256;
-comp_normals = false;
-dosave = true;
-new_model = true;
+opts.filename = 'spherebumpy.obj';
+opts.m = 128;
+opts.n = 256;
+opts.mindist = 0;
 
 [tmp,par] = parseparams(varargin);
 
-if ~isempty(par)
-  ii = 1;
-  while ii<=length(par)
-    if ischar(par{ii})
-      switch lower(par{ii})
-        case 'mindist'
-          if ii<length(par) && isnumeric(par{ii+1})
-             ii = ii+1;
-             mindist = par{ii};
-          else
-             error('No value or a bad value given for option ''mindist''.');
-          end
-         case 'npoints'
-           if ii<length(par) && isnumeric(par{ii+1}) && length(par{ii+1}(:))==2
-             ii = ii + 1;
-             m = par{ii}(1);
-             n = par{ii}(2);
-           else
-             error('No value or a bad value given for option ''npoints''.');
-           end
-         case 'material'
-           if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
-             ii = ii + 1;
-             mtlfilename = par{ii}{1};
-             mtlname = par{ii}{2};
-             comp_uv = true;
-           else
-             error('No value or a bad value given for option ''material''.');
-           end
-         case 'uvcoords'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             comp_uv = par{ii};
-           else
-             error('No value or a bad value given for option ''uvcoords''.');
-           end                
-         case 'normals'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             comp_normals = par{ii};
-           else
-             error('No value or a bad value given for option ''normals''.');
-           end
-         case 'save'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             dosave = par{ii};
-           else
-             error('No value or a bad value given for option ''save''.');
-           end
-         case 'model'
-           if ii<length(par) && isstruct(par{ii+1})
-             ii = ii + 1;
-             sphere = par{ii};
-             new_model = false;
-           else
-             error('No value or a bad value given for option ''model''.');
-           end
-        otherwise
-          filename = par{ii};
-      end
-    else
-        
-    end
-    ii = ii + 1;
-  end % while over par
+% Check other optional input arguments
+[opts,sphere] = objParseArgs(opts,par);
+  
+% Add file name extension if needed
+if isempty(regexp(opts.filename,'\.obj$'))
+  opts.filename = [opts.filename,'.obj'];
 end
 
-if isempty(regexp(filename,'\.obj$'))
-  filename = [filename,'.obj'];
-end
-
-mindist = pi*mindist/180;
+mindist = pi*opts.mindist/180;
 
 %--------------------------------------------
 % TODO:
@@ -194,7 +125,10 @@ mindist = pi*mindist/180;
 %--------------------------------------------
 % Vertices
 
-if new_model
+if opts.new_model
+  m = opts.m;
+  n = opts.n;
+
   r = 1; % radius
   theta = linspace(-pi,pi-2*pi/n,n); % azimuth
   phi = linspace(-pi/2,pi/2,m); % elevation
@@ -288,7 +222,7 @@ clear X Y Z
 % The field prm can be made an array.  If the structure sphere is
 % passed to another objMakeSphere*-function, that function will add
 % its parameters to that array.
-if new_model
+if opts.new_model
   sphere.prm.prm = prm;
   sphere.prm.nbumptypes = nbumptypes;
   sphere.prm.nbumps = nbumps;
@@ -303,11 +237,11 @@ else
   sphere.normals = [];
 end
 sphere.shape = 'sphere';
-sphere.filename = filename;
-sphere.mtlfilename = mtlfilename;
-sphere.mtlname = mtlname;
-sphere.comp_uv = comp_uv;
-sphere.comp_normals = comp_normals;
+sphere.filename = opts.filename;
+sphere.mtlfilename = opts.mtlfilename;
+sphere.mtlname = opts.mtlname;
+sphere.comp_uv = opts.comp_uv;
+sphere.comp_normals = opts.comp_normals;
 sphere.n = n;
 sphere.m = m;
 sphere.Theta = Theta;
@@ -315,8 +249,8 @@ sphere.Phi = Phi;
 sphere.R = R;
 sphere.vertices = vertices;
 
-if dosave
-  sphere = objSaveModelSphere(sphere);
+if opts.dosave
+  sphere = objSaveModel(sphere);
 end
 
 if ~nargout

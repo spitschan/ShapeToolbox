@@ -204,6 +204,7 @@ function sphere = objMakeSphere(cprm,varargin)
 %                     can be updated
 % 2015-04-30 - ts - "switched" y and z directions: reference plane is
 %                    x-z, y is "up"; added uv-option without materials
+% 2015-05-04 - ts - calls objParseArgs and objSaveModel
 
 % TODO
 % Add option for noise in the amplitude
@@ -240,17 +241,10 @@ cprm(:,3:4) = pi * cprm(:,3:4)/180;
 % modulator; set default filename, material filename.
 mprm  = [];
 nmcomp = 0;
-filename = 'sphere.obj';
-mtlfilename = '';
-mtlname = '';
-comp_uv = false;
-comp_normals = false;
-dosave = true;
-new_model = true;
 
-% Number of vertices in azimuth and elevation directions, default values
-n = 256;
-m = 128;
+opts.filename = 'sphere.obj';
+opts.m = 128;
+opts.n = 256;
 
 [modpar,par] = parseparams(varargin);
 
@@ -276,74 +270,19 @@ if ~isempty(mprm)
 end
 
 % Check other optional input arguments
-if ~isempty(par)
-   ii = 1;
-   while ii<=length(par)
-     if ischar(par{ii})
-       switch lower(par{ii})
-         case 'npoints'
-           if ii<length(par) && isnumeric(par{ii+1}) && length(par{ii+1}(:))==2
-             ii = ii + 1;
-             m = par{ii}(1);
-             n = par{ii}(2);
-           else
-             error('No value or a bad value given for option ''npoints''.');
-           end
-         case 'material'
-           if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
-             ii = ii + 1;
-             mtlfilename = par{ii}{1};
-             mtlname = par{ii}{2};
-             comp_uv = true;
-           else
-             error('No value or a bad value given for option ''material''.');
-           end
-         case 'uvcoords'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             comp_uv = par{ii};
-           else
-             error('No value or a bad value given for option ''uvcoords''.');
-           end                
-         case 'normals'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             comp_normals = par{ii};
-           else
-             error('No value or a bad value given for option ''normals''.');
-           end
-         case 'save'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             dosave = par{ii};
-           else
-             error('No value or a bad value given for option ''save''.');
-           end              
-         case 'model'
-           if ii<length(par) && isstruct(par{ii+1})
-             ii = ii + 1;
-             sphere = par{ii};
-             new_model = false;
-           else
-             error('No value or a bad value given for option ''model''.');
-           end
-         otherwise
-           filename = par{ii};
-       end
-     end
-     ii = ii + 1;
-   end
-end
+[opts,sphere] = objParseArgs(opts,par);
   
 % Add file name extension if needed
-if isempty(regexp(filename,'\.obj$'))
-  filename = [filename,'.obj'];
+if isempty(regexp(opts.filename,'\.obj$'))
+  opts.filename = [opts.filename,'.obj'];
 end
 
 %--------------------------------------------
 % Vertices
+if opts.new_model
+  m = opts.m;
+  n = opts.n;
 
-if new_model
   r = 1; % radius
   theta = linspace(-pi,pi-2*pi/n,n); % azimuth
   phi = linspace(-pi/2,pi/2,m)'; % elevation
@@ -377,7 +316,7 @@ clear X Y Z
 % The field prm can be made an array.  If the structure sphere is
 % passed to another objMakeSphere*-function, that function will add
 % its parameters to that array.
-if new_model
+if opts.new_model
   sphere.prm.cprm = cprm;
   sphere.prm.mprm = mprm;
   sphere.prm.nccomp = nccomp;
@@ -394,11 +333,11 @@ else
   sphere.normals = [];
 end
 sphere.shape = 'sphere';
-sphere.filename = filename;
-sphere.mtlfilename = mtlfilename;
-sphere.mtlname = mtlname;
-sphere.comp_uv = comp_uv;
-sphere.comp_normals = comp_normals;
+sphere.filename = opts.filename;
+sphere.mtlfilename = opts.mtlfilename;
+sphere.mtlname = opts.mtlname;
+sphere.comp_uv = opts.comp_uv;
+sphere.comp_normals = opts.comp_normals;
 sphere.n = n;
 sphere.m = m;
 sphere.Theta = Theta;
@@ -406,8 +345,8 @@ sphere.Phi = Phi;
 sphere.R = R;
 sphere.vertices = vertices;
 
-if dosave
-  sphere = objSaveModelSphere(sphere);
+if opts.dosave
+  sphere = objSaveModel(sphere);
 end
 
 if ~nargout

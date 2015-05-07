@@ -10,6 +10,8 @@ function p = objSaveModelPlane(p)
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-04-03 - ts - first version, based on objMakePlane*-functions
+% 2015-05-04 - ts - use comp_uv flag instead of checking material file
+%                   name
 
 m = p.m;
 n = p.n;
@@ -17,7 +19,7 @@ vertices = p.vertices;
 
 %--------------------------------------------
 % Texture coordinates if material is defined
-if ~isempty(p.mtlfilename)
+if p.comp_uv
   U = (p.X-min(p.X))/(max(p.X)-min(p.X));
   V = (p.Y-min(p.Y))/(max(p.Y)-min(p.Y));
   uvcoords = [U V];
@@ -78,7 +80,7 @@ end
 %--------------------------------------------
 % Output argument
 p.faces = faces;
-if ~isempty(p.mtlfilename)
+if p.comp_uv
   p.uvcoords = uvcoords;
 end
 if p.comp_normals
@@ -97,7 +99,7 @@ for ii = 1:length(p.prm)
 end
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
 fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
-if isempty(p.mtlfilename)
+if ~p.comp_uv
   fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
 else
   fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
@@ -138,7 +140,7 @@ end
 
 fprintf(fid,'#\n# Phase and angle (if present) are in radians above.\n');
 
-if isempty(p.mtlfilename)
+if ~p.comp_uv
   fprintf(fid,'\n\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n');
@@ -154,7 +156,9 @@ if isempty(p.mtlfilename)
   end
   fprintf(fid,'# End faces\n');
 else
-  fprintf(fid,'\nmtllib %s\nusemtl %s\n',p.mtlfilename,p.mtlname);
+  if ~isempty(p.mtlfilename)
+    fprintf(fid,'\nmtllib %s\nusemtl %s\n',p.mtlfilename,p.mtlname);
+  end
   fprintf(fid,'\n# Vertices:\n');
   fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
   fprintf(fid,'# End vertices\n\n# Texture coordinates:\n');

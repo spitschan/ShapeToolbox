@@ -63,6 +63,8 @@ function plane = objMakePlaneBumpy(prm,varargin)
 %                    compute faces, normals, etc and save the model to a file
 %                   saving the model is optional, an existing model
 %                     can be updated
+% 2015-05-04 - ts - added uv-option without materials;
+%                   calls objParseArgs and objSaveModel
 
 %--------------------------------------------
 
@@ -82,82 +84,22 @@ end
 nbumps = sum(prm(:,1));
 
 % Set default values before parsing the optional input arguments.
-filename = 'planebumpy.obj';
-mtlfilename = '';
-mtlname = '';
-mindist = 0;
-comp_normals = false;
-dosave = true;
-new_model = true;
-
-% Number of vertices in y and x directions, default values
-m = 256;
-n = 256;
+opts.filename = 'planebumpy.obj';
+opts.mindist = 0;
+opts.m = 256;
+opts.n = 256;
 
 [tmp,par] = parseparams(varargin);
-if ~isempty(par)
-  ii = 1;
-  while ii<=length(par)
-    if ischar(par{ii})
-      switch lower(par{ii})
-        case 'mindist'
-          if ii<length(par) && isnumeric(par{ii+1})
-             ii = ii+1;
-             mindist = par{ii};
-          else
-             error('No value or a bad value given for option ''mindist''.');
-          end
-         case 'npoints'
-           if ii<length(par) && isnumeric(par{ii+1}) && length(par{ii+1}(:))==2
-             ii = ii + 1;
-             m = par{ii}(1);
-             n = par{ii}(2);
-           else
-             error('No value or a bad value given for option ''npoints''.');
-           end
-         case 'material'
-           if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
-             ii = ii + 1;
-             mtlfilename = par{ii}{1};
-             mtlname = par{ii}{2};
-           else
-             error('No value or a bad value given for option ''material''.');
-           end
-         case 'normals'
-           if ii<length(par) && (isnumeric(par{ii+1}) || islogical(par{ii+1}))
-             ii = ii + 1;
-             comp_normals = par{ii};
-           else
-             error('No value or a bad value given for option ''normals''.');
-           end
-         case 'save'
-           if ii<length(par) && isscalar(par{ii+1})
-             ii = ii + 1;
-             dosave = par{ii};
-           else
-             error('No value or a bad value given for option ''save''.');
-           end              
-         case 'model'
-           if ii<length(par) && isstruct(par{ii+1})
-             ii = ii + 1;
-             plane = par{ii};
-             new_model = false;
-           else
-             error('No value or a bad value given for option ''model''.');
-           end
-        otherwise
-          filename = par{ii};
-      end
-    else
-        
-    end
-    ii = ii + 1;
-  end % while over par
+
+% Check other optional input arguments
+[opts,plane] = objParseArgs(opts,par);
+  
+% Add file name extension if needed
+if isempty(regexp(opts.filename,'\.obj$'))
+  opts.filename = [opts.filename,'.obj'];
 end
 
-if isempty(regexp(filename,'\.obj$'))
-  filename = [filename,'.obj'];
-end
+mindist = opts.mindist;
 
 %--------------------------------------------
 % TODO:
@@ -168,7 +110,10 @@ end
 %end
 %--------------------------------------------
 
-if new_model
+if opts.new_model
+  m = opts.m;
+  n = opts.n;
+
   w = 1; % width of the plane
   h = 1; % m/n * w;
   
@@ -255,10 +200,11 @@ end
 
 vertices = [X Y Z];
 
-if new_model
+if opts.new_model
   plane.prm.prm = prm;
   plane.prm.nbumptypes = nbumptypes;
   plane.prm.nbumps = nbumps;
+  plane.prm.mindist = mindist;
   plane.prm.mfilename = mfilename;
   plane.normals = [];
 else
@@ -266,14 +212,16 @@ else
   plane.prm(ii).prm = prm;
   plane.prm(ii).nbumptypes = nbumptypes;
   plane.prm(ii).nbumps = nbumps;
+  plane.prm(ii).mindist = mindist;
   plane.prm(ii).mfilename = mfilename;
   plane.normals = [];
 end
 plane.shape = 'plane';
-plane.filename = filename;
-plane.mtlfilename = mtlfilename;
-plane.mtlname = mtlname;
-plane.comp_normals = comp_normals;
+plane.filename = opts.filename;
+plane.mtlfilename = opts.mtlfilename;
+plane.mtlname = opts.mtlname;
+plane.comp_uv = opts.comp_uv;
+plane.comp_normals = opts.comp_normals;
 plane.n = n;
 plane.m = m;
 plane.X = X;
@@ -281,8 +229,8 @@ plane.Y = Y;
 plane.Z = Z;
 plane.vertices = vertices;
 
-if dosave
-  plane = objSaveModelPlane(plane);
+if opts.dosave
+  plane = objSaveModel(plane);
 end
 
 if ~nargout
