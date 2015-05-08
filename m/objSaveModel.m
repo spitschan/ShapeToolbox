@@ -171,7 +171,7 @@ end
 fid = fopen(s.filename,'w');
 fprintf(fid,'# %s\n',datestr(now,31));
 if length(s.prm)==1
-   fprintf(fid,'# Created with function %s from ShapeToolbox.\n',s.prm(ii).mfilename);
+   fprintf(fid,'# Created with function %s from ShapeToolbox.\n',s.prm.mfilename);
 else
   for ii = 1:length(s.prm)
     if ii==1 verb = 'Created'; else verb = 'Modified'; end 
