@@ -137,7 +137,8 @@ function plane = objMakePlane(cprm,varargin)
 %                     can be updated
 % 2015-05-04 - ts - added uv-option without materials;
 %                   calls objParseArgs and objSaveModel
-
+% 2015-05-12 - ts - changed plane width and height to 2 (from -1 to 1)
+% 2015-05-14 - ts - improved setting default parameters
 
 % TODO
 % Add option for noise in the amplitude
@@ -154,24 +155,23 @@ function plane = objMakePlane(cprm,varargin)
 
 % Set default frequency, amplitude, phase, orientation and component group id
 
+defprm = [8 .05 0 0 0];
+
 if ~nargin || isempty(cprm)
-  cprm = [8 .05 0 0 0];
+  cprm = defprm;
 end
 
 [nccomp,ncol] = size(cprm);
 
-switch ncol
-  case 1
-    cprm = [cprm ones(nccomp,1)*[.05 0 0 0]];
-  case 2
-    cprm = [cprm zeros(nccomp,3)];
-  case 3
-    cprm = [cprm zeros(nccomp,2)];
-  case 4
-    cprm = [cprm zeros(nccomp,1)];
+% Fill in default carrier parameters if needed
+if ncol<5
+  defprm = ones(nccomp,1)*defprm;
+  cprm(:,ncol+1:5) = defprm(:,ncol+1:5);
 end
+clear defprm
 
-cprm(:,1) = cprm(:,1)*(2*pi);
+%cprm(:,1) = cprm(:,1)*(2*pi);
+cprm(:,1) = cprm(:,1)*pi;
 cprm(:,3:4) = pi * cprm(:,3:4)/180;
 
 % Set the default modulation parameters to empty indicating no modulator; set default filename.
@@ -186,33 +186,21 @@ opts.n = 256;
 
 % If modulator parameters are given as input, set mprm to these values
 if ~isempty(modpar)
-   mprm = modpar{1};
-end
-
-% Set default values to modulator parameters as needed
-if ~isempty(mprm)
+  mprm = modpar{1};
+  % Set default values to modulator parameters as needed
   [nmcomp,ncol] = size(mprm);
-  switch ncol
-    case 1
-      mprm = [mprm ones(nmcomp,1)*[1 0 0 0]];
-    case 2
-      mprm = [mprm zeros(nmcomp,3)];
-    case 3
-      mprm = [mprm zeros(nmcomp,2)];
-    case 4
-      mprm = [mprm zeros(nmcomp,1)];
+  if ncol<5
+    defprm = ones(nmcomp,1)*[1 0 0 0];
+    mprm(:,ncol+1:5) = defprm(:,ncol:4);
+    clear defprm
   end
-  mprm(:,1) = mprm(:,1)*(2*pi);
+  %mprm(:,1) = mprm(:,1)*(2*pi);
+  mprm(:,1) = mprm(:,1)*pi;
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
 
 % Check other optional input arguments
 [opts,plane] = objParseArgs(opts,par);
-  
-% Add file name extension if needed
-if isempty(regexp(opts.filename,'\.obj$'))
-  opts.filename = [opts.filename,'.obj'];
-end
 
 %--------------------------------------------
 
@@ -220,8 +208,8 @@ if opts.new_model
   m = opts.m;
   n = opts.n;
 
-  w = 1; % width of the plane
-  h = 1; % m/n * w;
+  w = 2; % width of the plane
+  h = 2; % m/n * w;
   
   x = linspace(-w/2,w/2,n); % 
   y = linspace(-h/2,h/2,m)'; % 
@@ -264,6 +252,8 @@ plane.mtlfilename = opts.mtlfilename;
 plane.mtlname = opts.mtlname;
 plane.comp_uv = opts.comp_uv;
 plane.comp_normals = opts.comp_normals;
+plane.w = w;
+plane.h = h;
 plane.n = n;
 plane.m = m;
 plane.X = X;

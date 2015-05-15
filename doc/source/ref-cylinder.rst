@@ -14,9 +14,9 @@ objMakeCylinder()
 
 
 
-.. _ref-objmakecylindernoise:
+.. _ref-objmakecylindernoisy:
 
-objMakeCylinderNoise()
+objMakeCylinderNoisy()
 ======================
 
 
@@ -24,3 +24,10 @@ objMakeCylinderNoise()
 
 objMakeCylinderBumpy()
 ======================
+
+
+.. _ref-objmakecylindercustom:
+
+objMakeCylinderCustom()
+=======================
+

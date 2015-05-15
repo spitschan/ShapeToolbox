@@ -31,14 +31,14 @@ function solid = objMakeRevolution(curve,cprm,varargin)
 % The same but with added modulation
 % > objMakeRevolution(curve,[8 .1 0 60],[1 1 90 90])
 
-% Toni Saarela, 2015
+% Copyright (C) 2015 Toni Saarela
 % 2015-01-16 - ts - first version
 % 2015-01-17 - ts - added the usual sine modulations; wrote a sort of help
 % 2015-03-06 - ts - fixed interpolation of the curve; other small
 %                    fixes; updated help
 % 2015-05-04 - ts - added uv-option without materials
 %                   calls objParseArgs and objSaveModel
-
+% 2015-05-14 - ts - improved setting default parameters
 
 % TODO: 
 % - add an option to give a function handle (or the function as a
@@ -50,22 +50,20 @@ ncurve = length(curve);
 opts.m = ncurve;
 opts.n = ncurve;
 
+defprm = [8 .1 0 0 0];
+
 if nargin<2 || isempty (cprm)
-  cprm = [8 .1 0 0 0];
+  cprm = defprm;
 end
 
 [nccomp,ncol] = size(cprm);
 
-switch ncol
-  case 1
-    cprm = [cprm ones(nccomp,1)*[.0 0 0 0]];
-  case 2
-    cprm = [cprm zeros(nccomp,3)];
-  case 3
-    cprm = [cprm zeros(nccomp,2)];
-  case 4
-    cprm = [cprm zeros(nccomp,1)];
+% Fill in default carrier parameters if needed
+if ncol<5
+  defprm = ones(nccomp,1)*defprm;
+  cprm(:,ncol+1:5) = defprm(:,ncol+1:5);
 end
+clear defprm
 
 cprm(:,3:4) = pi * cprm(:,3:4)/180;
 
@@ -79,32 +77,19 @@ opts.filename = 'revolution.obj';
 
 % If modulator parameters are given as input, set mprm to these values
 if ~isempty(modpar)
-   mprm = modpar{1};
-end
-
-% Set default values to modulator parameters as needed
-if ~isempty(mprm)
+  mprm = modpar{1};
+  % Set default values to modulator parameters as needed
   [nmcomp,ncol] = size(mprm);
-  switch ncol
-    case 1
-      mprm = [mprm ones(nmcomp,1)*[1 0 0 0]];
-    case 2
-      mprm = [mprm zeros(nmcomp,3)];
-    case 3
-      mprm = [mprm zeros(nmcomp,2)];
-    case 4
-      mprm = [mprm zeros(nmcomp,1)];
+  if ncol<5
+    defprm = ones(nmcomp,1)*[1 0 0 0];
+    mprm(:,ncol+1:5) = defprm(:,ncol:4);
+    clear defprm
   end
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
 
 % Check other optional input arguments
 [opts,solid] = objParseArgs(opts,par);
-
-% Add file name extension if needed
-if isempty(regexp(opts.filename,'\.obj$'))
-  opts.filename = [opts.filename,'.obj'];
-end
 
 %--------------------------------------------
 % Vertices 
@@ -182,6 +167,3 @@ end
 if ~nargout
    clear solid
 end
-
-
-

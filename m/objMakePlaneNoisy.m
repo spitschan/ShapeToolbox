@@ -86,6 +86,8 @@ function plane = objMakePlaneNoisy(nprm,varargin)
 %                     can be updated
 % 2015-05-04 - ts - added uv-option without materials;
 %                   calls objParseArgs and objSaveModel
+% 2015-05-12 - ts - changed plane width and height to 2 (from -1 to 1)
+% 2015-05-14 - ts - improved setting default modulator parameters
 
 %--------------------------------------------
 
@@ -121,33 +123,20 @@ opts.use_rms = false;
 
 % If modulator parameters are given as input, set mprm to these values
 if ~isempty(modpar)
-   mprm = modpar{1};
-end
-
-% Set default values to modulator parameters as needed
-if ~isempty(mprm)
+  mprm = modpar{1};
+  % Set default values to modulator parameters as needed
   [nmcomp,ncol] = size(mprm);
-  switch ncol
-    case 1
-      mprm = [mprm ones(nmcomp,1)*[1 0 0 0]];
-    case 2
-      mprm = [mprm zeros(nmcomp,4)];
-    case 3
-      mprm = [mprm zeros(nmcomp,3)];
-    case 4
-      mprm = [mprm zeros(nmcomp,2)];
+  if ncol<5
+    defprm = ones(nmcomp,1)*[1 0 0 0];
+    mprm(:,ncol+1:5) = defprm(:,ncol:4);
+    clear defprm
   end
-  mprm(:,1) = mprm(:,1)*(2*pi);
+  mprm(:,1) = mprm(:,1)*(pi);
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
 
 % Check other optional input arguments
 [opts,plane] = objParseArgs(opts,par);
-  
-% Add file name extension if needed
-if isempty(regexp(opts.filename,'\.obj$'))
-  opts.filename = [opts.filename,'.obj'];
-end
 
 %--------------------------------------------
 
@@ -155,8 +144,8 @@ if opts.new_model
   m = opts.m;
   n = opts.n;
 
-  w = 1; % width of the plane
-  h = 1; % m/n * w;
+  w = 2; % width of the plane
+  h = 2; % m/n * w;
   
   x = linspace(-w/2,w/2,n); % 
   y = linspace(-h/2,h/2,m)'; % 
@@ -206,6 +195,8 @@ plane.mtlfilename = opts.mtlfilename;
 plane.mtlname = opts.mtlname;
 plane.comp_uv = opts.comp_uv;
 plane.comp_normals = opts.comp_normals;
+plane.w = w;
+plane.h = h;
 plane.n = n;
 plane.m = m;
 plane.X = X;

@@ -11,9 +11,9 @@ objMakeTorus()
 ==============
 
 
-.. _ref-objmaketorusnoise:
+.. _ref-objmaketorusnoisy:
 
-objMakeTorusNoise()
+objMakeTorusNoisy()
 ===================
 
 
@@ -21,3 +21,9 @@ objMakeTorusNoise()
 
 objMakeTorusBumpy()
 ===================
+
+
+.. _ref-objmaketoruscustom:
+
+objMakeTorusCustom()
+====================

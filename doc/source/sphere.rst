@@ -5,15 +5,19 @@
 Sphere
 ======
 
+
+.. image:: ../images/sphere_coords_3d_400.png
+.. image:: ../images/sphere_coords.png
+
 .. _objmakesphere:
 
 objMakeSphere()
 ===============
 
 
-.. _objmakespherenoise:
+.. _objmakespherenoisy:
 
-objMakeSphereNoise()
+objMakeSphereNoisy()
 ====================
 
 

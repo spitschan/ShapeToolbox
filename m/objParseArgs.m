@@ -6,6 +6,8 @@ function [opts,shape] = objParseArgs(opts,par)
 
 % Copyright 2015 Toni Saarela
 % 2015-05-04 - ts - first version
+% 2015-05-12 - ts - adds file name extension if needed
+% 2015-05-13 - ts - added 'locations' option; other bug fixes
 
 opts.mtlfilename = '';
 opts.mtlname = '';
@@ -92,17 +94,24 @@ if ~isempty(par)
          case 'tube_radius'
            if ii<length(par) && isnumeric(par{ii+1})
              ii = ii + 1;
-             tube_radius = par{ii};
+             opts.tube_radius = par{ii};
            else
              error('No value or a bad value given for option ''tube_radius''.');
            end              
          case {'rprm','radius_prm'}
            if ii<length(par) && isnumeric(par{ii+1})
              ii = ii + 1;
-             rprm = par{ii};
+             opts.rprm = par{ii};
            else
              error('No value or a bad value given for option ''radius''.');
            end
+         case {'locations','loc'}
+           if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
+             ii = ii + 1;
+             opts.locations = par{ii};
+           else
+             error('No value or a bad value given for option ''locations''.');
+           end              
         otherwise
           opts.filename = par{ii};
       end
@@ -116,4 +125,9 @@ end
 % See comment above for explanation.
 if uv_explicit_false
    opts.comp_uv = false;
+end
+
+% Add file name extension if needed
+if isempty(regexp(opts.filename,'\.obj$'))
+  opts.filename = [opts.filename,'.obj'];
 end

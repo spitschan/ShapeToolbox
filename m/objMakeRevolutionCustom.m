@@ -1,29 +1,14 @@
-function cylinder = objMakeCylinderCustom(f,prm,varargin)
+function solid = objMakeRevolutionCustom(curve,f,prm,varargin)
 
-% OBJMAKECYLINDERCUSTOM
-% 
-% Usage:          objMakeCylinderCustom()
+% OBJMAKEREVOLUTIONCUSTOM
+%
 
-% Copyright (C) 2014, 2015 Toni Saarela
-% 2014-10-18 - ts - first version
-% 2014-10-19 - ts - small fixes
-% 2014-10-20 - ts - small fixes
-% 2015-04-03 - ts - calls the new objSaveModelCylinder-function to
-%                    compute faces, normals, etc and save the model to a file
-%                   saving the model is optional, an existing model
-%                     can be updated, many other improvements
-% 2015-05-04 - ts - added uv-option without materials
-%                   calls objParseArgs and objSaveModel
-% 2015-05-14 - ts - added bump locations as optional input arg.
-%                    locations also included in the model structure
-% 2015-05-14 - ts - different minimum distance can be defined for each
-%                    bump type
+% Copyright (C) 2015 Toni Saarela
+% 2015-05-15 - ts - first version
 
-% TODO
-% - return the locations of bumps
-% - write help
-
-%--------------------------------------------
+ncurve = length(curve);
+opts.m = ncurve;
+opts.n = ncurve;
 
 if ischar(f)
   imgname = f;
@@ -75,23 +60,16 @@ elseif isa(f,'function_handle')
 
 end
 
-
-% Set default values before parsing the optional input arguments.
-opts.filename = 'cylindercustom.obj';
+% set default filename and other stuff
+opts.filename = 'revolutioncustom.obj';
 
 [tmp,par] = parseparams(varargin);
 
 % Check other optional input arguments
-[opts,cylinder] = objParseArgs(opts,par);
+[opts,solid] = objParseArgs(opts,par);
 
 %--------------------------------------------
-% TODO:
-% Throw an error if the asked minimum distance is a ridiculously large
-% number.
-%if mindist>
-%  error('Yeah right.');
-%end
-%--------------------------------------------
+% Vertices 
 
 if opts.new_model
   m = opts.m;
@@ -103,20 +81,29 @@ if opts.new_model
   y = linspace(-h/2,h/2,m); % 
   
   [Theta,Y] = meshgrid(theta,y);
-  R = r * ones([m n]);
+
+  if ncurve~=m
+    curve = interp1(linspace(0,1,ncurve),curve,linspace(0,1,m));
+  end
+  
+  R = r*repmat(curve(:),[1 n]);
+
 else
-  m = cylinder.m;
-  n = cylinder.n;
+  curve = solid.curve;
+  m = solid.m;
+  n = solid.n;
 
   r = 1; % radius
   h = 2*pi*r; % height
   theta = linspace(-pi,pi-2*pi/n,n); % azimuth
   y = linspace(-h/2,h/2,m); % 
 
-  Theta = reshape(cylinder.Theta,[n m])';
-  Y = reshape(cylinder.Y,[n m])';
-  R = reshape(cylinder.R,[n m])';
+  Theta = reshape(solid.Theta,[n m])';
+  Y = reshape(solid.Y,[n m])';
+  R = reshape(solid.R,[n m])';
+
 end
+
 
 if ~use_map
 
@@ -218,76 +205,58 @@ R = R'; R = R(:);
 
 X =  R .* cos(Theta);
 Z = -R .* sin(Theta);
-
 vertices = [X Y Z];
 
 if opts.new_model
-  cylinder.prm.use_map = use_map;
+  solid.prm.use_map = use_map;
   if use_map
     if exist(imgname)
-      cylinder.prm.imgname = imgname;
+      solid.prm.imgname = imgname;
     end
   else
-    cylinder.prm.prm = prm;
-    cylinder.prm.nbumptypes = nbumptypes;
-    cylinder.prm.nbumps = nbumps;
-    cylinder.prm.mindist = mindist;
-    cylinder.prm.locations = opts.locations;
+    solid.prm.prm = prm;
+    solid.prm.nbumptypes = nbumptypes;
+    solid.prm.nbumps = nbumps;
+    solid.prm.mindist = mindist;
+    solid.prm.locations = opts.locations;
   end
-  cylinder.prm.mfilename = mfilename;
-  cylinder.normals = [];
+  solid.prm.mfilename = mfilename;
+  solid.normals = [];
 else
-  ii = length(cylinder.prm)+1;
-  cylinder.prm(ii).use_map = use_map;
+  ii = length(solid.prm)+1;
+  solid.prm(ii).use_map = use_map;
   if use_map
     if exist(imgname)
-      cylinder.prm(ii).imgname = imgname;
+      solid.prm(ii).imgname = imgname;
     end
   else
-    cylinder.prm(ii).prm = prm;
-    cylinder.prm(ii).nbumptypes = nbumptypes;
-    cylinder.prm(ii).nbumps = nbumps;
-    cylinder.prm(ii).mindist = mindist;
-    cylinder.prm(ii).locations = opts.locations;
+    solid.prm(ii).prm = prm;
+    solid.prm(ii).nbumptypes = nbumptypes;
+    solid.prm(ii).nbumps = nbumps;
+    solid.prm(ii).mindist = mindist;
+    solid.prm(ii).locations = opts.locations;
   end
-  cylinder.prm(ii).mfilename = mfilename;
-  cylinder.normals = [];
+  solid.prm(ii).mfilename = mfilename;
+  solid.normals = [];
 end
-cylinder.shape = 'cylinder';
-cylinder.filename = opts.filename;
-cylinder.mtlfilename = opts.mtlfilename;
-cylinder.mtlname = opts.mtlname;
-cylinder.comp_uv = opts.comp_uv;
-cylinder.comp_normals = opts.comp_normals;
-cylinder.n = n;
-cylinder.m = m;
-cylinder.Theta = Theta;
-cylinder.Y = Y;
-cylinder.R = R;
-cylinder.vertices = vertices;
+solid.shape = 'revolution';
+solid.filename = opts.filename;
+solid.mtlfilename = opts.mtlfilename;
+solid.mtlname = opts.mtlname;
+solid.comp_uv = opts.comp_uv;
+solid.comp_normals = opts.comp_normals;
+solid.curve = curve;
+solid.n = n;
+solid.m = m;
+solid.Theta = Theta;
+solid.Y = Y;
+solid.R = R;
+solid.vertices = vertices;
 
 if opts.dosave
-  cylinder = objSaveModel(cylinder);
+  solid = objSaveModel(solid);
 end
 
 if ~nargout
-   clear cylinder
+   clear solid
 end
-
-
-%--------------------------------------------------
-
-function theta = wrapAnglePi(theta)
-
-% WRAPANGLEPI
-%
-% Usage: theta = wrapAnglePi(theta)
-
-% Toni Saarela, 2010
-% 2010-xx-xx - ts - first version
-
-theta = rem(theta,2*pi);
-theta(theta>pi) = -2*pi+theta(theta>pi);
-theta(theta<-pi) = 2*pi+theta(theta<-pi);
-%theta(X==0 & Y==0) = 0;
-

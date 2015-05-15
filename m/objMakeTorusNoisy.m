@@ -18,6 +18,7 @@ function torus = objMakeTorusNoisy(nprm,varargin)
 %                    x-z, y is "up"
 % 2015-05-04 - ts - added uv-option without materials
 %                   calls objParseArgs and objSaveModel
+% 2015-05-14 - ts - improved setting default modulator parameters
 
 % TODO
 % WRITE HELP!  
@@ -54,21 +55,13 @@ opts.m = 256;
 
 % If modulator parameters are given as input, set mprm to these values
 if ~isempty(modpar)
-   mprm = modpar{1};
-end
-
-% Set default values to modulator parameters as needed
-if ~isempty(mprm)
+  mprm = modpar{1};
+  % Set default values to modulator parameters as needed
   [nmcomp,ncol] = size(mprm);
-  switch ncol
-    case 1
-      mprm = [mprm ones(nmcomp,1)*[1 0 0 0]];
-    case 2
-      mprm = [mprm zeros(nmcomp,3)];
-    case 3
-      mprm = [mprm zeros(nmcomp,2)];
-    case 4
-      mprm = [mprm zeros(nmcomp,1)];
+  if ncol<5
+    defprm = ones(nmcomp,1)*[1 0 0 0];
+    mprm(:,ncol+1:5) = defprm(:,ncol:4);
+    clear defprm
   end
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
@@ -76,11 +69,6 @@ end
 % Check other optional input arguments
 [opts,torus] = objParseArgs(opts,par);
   
-% Add file name extension if needed
-if isempty(regexp(opts.filename,'\.obj$'))
-  opts.filename = [opts.filename,'.obj'];
-end
-
 rprm = opts.rprm;
 
 %--------------------------------------------

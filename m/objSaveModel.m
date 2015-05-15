@@ -20,6 +20,7 @@ function s = objSaveModel(s)
 %                    checking whether mtl filename is empty
 % 2015-05-07 - ts - bettered the writing of vertices etc to file.
 %                    it's better now.
+% 2015-05-12 - ts - plane width and height are now 2, changed freq conversion
 
 m = s.m;
 n = s.n;
@@ -217,9 +218,9 @@ for ii = 1:length(s.prm)
     case modsine
       if strcmp(s.shape,'plane')
         %- Convert frequencies back to cycles/plane
-        s.prm(ii).cprm(:,1) = s.prm(ii).cprm(:,1)/(2*pi);
+        s.prm(ii).cprm(:,1) = s.prm(ii).cprm(:,1)/(pi);
         if ~isempty(s.prm(ii).mprm)
-          s.prm(ii).mprm(:,1) = s.prm(ii).mprm(:,1)/(2*pi);
+          s.prm(ii).mprm(:,1) = s.prm(ii).mprm(:,1)/(pi);
         end         
       end
       writeSpecs(fid,s.prm(ii).cprm,s.prm(ii).mprm);
@@ -231,7 +232,7 @@ for ii = 1:length(s.prm)
       if strcmp(s.shape,'plane')
         %- Convert frequencies back to cycles/plane
         if ~isempty(s.prm(ii).mprm)
-          s.prm(ii).mprm(:,1) = s.prm(ii).mprm(:,1)/(2*pi);
+          s.prm(ii).mprm(:,1) = s.prm(ii).mprm(:,1)/(pi);
         end
       end
       writeSpecsNoisy(fid,s.prm(ii).nprm,s.prm(ii).mprm);

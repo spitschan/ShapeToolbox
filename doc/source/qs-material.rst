@@ -44,13 +44,19 @@ unlike:
 
 .. image:: ../images/materialsphere001.png
 
-Materials in Radiance
-=====================
+Materials in Mitsuba
+====================
 
 The various programs and renderers available differ in the way
 the materials are specified.  Some may not understand or use the
 .mtl-files.  In these cases you have to define the materials in the
 native way for the program you're using.
+
+TODO: Example of how to set simple materials in Mitsuba.
+
+
+Materials in Radiance
+=====================
 
 When using Radiance, you must, first, convert the .obj-file to a
 format Radiance knows how to use.  The simplest is to use the

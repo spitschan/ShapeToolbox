@@ -10,10 +10,14 @@ function torus = objMakeTorusBumpy(prm,varargin)
 %                    x-z, y is "up"
 % 2015-05-04 - ts - added uv-option without materials
 %                   calls objParseArgs and objSaveModel
-
+% 2015-05-14 - ts - added bump locations as optional input arg.
+%                    locations also included in the model structure
+% 2015-05-14 - ts - different minimum distance can be defined for each
+%                    bump type
 
 %--------------------------------------------
 
+%prm = [nbumps amplitude sigma];
 if ~nargin || isempty(prm)
   prm = [20 .1 pi/24];
 end
@@ -37,20 +41,21 @@ opts.rprm = [];
 opts.n = 256;
 opts.m = 256;
 opts.mindist = 0;
+opts.locations = {};
 
 [tmp,par] = parseparams(varargin);
 
 % Check other optional input arguments
 [opts,torus] = objParseArgs(opts,par);
   
-% Add file name extension if needed
-if isempty(regexp(opts.filename,'\.obj$'))
-  opts.filename = [opts.filename,'.obj'];
+if isscalar(opts.mindist)
+   opts.mindist = ones(1,nbumptypes) * opts.mindist;
+elseif length(opts.mindist)~=nbumptypes
+  error('Incorrect number of minimum distances defined.');
 end
 
 mindist = opts.mindist;
 rprm = opts.rprm;
-
 
 %--------------------------------------------
 % TODO:
@@ -99,27 +104,27 @@ end
 
 for jj = 1:nbumptypes
     
-  if mindist
+  if ~isempty(opts.locations) && ~isempty(opts.locations{1}{jj})
+
+     theta0 = opts.locations{1}{jj};
+     phi0 = opts.locations{2}{jj};
+
+  elseif mindist(jj)
      
     % Pick candidate locations (more than needed):
     nvec = 30*prm(jj,1);
     thetatmp = min(theta) + rand([nvec 1])*(max(theta)-min(theta));
     phitmp = min(phi) + rand([nvec 1])*(max(phi)-min(phi));
     
-    %d = sqrt((thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp').^2 + ...
-    %         (phitmp*ones([1 nvec])-ones([nvec 1])*phitmp').^2);
+    deltatheta = abs(wrapAnglePi(ones([nvec 1])*thetatmp'-thetatmp*ones([1 nvec])));
+    deltaphi   =     wrapAnglePi(  ones([nvec 1])*phitmp'-phitmp*ones([1 nvec])  );
+    
+    phi0 = phitmp*ones([1 nvec]) + .5*deltaphi;
+    disttheta = deltatheta .* (radius+tube_radius*cos(phi0));
 
-    %d = sqrt(wrapAnglePi(thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp').^2 + ...
-    %     wrapAnglePi(  phitmp*ones([1 nvec])-ones([nvec 1])*phitmp'  ).^2);
+    distphi = abs(deltaphi) * tube_radius;
 
-    deltatheta = wrapAnglePi(thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp');
-    deltaphi   = wrapAnglePi(  phitmp*ones([1 nvec])-ones([nvec 1])*phitmp'  );
-
-    %HERE
-    %disttheta = 
-    %d = sqrt(.^2 + ...
-    %     .^2);
-
+    d = sqrt(disttheta.^2+distphi.^2);
 
     % Always accept the first vector
     idx_accepted = [1];
@@ -146,10 +151,18 @@ for jj = 1:nbumptypes
     theta0 = thetatmp(idx_accepted,:);
     phi0 = phitmp(idx_accepted,:);
 
+    % For saving the locations in the model structure
+    opts.locations{1}{jj} = theta0;
+    opts.locations{2}{jj} = phi0;
+
   else
     %- pick n random locations
     theta0 = min(theta) + rand([prm(jj,1) 1])*(max(theta)-min(theta));
     phi0 = min(phi) + rand([prm(jj,1) 1])*(max(phi)-min(phi));
+
+    % For saving the locations in the model structure
+    opts.locations{1}{jj} = theta0;
+    opts.locations{2}{jj} = phi0;
 
   end
     
@@ -165,9 +178,9 @@ for jj = 1:nbumptypes
     % direction around the tube of the torus.  Use those to compute
     % total distance.  NOTE: This is not the correct way to do it.
     % Computing actual distance on the surface of a torus requires
-    % more (using calculus of variations).  This is a very crude
-    % approximation that only works reasonably well at short
-    % distances, that is, with small bumps.
+    % more, using calculus of variations (yeah i just looked it up on
+    % wikipedia). This is a very crude approximation that only works
+    % reasonably well at short distances, that is, with small bumps.
 
     % Get the angular difference for theta (azimuth direction)
     deltatheta = abs(wrapAnglePi(Theta - theta0(ii)));
@@ -206,6 +219,7 @@ if opts.new_model
   torus.prm.mindist = mindist;
   torus.prm.rprm = rprm;
   torus.prm.mfilename = mfilename;
+  torus.prm.locations = opts.locations;
   torus.normals = [];
 else
   ii = length(torus.prm)+1;
@@ -215,6 +229,7 @@ else
   torus.prm(ii).mindist = mindist;
   torus.prm(ii).rprm = rprm;
   torus.prm(ii).mfilename = mfilename;
+  torus.prm(ii).locations = opts.locations;
   torus.normals = [];
 end
 torus.shape = 'torus';

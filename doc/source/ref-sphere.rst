@@ -13,9 +13,9 @@ objMakeSphere()
 
 
 
-.. _ref-objmakespherenoise:
+.. _ref-objmakespherenoisy:
 
-objMakeSphereNoise()
+objMakeSphereNoisy()
 ====================
 
 
@@ -24,3 +24,9 @@ objMakeSphereNoise()
 
 objMakeSphereBumpy()
 ====================
+
+
+.. _ref-objmakespherecustom:
+
+objMakeSphereCustom()
+=====================

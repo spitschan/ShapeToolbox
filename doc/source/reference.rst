@@ -13,5 +13,6 @@ Function reference
    ref-cylinder
    ref-torus
    ref-revolution
+   ref-blend
    ref-helperfuncs
 

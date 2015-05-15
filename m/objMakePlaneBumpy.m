@@ -65,6 +65,11 @@ function plane = objMakePlaneBumpy(prm,varargin)
 %                     can be updated
 % 2015-05-04 - ts - added uv-option without materials;
 %                   calls objParseArgs and objSaveModel
+% 2015-05-12 - ts - changed plane width and height to 2 (from -1 to 1)
+% 2015-05-13 - ts - added bump locations as optional input arg.
+%                    locations also included in the model structure
+% 2015-05-14 - ts - different minimum distance can be defined for each
+%                    bump type
 
 %--------------------------------------------
 
@@ -85,18 +90,20 @@ nbumps = sum(prm(:,1));
 
 % Set default values before parsing the optional input arguments.
 opts.filename = 'planebumpy.obj';
-opts.mindist = 0;
 opts.m = 256;
 opts.n = 256;
+opts.mindist = 0;
+opts.locations = {};
 
 [tmp,par] = parseparams(varargin);
 
 % Check other optional input arguments
 [opts,plane] = objParseArgs(opts,par);
-  
-% Add file name extension if needed
-if isempty(regexp(opts.filename,'\.obj$'))
-  opts.filename = [opts.filename,'.obj'];
+
+if isscalar(opts.mindist)
+   opts.mindist = ones(1,nbumptypes) * opts.mindist;
+elseif length(opts.mindist)~=nbumptypes
+  error('Incorrect number of minimum distances defined.');
 end
 
 mindist = opts.mindist;
@@ -114,8 +121,8 @@ if opts.new_model
   m = opts.m;
   n = opts.n;
 
-  w = 1; % width of the plane
-  h = 1; % m/n * w;
+  w = 2; % width of the plane
+  h = 2; % m/n * w;
   
   x = linspace(-w/2,w/2,n); % 
   y = linspace(-h/2,h/2,m)'; % 
@@ -128,8 +135,8 @@ else
   m = plane.m;
   n = plane.n;
 
-  w = 1; % width of the plane
-  h = m/n * w;
+  w = plane.w;
+  h = plane.h;
   x = linspace(-w/2,w/2,n); % 
   y = linspace(-h/2,h/2,m)'; % 
 
@@ -140,7 +147,12 @@ end
 
 for jj = 1:nbumptypes
 
-  if mindist
+  if ~isempty(opts.locations) && ~isempty(opts.locations{1}{jj})
+
+     x0 = opts.locations{1}{jj};
+     y0 = opts.locations{2}{jj};
+
+  elseif mindist(jj)
 
     % Pick candidate locations (more than needed):
     nvec = 30*prm(jj,1);
@@ -175,14 +187,22 @@ for jj = 1:nbumptypes
     x0 = xtmp(idx_accepted,:);
     y0 = ytmp(idx_accepted,:);
 
+    clear xtmp ytmp
+
+    % For saving the locations in the model structure
+    opts.locations{1}{jj} = x0;
+    opts.locations{2}{jj} = y0;
+  
   else
     %- pick n random locations
     x0 = min(x) + rand([prm(jj,1) 1])*(max(x)-min(x));
     y0 = min(y) + rand([prm(jj,1) 1])*(max(y)-min(y));
 
-  end
+    % For saving the locations in the model structure
+    opts.locations{1}{jj} = x0;
+    opts.locations{2}{jj} = y0;
 
-  clear xtmp ytmp
+  end
 
   %-------------------
   
@@ -206,6 +226,7 @@ if opts.new_model
   plane.prm.nbumps = nbumps;
   plane.prm.mindist = mindist;
   plane.prm.mfilename = mfilename;
+  plane.prm.locations = opts.locations;
   plane.normals = [];
 else
   ii = length(plane.prm)+1;
@@ -214,6 +235,7 @@ else
   plane.prm(ii).nbumps = nbumps;
   plane.prm(ii).mindist = mindist;
   plane.prm(ii).mfilename = mfilename;
+  plane.prm(ii).locations = opts.locations;
   plane.normals = [];
 end
 plane.shape = 'plane';
@@ -222,6 +244,8 @@ plane.mtlfilename = opts.mtlfilename;
 plane.mtlname = opts.mtlname;
 plane.comp_uv = opts.comp_uv;
 plane.comp_normals = opts.comp_normals;
+plane.w = w;
+plane.h = h;
 plane.n = n;
 plane.m = m;
 plane.X = X;

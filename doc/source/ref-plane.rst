@@ -12,13 +12,19 @@ objMakePlane()
 ===============
 
 
-.. _ref-objmakeplanenoise:
+.. _ref-objmakeplanenoisy:
 
-objMakePlaneNoise()
+objMakePlaneNoisy()
 ====================
 
 
 .. _ref-objmakeplanebumpy:
 
 objMakePlaneBumpy()
+====================
+
+
+.. _ref-objmakeplanecustom:
+
+objMakePlaneCustom()
 ====================

@@ -71,10 +71,12 @@ function sphere = objMakeSphereBumpy(prm,varargin)
 % 2015-04-30 - ts - "switched" y and z directions: reference plane is
 %                    x-z, y is "up"; added uv-option without materials
 % 2015-05-04 - ts - calls objParseArgs and objSaveModel
-
+% 2015-05-13 - ts - added bump locations as optional input arg.
+%                    locations also included in the model structure
+% 2015-05-14 - ts - different minimum distance can be defined for each
+%                    bump type
 
 % TODO
-% - return the locations of bumps
 % - option to add noise to bump amplitudes/sigmas
 
 %--------------------------------------------
@@ -101,15 +103,17 @@ opts.filename = 'spherebumpy.obj';
 opts.m = 128;
 opts.n = 256;
 opts.mindist = 0;
+opts.locations = {};
 
 [tmp,par] = parseparams(varargin);
 
 % Check other optional input arguments
 [opts,sphere] = objParseArgs(opts,par);
-  
-% Add file name extension if needed
-if isempty(regexp(opts.filename,'\.obj$'))
-  opts.filename = [opts.filename,'.obj'];
+
+if isscalar(opts.mindist)
+   opts.mindist = ones(1,nbumptypes) * opts.mindist;
+elseif length(opts.mindist)~=nbumptypes
+  error('Incorrect number of minimum distances defined.');
 end
 
 mindist = pi*opts.mindist/180;
@@ -147,7 +151,12 @@ end
 
 for jj = 1:nbumptypes
 
-  if mindist
+  if ~isempty(opts.locations) && ~isempty(opts.locations{1}{jj})
+
+     theta0 = opts.locations{1}{jj};
+     phi0 = opts.locations{2}{jj};
+
+  elseif mindist(jj)
     % Make extra candidate vectors (30 times the required number)
     %ptmp = normrnd(0,1,[30*prm(jj,1) 3]);
     ptmp = randn([30*prm(jj,1) 3]);
@@ -187,15 +196,26 @@ for jj = 1:nbumptypes
 
     p = ptmp(idx_accepted,:);
 
+    [theta0,phi0,rtmp] = cart2sph(p(:,1),p(:,2),p(:,3));  
+    clear rtmp
+
+    % For saving the locations in the model structure
+    opts.locations{1}{jj} = theta0;
+    opts.locations{2}{jj} = phi0;
+
   else
     %- pick n random directions
     %p = normrnd(0,1,[prm(jj,1) 3]);
     p = randn([prm(jj,1) 3]);
-  end
 
-  [theta0,phi0,rtmp] = cart2sph(p(:,1),p(:,2),p(:,3));
-  
-  clear rtmp
+    [theta0,phi0,rtmp] = cart2sph(p(:,1),p(:,2),p(:,3));  
+    clear rtmp
+
+    % For saving the locations in the model structure
+    opts.locations{1}{jj} = theta0;
+    opts.locations{2}{jj} = phi0;
+
+  end
 
   %-------------------
   
@@ -226,14 +246,18 @@ if opts.new_model
   sphere.prm.prm = prm;
   sphere.prm.nbumptypes = nbumptypes;
   sphere.prm.nbumps = nbumps;
+  sphere.prm.mindist = mindist;
   sphere.prm.mfilename = mfilename;
+  sphere.prm.locations = opts.locations;
   sphere.normals = [];
 else
   ii = length(sphere.prm)+1;
   sphere.prm(ii).prm = prm;
   sphere.prm(ii).nbumptypes = nbumptypes;
   sphere.prm(ii).nbumps = nbumps;
+  sphere.prm(ii).mindist = mindist;
   sphere.prm(ii).mfilename = mfilename;
+  sphere.prm(ii).locations = opts.locations;
   sphere.normals = [];
 end
 sphere.shape = 'sphere';

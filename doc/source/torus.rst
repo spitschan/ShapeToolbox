@@ -17,9 +17,9 @@ can use a modulator to hide the discontinuity at one of the seams.
 
 
 
-.. _objmaketorusnoise:
+.. _objmaketorusnoisy:
 
-objMakeTorusNoise()
+objMakeTorusNoisy()
 ===================
 
 

@@ -13,9 +13,9 @@ objMakeCylinder()
 
 
 
-.. _objmakecylindernoise:
+.. _objmakecylindernoisy:
 
-objMakeCylinderNoise()
+objMakeCylinderNoisy()
 ======================
 
 
