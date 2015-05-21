@@ -85,6 +85,7 @@ if opts.new_model
   [Theta,Y] = meshgrid(theta,y);
   Theta = Theta'; Theta = Theta(:);
   Y = Y'; Y = Y(:);
+
 else
   m = cylinder.m;
   n = cylinder.n;
@@ -94,6 +95,7 @@ else
 end
 
 R = r + objMakeSineComponents(cprm,mprm,Theta,Y);;
+%R(r0) = 0;
 
 % Convert vertices to cartesian coordinates
 X =  R .* cos(Theta);

@@ -21,6 +21,7 @@ function s = objSaveModel(s)
 % 2015-05-07 - ts - bettered the writing of vertices etc to file.
 %                    it's better now.
 % 2015-05-12 - ts - plane width and height are now 2, changed freq conversion
+% 2015-05-18 - ts - added new model shape, 'extrusion'
 
 m = s.m;
 n = s.n;
@@ -30,7 +31,7 @@ vertices = s.vertices;
 % Faces, vertex indices
 
 switch s.shape
-  case {'sphere','cylinder','revolution'}
+  case {'sphere','cylinder','revolution','extrusion'}
     faces = zeros((m-1)*n*2,3);
     F = ([1 1]'*[1:n]);
     F = F(:) * [1 1 1];
@@ -72,7 +73,7 @@ end
 % Texture coordinates if material is defined
 if s.comp_uv
   switch s.shape
-    case {'sphere','cylinder','revolution'}
+    case {'sphere','cylinder','revolution','extrusion'}
       u = linspace(0,1,n+1);
       v = linspace(0,1,m);
       [U,V] = meshgrid(u,v);
@@ -140,7 +141,7 @@ if s.comp_normals
 
   % Loop through faces, somewhat faster but still slow
   switch s.shape
-    case {'sphere','cylinder','revolution'}
+    case {'sphere','cylinder','revolution','extrusion'}
       nfaces = (m-1)*n*2;
     case 'plane'
       nfaces = (m-1)*(n-1)*2;
@@ -196,16 +197,16 @@ end
 
 modsine = {'objMakeSphere','objMakePlane',...
            'objMakeCylinder','objMakeTorus',...
-           'objMakeRevolution'};
+           'objMakeRevolution','objMakeExtrusion'};
 modnoise = {'objMakeSphereNoisy','objMakePlaneNoisy',...
            'objMakeCylinderNoisy','objMakeTorusNoisy',...
-           'objMakeRevolutionNoisy'};
+           'objMakeRevolutionNoisy','objMakeExtrusionNoisy'};
 modbumpy = {'objMakeSphereBumpy','objMakePlaneBumpy',...
            'objMakeCylinderBumpy','objMakeTorusBumpy',...
-           'objMakeRevolutionBumpy'};
+           'objMakeRevolutionBumpy','objMakeExtrusionBumpy'};
 modcustom = {'objMakeSphereCustom','objMakePlaneCustom',...
            'objMakeCylinderCustom','objMakeTorusCustom',...
-           'objMakeRevolutionCustom'};
+           'objMakeRevolutionCustom','objMakeExtrusionCustom'};
 
 for ii = 1:length(s.prm)
     if length(s.prm)==1

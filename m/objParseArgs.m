@@ -111,7 +111,14 @@ if ~isempty(par)
              opts.locations = par{ii};
            else
              error('No value or a bad value given for option ''locations''.');
-           end              
+           end
+         case 'rotate'
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii + 1;
+             opts.rotate = par{ii};
+           else
+             error('No value or a bad value given for option ''rotate''.');
+           end
         otherwise
           opts.filename = par{ii};
       end
