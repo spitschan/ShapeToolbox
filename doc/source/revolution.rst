@@ -1,11 +1,11 @@
 
 
-=====================
-Surface of revolution
-=====================
+=========
+Extrusion
+=========
 
-.. _objmakerevolution
+.. _objmakeextrusion
 
-objMakeRevolution()
-===================
+objMakeExtrusion()
+==================
 

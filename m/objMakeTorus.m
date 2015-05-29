@@ -45,6 +45,7 @@ function torus = objMakeTorus(cprm,varargin)
 % 2015-05-04 - ts - added uv-option without materials
 %                   calls objParseArgs and objSaveModel
 % 2015-05-14 - ts - improved setting default parameters
+% 2015-05-29 - ts - call objSph2XYZ for coordinate conversion
 
 % TODO
 % Set input arguments, optional arguments, default values
@@ -144,13 +145,7 @@ if ~isempty(cprm)
   r = r + objMakeSineComponents(cprm,mprm,Theta,Phi);
 end
 
-X = (R + r.*cos(Phi)).*cos(Theta);
-Y = (R + r.*cos(Phi)).*sin(Theta);
-Z = r.*sin(Phi);
-
-% Switch z- and y-coordinates so that the reference plane is the x-z
-% plane and y is "up", for consistency across all functions.
-vertices = [X Z -Y];
+vertices = objSph2XYZ(Theta,Phi,r,R);
 
 if opts.new_model
   torus.prm.cprm = cprm;

@@ -75,6 +75,7 @@ function sphere = objMakeSphereBumpy(prm,varargin)
 %                    locations also included in the model structure
 % 2015-05-14 - ts - different minimum distance can be defined for each
 %                    bump type
+% 2015-05-29 - ts - call objSph2XYZ for coordinate conversion
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
@@ -231,13 +232,7 @@ for jj = 1:nbumptypes
 
 end
 
-[X,Y,Z] = sph2cart(Theta,Phi,R);
-
-% Switch z- and y-coordinates so that the reference plane is the x-z
-% plane and y is "up", for consistency across all functions.
-vertices = [X Z -Y];
-
-clear X Y Z
+vertices = objSph2XYZ(Theta,Phi,R);
 
 % The field prm can be made an array.  If the structure sphere is
 % passed to another objMakeSphere*-function, that function will add

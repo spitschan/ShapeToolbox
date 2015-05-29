@@ -9,15 +9,23 @@ In the previous section, we defined a material that set the color and
 specularity of the whole object.  With **texture mapping** it is
 possible to define more complex surface color or texture patterns.
 |toolbox| can compute texture coordinates (UV-coordinates) and save
-them in the model.  These coordinates can be used to project a texture
+them with the model.  These coordinates can be used to map a texture
 (usually an image the user provides) onto the surface of the object.
 
-When creating the model with |toolbox|, all you need to do to turn
-texture mapping on is to use the 'material'-option to provide a
-material name and the file where to find it.  This is exactly the same
-as in the previous section where we defined the material for the
-object.  Setting the 'material'-option forces the computation of the
-UV-coordinates.  For example::
+By default, the computation of texture coordinates is turned off.  To
+turn it on, use the 'uvcoords'-option and set its value to 'true'
+::
+
+   objMakeSphere([8 .1 0 0],'uvcoords',true,'sphere_with_uvcoords.obj');
+
+Texture descriptions in .mtl -files
+===================================
+
+If you are using a program that understand mtl-files, you can use them
+to define textures.  To do this, use the 'material'-option as in the
+previous section on material properties.  Setting the
+'material'-option forces the computation of the UV-coordinates.  For
+example::
 
   objMakeSphere([8 .1 0 0],'material',{'matfile.mtl','mytexture'},'texturedsphere.obj');
 
@@ -76,7 +84,11 @@ or map a picture of cat's fur onto a bumpy shape to get:
 which should prove useful for some carefully controlled, low-level
 psychophysics.
 
+Mitsuba
+=======
 
+Texture mapping with Mitsuba is demonstrated in the
+:ref:`rendering` -section of this manual.
 
 Radiance
 ========

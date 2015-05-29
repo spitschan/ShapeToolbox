@@ -13,4 +13,5 @@ Object types
    cylinder
    torus
    revolution
+   extrusion
 

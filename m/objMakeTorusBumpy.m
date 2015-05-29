@@ -14,6 +14,7 @@ function torus = objMakeTorusBumpy(prm,varargin)
 %                    locations also included in the model structure
 % 2015-05-14 - ts - different minimum distance can be defined for each
 %                    bump type
+% 2015-05-29 - ts - call objSph2XYZ for coordinate conversion
 
 %--------------------------------------------
 
@@ -204,13 +205,7 @@ for jj = 1:nbumptypes
   
 end
 
-X = (R + r.*cos(Phi)).*cos(Theta);
-Y = (R + r.*cos(Phi)).*sin(Theta);
-Z = r.*sin(Phi);
-
-% Switch z- and y-coordinates so that the reference plane is the x-z
-% plane and y is "up", for consistency across all functions.
-vertices = [X Z -Y];
+vertices = objSph2XYZ(Theta,Phi,r,R);
 
 if opts.new_model
   torus.prm.prm = prm;

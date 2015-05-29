@@ -79,6 +79,7 @@ function sphere = objMakeSphereNoisy(nprm,varargin)
 %                    x-z, y is "up"; added uv-option without materials
 % 2015-05-04 - ts - calls objParseArgs and objSaveModel
 % 2015-05-14 - ts - improved setting default modulator parameters
+% 2015-05-29 - ts - call objSph2XYZ for coordinate conversion
 
 %--------------------------------------------------
 
@@ -151,14 +152,7 @@ Theta = Theta'; Theta = Theta(:);
 Phi   = Phi';   Phi   = Phi(:);
 R = R'; R = R(:);
 
-% Convert vertices to cartesian coordinates
-[X,Y,Z] = sph2cart(Theta,Phi,R);
-
-% Switch z- and y-coordinates so that the reference plane is the x-z
-% plane and y is "up", for consistency across all functions.
-vertices = [X Z -Y];
-
-clear X Y Z
+vertices = objSph2XYZ(Theta,Phi,R);
 
 % The field prm can be made an array.  If the structure sphere is
 % passed to another objMakeSphere*-function, that function will add

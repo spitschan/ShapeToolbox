@@ -5,13 +5,16 @@
 Setting material properties
 ===========================
 
+The appearance of a model can be changed by changing its material
+properties.  By setting these properties you can control the color,
+how the material reflects light, its transparency, and so forth.
+Setting materials themselves is not part of |toolbox|, but you can
+include information in the model about material library files and
+material names.
+
+
 Material library (.mtl) files
 =============================
-
-The appearance of a given model can be changed by changing its
-material properties.  By setting these properties you can control the
-color, how the material reflects light, its transparency, and so
-forth.
 
 The materials are usually specified in a separate file.  These
 materials are named, and the the .obj-file where the model is saved
@@ -52,7 +55,17 @@ the materials are specified.  Some may not understand or use the
 .mtl-files.  In these cases you have to define the materials in the
 native way for the program you're using.
 
-TODO: Example of how to set simple materials in Mitsuba.
+The following shows how to include the obj-file produced above in a
+Mitsuba scene (Mitsuba uses xml files for its scene descriptions; the
+following is a snippet of such an xml file).  It loads the object and
+sets its material to red plastic::
+
+  <shape  type="obj">
+    <string  name="filename"  value="redsphere.obj"/>
+    <bsdf  type="plastic">
+      <srgb  name="diffuseReflectance"  value="#ff0000"/>
+    </bsdf>
+  </shape>
 
 
 Materials in Radiance

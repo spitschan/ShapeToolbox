@@ -112,10 +112,18 @@ Z = -R .* sin(Theta);
 vertices = [X Y Z];
 
 if opts.new_model
+  solid.prm.cprm = cprm;
+  solid.prm.mprm = mprm;
+  solid.prm.nccomp = nccomp;
+  solid.prm.nmcomp = nmcomp;
   solid.prm.mfilename = mfilename;
   solid.normals = [];
 else
   ii = length(solid.prm)+1;
+  solid.prm(ii).cprm = cprm;
+  solid.prm(ii).mprm = mprm;
+  solid.prm(ii).nccomp = nccomp;
+  solid.prm(ii).nmcomp = nmcomp;
   solid.prm(ii).mfilename = mfilename;
   solid.normals = [];
 end
