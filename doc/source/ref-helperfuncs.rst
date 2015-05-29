@@ -8,17 +8,22 @@ Helper functions
 
 .. _ref-objfindangles:
 
-objFindAngles()
-===============
+objFindAngles
+=============
 
 
 .. _ref-objfindfreqs:
 
-objFindFreqs()
-==============
+objFindFreqs
+============
+
+.. _ref-objsavemodel:
+
+objSaveModel
+============
 
 
 .. _ref-objshow:
 
-objShow()
-=========
+objShow
+=======

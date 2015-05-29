@@ -7,7 +7,7 @@ Helper functions
 
 
 
-objFindAngles()
+objFindAngles
 ===============
 
 When defining an orientation for modulation for spheres, cylinders,
@@ -76,7 +76,7 @@ Note that for a given frequency, there might not be an orientation to
 produce a continuous grating in both directions.
 
 
-objFindFreqs()
+objFindFreqs
 ==============
 
 Whereas ``objFindAngles`` finds an orientation given frequency,
@@ -171,6 +171,11 @@ around the tube of the torus::
 
   objMakeTorus([f1(6) .1 0 a])
 
-objShow()
+
+objSaveModel
+============
+
+
+objShow
 =========
 

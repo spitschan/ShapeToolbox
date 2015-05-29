@@ -8,6 +8,8 @@ function [opts,shape] = objParseArgs(opts,par)
 % 2015-05-04 - ts - first version
 % 2015-05-12 - ts - adds file name extension if needed
 % 2015-05-13 - ts - added 'locations' option; other bug fixes
+% 2015-05-29 - ts - rms-option now uses the same name-value syntax as
+%                    all others
 
 opts.mtlfilename = '';
 opts.mtlname = '';
@@ -68,7 +70,13 @@ if ~isempty(par)
              error('No value or a bad value given for option ''uvcoords''.');
            end
          case 'rms'
-           opts.use_rms = true;
+           if ii<length(par) && isscalar(par{ii+1})
+             ii = ii + 1;
+             opts.use_rms = par{ii};
+           else
+             error('No value or a bad value given for option ''rms''.');
+           end
+           %opts.use_rms = true;
          case 'normals'
            if ii<length(par) && isscalar(par{ii+1})
              ii = ii + 1;

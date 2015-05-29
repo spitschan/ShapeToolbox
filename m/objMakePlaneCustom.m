@@ -30,7 +30,7 @@ function plane = objMakePlaneCustom(f,prm,varargin)
 %                    locations also included in the model structure
 % 2015-05-14 - ts - different minimum distance can be defined for each
 %                    bump type
-
+% 2015-05-29 - ts - fixed a bug in normalization of image/matrix values
 
 %--------------------------------------------
 
@@ -41,7 +41,7 @@ if ischar(f)
     map = mean(map,3);
   end
 
-  map = flipud(map/max(abs(map(:))));
+  map = flipud(map/max(map(:)));
 
   ampl = prm(1);
 
@@ -59,7 +59,7 @@ elseif isnumeric(f)
     error('The input matrix has to be two-dimensional.');
   end
 
-  map = flipud(map/max(map(:)));
+  map = flipud(map/max(abs(map(:))));
 
   ampl = prm(1);
 

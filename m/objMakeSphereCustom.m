@@ -39,7 +39,7 @@ function sphere = objMakeSphereCustom(f,prm,varargin)
   %    N is the number of random locations at which the function 
   %      is applied
   %    DCUT is the cut-off distance after which no modulation is
-  %      applied, in degrees
+  %      applied, in radians
   %    [PRM1, PRM2...]  are the parameters passed to F
   %
   % To apply the function several times with different parameters:
@@ -54,7 +54,7 @@ function sphere = objMakeSphereCustom(f,prm,varargin)
   %
   % To restrict how close together the random location can be:
   %   > objMakeSphereCustom(@F,PRM,...,'mindist',DMIN,...)
-  % where DMIN is in degrees.
+  % where DMIN is in radians.
   %
   % The default number of vertices when providing a function handle as
   % input is 128x256 (elevation x azimuth).  To define a different
@@ -88,7 +88,8 @@ function sphere = objMakeSphereCustom(f,prm,varargin)
 % 2015-05-14 - ts - different minimum distance can be defined for each
 %                    bump type
 % 2015-05-29 - ts - call objSph2XYZ for coordinate conversion
-
+% 2015-05-29 - ts - sizes and distances given in radians,
+%                    fixed a bug in normalization of image/matrix values
 
 % TODO
 % - return the locations of bumps
@@ -104,7 +105,7 @@ if ischar(f)
     map = mean(map,3);
   end
 
-  map = flipud(map/max(abs(map(:))));
+  map = flipud(map/max(map(:)));  
 
   ampl = prm(1);
 
@@ -122,7 +123,7 @@ elseif isnumeric(f)
     error('The input matrix has to be two-dimensional.');
   end
 
-  map = flipud(map/max(map(:)));
+  map = flipud(map/max(abs(map(:))));
 
   ampl = prm(1);
 
@@ -139,7 +140,7 @@ elseif isa(f,'function_handle')
   nbumps = sum(prm(:,1));
   use_map = false;
 
-  prm(:,2) = pi*prm(:,2)/180;
+  %prm(:,2) = pi*prm(:,2)/180;
 
   opts.m = 128;
   opts.n = 256;
@@ -157,14 +158,6 @@ opts.filename = 'spherecustom.obj';
 
 % Check other optional input arguments
 [opts,sphere] = objParseArgs(opts,par);
-
-%--------------------------------------------
-% TODO:
-% Throw an error if the asked minimum distance is a ridiculously large
-% number.
-%if mindist>
-%  error('Yeah right.');
-%end
 
 %--------------------------------------------
 % Vertices
@@ -198,7 +191,7 @@ if ~use_map
     error('Incorrect number of minimum distances defined.');
   end
   
-  mindist = pi*opts.mindist/180;
+  % mindist = pi*opts.mindist/180;
 
   R = r;
 

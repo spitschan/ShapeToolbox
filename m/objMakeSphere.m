@@ -24,7 +24,7 @@ function sphere = objMakeSphere(cprm,varargin)
   % The frequency is in cycles per full circle, or cycle/(2*PI). The
   % values of azimuth go from -PI to PI-2*PI/N, where N is the number
   % of points (vertices) in that direction.  The values of elevation
-  % (altitude) go from -PI/2 to PI/2. 
+  % (latitude) go from -PI/2 to PI/2. 
   % 
   % The unmodulated radius of the sphere is 1.  The modulation
   % amplitude is in the units of the radius, so an amplitude of A will

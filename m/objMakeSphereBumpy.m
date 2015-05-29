@@ -76,6 +76,7 @@ function sphere = objMakeSphereBumpy(prm,varargin)
 % 2015-05-14 - ts - different minimum distance can be defined for each
 %                    bump type
 % 2015-05-29 - ts - call objSph2XYZ for coordinate conversion
+% 2015-05-29 - ts - bump sigma and min distance given in radians
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
@@ -95,7 +96,7 @@ switch ncol
     prm = [prm ones(nccomp,1)*8];
 end
 
-prm(:,3) = pi*prm(:,3)/180;
+% prm(:,3) = pi*prm(:,3)/180;
 
 nbumps = sum(prm(:,1));
 
@@ -117,7 +118,7 @@ elseif length(opts.mindist)~=nbumptypes
   error('Incorrect number of minimum distances defined.');
 end
 
-mindist = pi*opts.mindist/180;
+% mindist = pi*opts.mindist/180;
 
 %--------------------------------------------
 % TODO:

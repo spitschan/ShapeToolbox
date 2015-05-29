@@ -5,6 +5,7 @@ function solid = objMakeRevolutionCustom(curve,f,prm,varargin)
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-05-15 - ts - first version
+% 2015-05-29 - ts - fixed a bug in normalization of image/matrix values
 
 ncurve = length(curve);
 opts.m = ncurve;
@@ -17,7 +18,7 @@ if ischar(f)
     map = mean(map,3);
   end
 
-  map = flipud(map/max(abs(map(:))));
+  map = flipud(map/max(map(:)));
 
   ampl = prm(1);
 
@@ -35,7 +36,7 @@ elseif isnumeric(f)
     error('The input matrix has to be two-dimensional.');
   end
 
-  map = flipud(map/max(map(:)));
+  map = flipud(map/max(abs(map(:))));
 
   ampl = prm(1);
 
