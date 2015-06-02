@@ -6,15 +6,16 @@ A modulated sphere
 
 Let's start simple.  The command::
   
-  objMakeSphere();
+  objMakeSine('sphere');
 
-makes a model sphere, modulated with the default parameters: vertical
-modulation, eight cycles around the sphere, with an amplitude of 0.1.
-The sphere has a radius of one, so this amplitude is 10% of the sphere
-radius.  The model is saved in the file ``sphere.obj``.  You can view
-the saved model object with one of the programs suggested in the
-section :ref:`qs-viewing`.  Rendered, it would look something like
-this:
+makes a model sphere, with the default sinusoidal modulation: vertical
+components, eight cycles around the sphere, with an amplitude of 0.1.
+(Other functions in the toolbox add other kinds of perturbation, but
+for now we'll stick to sinusoids.)  The sphere has a base radius of
+one, so this amplitude is 10% of the sphere radius.  The model is
+saved in the file ``sphere.obj``.  You can view the saved model object
+with one of the programs suggested in the section :ref:`qs-viewing`.
+Rendered, it would look something like this:
 
 .. image:: ../images/sphere001.png
 .. image:: ../images/sphere001profile.png
@@ -33,7 +34,7 @@ modulation parameters has the form::
 To have a frequency of 10 cycles per sphere instead of the default 8
 and saving the model in the file ``sphere_10cycles.obj``::
 
-  sphere = objMakeSphere([10 .1 0 0],'sphere_10cycles.obj');
+  sphere = objMakeSine('sphere',[10 .1 0 0],'sphere_10cycles.obj');
 
 .. image:: ../images/sphere002.png
 
@@ -52,7 +53,7 @@ in number of cycles around the sphere).  If frequency is not an
 integer, the modulation will not wrap around the object smoothly and
 you will have a discontinuity at :math:`-\pi` and :math:`\pi`::
 
-  objMakeSphere([3.5 .2 0 0]);
+  objMakeSine('sphere',[3.5 .2 0 0]);
 
 
 
@@ -71,7 +72,7 @@ azimuth direction, change the angle parameter.  The angle of the
 modulation is given in degrees, so value 90 gives a "horizontal"
 modulation::
 
-  objMakeSphere([8 .1 0 90]);
+  objMakeSine('sphere',[8 .1 0 90]);
 
 .. image:: ../images/sphere004.png
 
@@ -80,7 +81,7 @@ the top and bottom parts of the objects are not symmetrical (i.e., the
 object is not symmetrical with respect to the x-y plane).  To have that
 symmetry, change the phase of the modulation by 90 degrees::
 
-  objMakeSphere([8 .1 90 90]);
+  objMakeSine('sphere',[8 .1 90 90]);
 
 .. image:: ../images/sphere005.png
 
@@ -89,7 +90,7 @@ intermediate angles are possible:
 
 ::
    
-   objMakeSphere([8 .1 0 60])
+   objMakeSine('sphere',[8 .1 0 60])
 
 .. image:: ../images/sphere006.png
 

@@ -32,7 +32,7 @@ which the model is saved.  The file names are ``sphere_f02.obj``,
     % Set filename with frequency value
     filename = sprintf('sphere_f%02d.obj',f);
     % Make the model
-    objMakeSphere([f a ph or],[2 1 90 90],filename);
+    objMakeSine('sphere',[f a ph or],[2 1 90 90],filename);
   end
 
 The code above produces a series of four objects which, rendered, will look like:
@@ -57,7 +57,7 @@ in the file name::
     % Set filename with frequency value
     filename = sprintf('sphere_a%03d.obj',100*a(ii));
     % Make the model
-    objMakeSphere([f a(ii) ph or],[2 1 90 90],filename);
+    objMakeSine('sphere',[f a(ii) ph or],[2 1 90 90],filename);
   end
 
 The rendered objects are shown below.  With modulation amplitude 0 the
@@ -87,7 +87,7 @@ to little-bit-of-both-components to component-2-only::
     % Set filename with frequency value
     filename = sprintf('sphere_%03d_%03d.obj',100*a1(ii),100*a2(ii));
     % Make the model
-    objMakeSphere([freq a1(ii) ph or1; freq a2(ii) ph or2],[2 1 90 90],filename);
+    objMakeSine('sphere',[freq a1(ii) ph or1; freq a2(ii) ph or2],[2 1 90 90],filename);
   end
 
 And the series of objects rendered:

@@ -28,7 +28,7 @@ material specifications**.  But it does have an option to define the
 material names and the name of the .mtl-file from which those
 materials are found.  An example might help::
 
-  objMakeSphere([12 .15 90 90],'material',{'matfile.mtl','red_plastic'},'redsphere.obj');
+  objMakeSine('sphere',[12 .15 90 90],'material',{'matfile.mtl','red_plastic'},'redsphere.obj');
 
 will produce the file ``redsphere.obj`` that contains the model object
 and references to the material library ``matfile.mtl`` and to the

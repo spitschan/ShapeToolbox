@@ -16,7 +16,7 @@ By default, the computation of texture coordinates is turned off.  To
 turn it on, use the 'uvcoords'-option and set its value to 'true'
 ::
 
-   objMakeSphere([8 .1 0 0],'uvcoords',true,'sphere_with_uvcoords.obj');
+   objMakeSine('sphere',[8 .1 0 0],'uvcoords',true,'sphere_with_uvcoords.obj');
 
 Texture descriptions in .mtl -files
 ===================================
@@ -27,7 +27,7 @@ previous section on material properties.  Setting the
 'material'-option forces the computation of the UV-coordinates.  For
 example::
 
-  objMakeSphere([8 .1 0 0],'material',{'matfile.mtl','mytexture'},'texturedsphere.obj');
+  objMakeSine('sphere',[8 .1 0 0],'material',{'matfile.mtl','mytexture'},'texturedsphere.obj');
 
 produces a file called 'texturedsphere.obj' which includes the
 UV-coordinates for texture mapping.  It also contains a reference to
@@ -67,7 +67,7 @@ Ks multiply the values of the texture maps.
 Next, make another model with the modulation in opposite phase, but
 use the same texture as above::
 
-  objMakeSphere([8 .1 180 0],'material',{'matfile.mtl','mytexture'},'texturedsphere2.obj');
+  objMakeSine('sphere',[8 .1 180 0],'material',{'matfile.mtl','mytexture'},'texturedsphere2.obj');
 
 .. image:: ../images/texturesphere002.png
 

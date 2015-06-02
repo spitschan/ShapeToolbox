@@ -83,7 +83,8 @@ function model = objMake(shape,varargin)
 % Boolean, toggle saving the model to a file.  Default is true, the
 % model is saved.  You might want to set this to false if you just
 % want to make the model structure and modify it with another
-% objMake*-function.  Example: m = objMake(...,'save',false,...)
+% objMake*-function or with objBlend.  Example: 
+% m = objMake(...,'save',false,...)
 %
 % TUBE_RADIUS
 % Sets the radius of the "tube" of a torus.  Default 0.4 (the radius

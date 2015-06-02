@@ -24,7 +24,7 @@ vector is the same as that for the carrier components.  The example
 below has a single carrier component and a single envelope, or
 modulator, with the same parameters the illustration above uses::
 
-  objMakeSphere([16 .1 0 0],[4 1 0 0]);
+  objMakeSine('sphere',[16 .1 0 0],[4 1 0 0]);
 
 .. image:: ../images/modsphere001.png
 
@@ -43,7 +43,7 @@ the sphere object become very sharp near the poles of the sphere (as
 this is where the meridians, or lines of longitude, meet).  To smooth
 these out, we could add a low-frequency, orthogonal envelope::
 
-  objMakeSphere([12 .1 0 0],[2 1 90 90]);
+  objMakeSine('sphere',[12 .1 0 0],[2 1 90 90]);
 
 .. image:: ../images/modsphere002.png
 
@@ -72,7 +72,7 @@ component. ::
   prm_env  = [4 1   0 0 1
               4 1 180 0 2];
 
-  objMakeSphere(prm_carr,prm_env)
+  objMakeSine('sphere',prm_carr,prm_env)
 
 Below is the rendered object.  The schematic on the right shows the
 profile of the modulations and illustrates the multiplication and
@@ -91,7 +91,7 @@ opposite angle but that are otherwise identical::
   prm_env  = [4 1   0 0 1
               4 1 180 0 2];
 
-  objMakeSphere(prm_carr,prm_env);
+  objMakeSine('sphere',prm_carr,prm_env);
 
 .. image:: ../images/modsphere003.png
 
@@ -116,7 +116,7 @@ defined. ::
               4 1 180  0 2
               2 1  90 90 0];
 
-  objMakeSphere(prm_carr,prm_env);
+  objMakeSine('sphere',prm_carr,prm_env);
 
 .. image:: ../images/modsphere004.png
 

@@ -12,7 +12,7 @@ same angle but with different frequencies::
 
   par = [4  .2  0 0;
          16 .05 0 0]
-  objMakeSphere(par);
+  objMakeSine('sphere',par);
 
 .. image:: ../images/sphere007.png
 .. image:: ../images/sphere007profile.png
@@ -22,13 +22,13 @@ The schematic on the right shows the individual and compound profiles.
 
 Or you can have two components at different angles::
 
-  objMakeSphere([8 .1 0 0; 8 .1 90 90]);
+  objMakeSine('sphere',[8 .1 0 0; 8 .1 90 90]);
 
 .. image:: ../images/sphere008.png
 
 The same but with non-cardinal angles::
 
-  objMakeSphere([8 .1 0 60; 8 .1 0 -60]);
+  objMakeSine('sphere',[8 .1 0 60; 8 .1 0 -60]);
 
 .. image:: ../images/sphere009.png
 
