@@ -275,3 +275,18 @@ switch model.shape
     fprintf('Gaussian bumps not yet implemented for torus.');
 
 end
+
+function theta = wrapAnglePi(theta)
+
+% WRAPANGLEPI
+%
+% Usage: theta = wrapAnglePi(theta)
+
+% Toni Saarela, 2010
+% 2010-xx-xx - ts - first version
+
+theta = rem(theta,2*pi);
+theta(theta>pi) = -2*pi+theta(theta>pi);
+theta(theta<-pi) = 2*pi+theta(theta<-pi);
+%theta(X==0 & Y==0) = 0;
+
