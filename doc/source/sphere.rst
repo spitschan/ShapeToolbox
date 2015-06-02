@@ -9,29 +9,35 @@ Sphere
 .. image:: ../images/sphere_coords_3d_400.png
 .. image:: ../images/sphere_coords.png
 
-.. _objmakesphere:
+.. _objmake-sphere:
 
-objMakeSphere()
-===============
-
-
-.. _objmakespherenoisy:
-
-objMakeSphereNoisy()
-====================
+objMake
+=======
 
 
-.. _objmakespherebumpy:
+.. _objmakesine-sphere:
 
-objMakeSphereBumpy()
-====================
+objMakeSine
+===========
+
+
+.. _objmakenoise-sphere:
+
+objMakeNoise
+============
+
+
+.. _objmakebump-sphere:
+
+objMakeBump
+===========
 
 
 
-.. _objmakespherecustom:
+.. _objmakecustom-sphere:
 
-objMakeSphereCustom()
-=====================
+objMakeCustom
+=============
 
 Image
 -----

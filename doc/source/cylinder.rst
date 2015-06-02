@@ -6,28 +6,32 @@ Cylinder
 ========
 
 
-.. _objmakecylinder:
+.. _objmake-cylinder:
 
-objMakeCylinder()
-=================
-
-
-
-.. _objmakecylindernoisy:
-
-objMakeCylinderNoisy()
-======================
+objMake
+=======
 
 
+.. _objmakesine-cylinder:
 
-.. _objmakecylinderbumpy:
-
-objMakeCylinderBumpy()
-======================
-
+objMakeSine
+===========
 
 
-.. _objmakecylindercustom:
+.. _objmakenoise-cylinder:
 
-objMakeCylinderCustom()
-=======================
+objMakeNoise
+============
+
+
+.. _objmakebump-cylinder:
+
+objMakeBump
+===========
+
+
+
+.. _objmakecustom-cylinder:
+
+objMakeCustom
+=============

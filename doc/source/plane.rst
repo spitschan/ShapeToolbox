@@ -8,25 +8,32 @@ Plane
 .. image:: ../images/plane_coords_3d_400.png
 .. image:: ../images/plane_coords.png
 
-.. _objmakeplane:
+.. _objmake-plane:
 
-objMakePlane()
-===============
-
-
-.. _objmakeplanenoise:
-
-objMakePlaneNoise()
-===================
+objMake
+=======
 
 
-.. _objmakeplanebumpy:
+.. _objmakesine-plane:
 
-objMakePlaneBumpy()
-===================
+objMakeSine
+===========
 
 
-.. _objmakeplanecustom:
+.. _objmakenoise-plane:
 
-objMakePlaneCustom()
-====================
+objMakeNoise
+============
+
+
+.. _objmakebump-plane:
+
+objMakeBump
+===========
+
+
+
+.. _objmakecustom-plane:
+
+objMakeCustom
+=============
