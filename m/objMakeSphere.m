@@ -207,129 +207,17 @@ function sphere = objMakeSphere(cprm,varargin)
 % 2015-05-04 - ts - calls objParseArgs and objSaveModel
 % 2015-05-14 - ts - improved setting default parameters
 % 2015-05-29 - ts - call objSph2XYZ for coordinate conversion
+% 2015-05-30 - ts - tidying, new function calls for default arguments etc
+% 2015-06-01 - ts - calls objMakeSine
 
-% TODO
-% Add option for noise in the amplitude
-% Add option for noise in the frequencies
-% More error checking on parameters (including modulator)
-% UPDATE HELP UPDATE HELP UPDATE HELP
+%------------------------------------------------------------
 
-%--------------------------------------------
-
-% Carrier parameters
-
-% Set default frequency, amplitude, phase, "orientation"  and component group id
-
-defprm = [8 .1 0 0 0];
-
-if ~nargin || isempty(cprm)
-  cprm = defprm;
+if ~nargin
+  cprm = [];
 end
-
-[nccomp,ncol] = size(cprm);
-
-% Fill in default carrier parameters if needed
-if ncol<5
-  defprm = ones(nccomp,1)*defprm;
-  cprm(:,ncol+1:5) = defprm(:,ncol+1:5);
-end
-clear defprm
-
-cprm(:,3:4) = pi * cprm(:,3:4)/180;
-
-% Set the default modulation parameters to empty indicating no
-% modulator; set default filename, material filename.
-mprm  = [];
-nmcomp = 0;
-
-opts.filename = 'sphere.obj';
-opts.m = 128;
-opts.n = 256;
-
-[modpar,par] = parseparams(varargin);
-
-% If modulator parameters are given as input, set mprm to these values
-if ~isempty(modpar)
-  mprm = modpar{1};
-  % Set default values to modulator parameters as needed
-  [nmcomp,ncol] = size(mprm);
-  if ncol<5
-    defprm = ones(nmcomp,1)*[1 0 0 0];
-    mprm(:,ncol+1:5) = defprm(:,ncol:4);
-    clear defprm
-  end
-  mprm(:,3:4) = pi * mprm(:,3:4)/180;
-end
-
-% Check other optional input arguments
-[opts,sphere] = objParseArgs(opts,par);
-
-%--------------------------------------------
-% Vertices
-if opts.new_model
-  m = opts.m;
-  n = opts.n;
-
-  r = 1; % radius
-  theta = linspace(-pi,pi-2*pi/n,n); % azimuth
-  phi = linspace(-pi/2,pi/2,m)'; % elevation
-
-  [Theta,Phi] = meshgrid(theta,phi);
-  Theta = Theta'; Theta = Theta(:);
-  Phi   = Phi';   Phi   = Phi(:);
-else
-  m = sphere.m;
-  n = sphere.n;
-  Theta = sphere.Theta;
-  Phi = sphere.Phi;
-  r = sphere.R;
-end
-
-if any(cprm(:,2)>r)
-  error('Modulation amplitude has to be less than sphere radius (1).');
-end
-
-R = r + objMakeSineComponents(cprm,mprm,Theta,Phi);
-
-vertices = objSph2XYZ(Theta,Phi,R);
-
-% The field prm can be made an array.  If the structure sphere is
-% passed to another objMakeSphere*-function, that function will add
-% its parameters to that array.
-if opts.new_model
-  sphere.prm.cprm = cprm;
-  sphere.prm.mprm = mprm;
-  sphere.prm.nccomp = nccomp;
-  sphere.prm.nmcomp = nmcomp;
-  sphere.prm.mfilename = mfilename;
-  sphere.normals = [];
-else
-  ii = length(sphere.prm)+1;
-  sphere.prm(ii).cprm = cprm;
-  sphere.prm(ii).mprm = mprm;
-  sphere.prm(ii).nccomp = nccomp;
-  sphere.prm(ii).nmcomp = nmcomp;
-  sphere.prm(ii).mfilename = mfilename;
-  sphere.normals = [];
-end
-sphere.shape = 'sphere';
-sphere.filename = opts.filename;
-sphere.mtlfilename = opts.mtlfilename;
-sphere.mtlname = opts.mtlname;
-sphere.comp_uv = opts.comp_uv;
-sphere.comp_normals = opts.comp_normals;
-sphere.n = n;
-sphere.m = m;
-sphere.Theta = Theta;
-sphere.Phi = Phi;
-sphere.R = R;
-sphere.vertices = vertices;
-
-if opts.dosave
-  sphere = objSaveModel(sphere);
-end
+sphere = objMakeSine('sphere',cprm,varargin{:});
 
 if ~nargout
-   clear sphere
+  clear sphere
 end
 

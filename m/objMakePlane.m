@@ -139,135 +139,17 @@ function plane = objMakePlane(cprm,varargin)
 %                   calls objParseArgs and objSaveModel
 % 2015-05-12 - ts - changed plane width and height to 2 (from -1 to 1)
 % 2015-05-14 - ts - improved setting default parameters
+% 2015-05-30 - ts - tidying, new function calls for default arguments etc
+% 2015-06-01 - ts - calls objMakeSine
 
-% TODO
-% Add option for noise in the amplitude
-% Add option for noise in the frequencies
-% More error checking of parameters
-% Should the x and y values go from -w/2 to w/2 or from -w/2 to
-%   w/2-w/npoints?
-% Add an option to define the size of plane
-% Update help, add the modulation between carriers thing
+%------------------------------------------------------------
 
-%--------------------------------------------
-
-% Carrier parameters
-
-% Set default frequency, amplitude, phase, orientation and component group id
-
-defprm = [8 .05 0 0 0];
-
-if ~nargin || isempty(cprm)
-  cprm = defprm;
+if ~nargin
+  cprm = [];
 end
-
-[nccomp,ncol] = size(cprm);
-
-% Fill in default carrier parameters if needed
-if ncol<5
-  defprm = ones(nccomp,1)*defprm;
-  cprm(:,ncol+1:5) = defprm(:,ncol+1:5);
-end
-clear defprm
-
-%cprm(:,1) = cprm(:,1)*(2*pi);
-cprm(:,1) = cprm(:,1)*pi;
-cprm(:,3:4) = pi * cprm(:,3:4)/180;
-
-% Set the default modulation parameters to empty indicating no modulator; set default filename.
-mprm  = [];
-nmcomp = 0;
-
-opts.filename = 'plane.obj';
-opts.m = 256;
-opts.n = 256;
-
-[modpar,par] = parseparams(varargin);
-
-% If modulator parameters are given as input, set mprm to these values
-if ~isempty(modpar)
-  mprm = modpar{1};
-  % Set default values to modulator parameters as needed
-  [nmcomp,ncol] = size(mprm);
-  if ncol<5
-    defprm = ones(nmcomp,1)*[1 0 0 0];
-    mprm(:,ncol+1:5) = defprm(:,ncol:4);
-    clear defprm
-  end
-  %mprm(:,1) = mprm(:,1)*(2*pi);
-  mprm(:,1) = mprm(:,1)*pi;
-  mprm(:,3:4) = pi * mprm(:,3:4)/180;
-end
-
-% Check other optional input arguments
-[opts,plane] = objParseArgs(opts,par);
-
-%--------------------------------------------
-
-if opts.new_model
-  m = opts.m;
-  n = opts.n;
-
-  w = 2; % width of the plane
-  h = 2; % m/n * w;
-  
-  x = linspace(-w/2,w/2,n); % 
-  y = linspace(-h/2,h/2,m)'; % 
-
-  [X,Y] = meshgrid(x,y);
-  X = X'; X = X(:);
-  Y = Y'; Y = Y(:);
-  Z = 0;
-else
-  m = plane.m;
-  n = plane.n;
-  X = plane.X;
-  Y = plane.Y;
-  Z = plane.Z;
-end
-
-Z = Z + objMakeSineComponents(cprm,mprm,X,Y);
-
-vertices = [X Y Z];
-
-if opts.new_model
-  plane.prm.cprm = cprm;
-  plane.prm.mprm = mprm;
-  plane.prm.nccomp = nccomp;
-  plane.prm.nmcomp = nmcomp;
-  plane.prm.mfilename = mfilename;
-  plane.normals = [];
-else
-  ii = length(plane.prm)+1;
-  plane.prm(ii).cprm = cprm;
-  plane.prm(ii).mprm = mprm;
-  plane.prm(ii).nccomp = nccomp;
-  plane.prm(ii).nmcomp = nmcomp;
-  plane.prm(ii).mfilename = mfilename;
-  plane.normals = [];
-end
-plane.shape = 'plane';
-plane.filename = opts.filename;
-plane.mtlfilename = opts.mtlfilename;
-plane.mtlname = opts.mtlname;
-plane.comp_uv = opts.comp_uv;
-plane.comp_normals = opts.comp_normals;
-plane.w = w;
-plane.h = h;
-plane.n = n;
-plane.m = m;
-plane.X = X;
-plane.Y = Y;
-plane.Z = Z;
-plane.vertices = vertices;
-
-if opts.dosave
-  plane = objSaveModel(plane);
-end
+plane = objMakeSine('plane',cprm,varargin{:});
 
 if ~nargout
-   clear plane
+  clear plane
 end
-
-
 

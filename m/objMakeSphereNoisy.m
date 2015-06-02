@@ -80,119 +80,17 @@ function sphere = objMakeSphereNoisy(nprm,varargin)
 % 2015-05-04 - ts - calls objParseArgs and objSaveModel
 % 2015-05-14 - ts - improved setting default modulator parameters
 % 2015-05-29 - ts - call objSph2XYZ for coordinate conversion
+% 2015-05-30 - ts - tidying, new function calls for default arguments etc
+% 2015-06-01 - ts - calls objMakeNoise
 
-%--------------------------------------------------
+%------------------------------------------------------------
 
-if ~nargin || isempty(nprm)
-  nprm = [8 1 0 45 .1 0];
+if ~nargin
+  nprm = [];
 end
-
-[nncomp,ncol] = size(nprm);
-
-% Set default group index if needed
-if ncol==5
-  nprm = [nprm zeros(nncomp,1)];
-elseif ncol<5
-  error('Incorrect number of columns in input argument ''nprm''.');
-end
-
-nprm(:,3:4) = pi * nprm(:,3:4)/180;
-
-% Set the default modulation parameters to empty indicating no
-% modulator; set default filename, material filename.
-mprm  = [];
-nmcomp = 0;
-
-opts.filename = 'spherenoisy.obj';
-opts.use_rms = false;
-opts.m = 128;
-opts.n = 256;
-
-[modpar,par] = parseparams(varargin);
-
-% If modulator parameters are given as input, set mprm to these values
-if ~isempty(modpar)
-  mprm = modpar{1};
-  % Set default values to modulator parameters as needed
-  [nmcomp,ncol] = size(mprm);
-  if ncol<5
-    defprm = ones(nmcomp,1)*[1 0 0 0];
-    mprm(:,ncol+1:5) = defprm(:,ncol:4);
-    clear defprm
-  end
-  mprm(:,3:4) = pi * mprm(:,3:4)/180;
-end
-
-% Check other optional input arguments
-[opts,sphere] = objParseArgs(opts,par);
-  
-%--------------------------------------------
-% Vertices
-
-if opts.new_model
-  m = opts.m;
-  n = opts.n;
-
-  r = 1; % radius
-  theta = linspace(-pi,pi-2*pi/n,n); % azimuth
-  phi = linspace(-pi/2,pi/2,m)'; % elevation
-
-  [Theta,Phi] = meshgrid(theta,phi);
-else
-  n = sphere.n;
-  m = sphere.m;
-  Theta = reshape(sphere.Theta,[n m])';
-  Phi = reshape(sphere.Phi,[n m])';
-  r = reshape(sphere.r,[n m])';
-end
-
-R = r + objMakeNoiseComponents(nprm,mprm,Theta,Phi,opts.use_rms);
-
-Theta = Theta'; Theta = Theta(:);
-Phi   = Phi';   Phi   = Phi(:);
-R = R'; R = R(:);
-
-vertices = objSph2XYZ(Theta,Phi,R);
-
-% The field prm can be made an array.  If the structure sphere is
-% passed to another objMakeSphere*-function, that function will add
-% its parameters to that array.
-if opts.new_model
-  sphere.prm.nprm = nprm;
-  sphere.prm.mprm = mprm;
-  sphere.prm.nncomp = nncomp;
-  sphere.prm.nmcomp = nmcomp;
-  sphere.prm.use_rms = opts.use_rms;
-  sphere.prm.mfilename = mfilename;
-  sphere.normals = [];
-else
-  ii = length(sphere.prm)+1;
-  sphere.prm(ii).nprm = nprm;
-  sphere.prm(ii).mprm = mprm;
-  sphere.prm(ii).nncomp = nncomp;
-  sphere.prm(ii).nmcomp = nmcomp;
-  sphere.prm(ii).use_rms = opts.use_rms;
-  sphere.prm(ii).mfilename = mfilename;
-  sphere.normals = [];
-end
-sphere.shape = 'sphere';
-sphere.filename = opts.filename;
-sphere.mtlfilename = opts.mtlfilename;
-sphere.mtlname = opts.mtlname;
-sphere.comp_uv = opts.comp_uv;
-sphere.comp_normals = opts.comp_normals;
-sphere.n = n;
-sphere.m = m;
-sphere.Theta = Theta;
-sphere.Phi = Phi;
-sphere.R = R;
-sphere.vertices = vertices;
-
-if opts.dosave
-  sphere = objSaveModel(sphere);
-end
+sphere = objMakeNoise('sphere',nprm,varargin{:});
 
 if ~nargout
-   clear sphere
+  clear sphere
 end
 

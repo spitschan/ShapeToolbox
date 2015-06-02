@@ -88,126 +88,17 @@ function plane = objMakePlaneNoisy(nprm,varargin)
 %                   calls objParseArgs and objSaveModel
 % 2015-05-12 - ts - changed plane width and height to 2 (from -1 to 1)
 % 2015-05-14 - ts - improved setting default modulator parameters
+% 2015-05-30 - ts - tidying, new function calls for default arguments etc
+% 2015-06-01 - ts - calls objMakeNoise
 
-%--------------------------------------------
+%------------------------------------------------------------
 
-% TODO
-% Add an option for unequal size in x and y -- see objMakePlane
-% If orientation full width is zero, that means no orientation
-% filtering.  Or wait, should it be Inf?
-
-if ~nargin || isempty(nprm)
-  nprm = [8 1 0 45 .1 0];
+if ~nargin
+  nprm = [];
 end
-
-[nncomp,ncol] = size(nprm);
-
-if ncol==5
-  nprm = [nprm zeros(nncomp,1)];
-elseif ncol<5
-  error('Incorrect number of columns in input argument ''nprm''.');
-end
-
-nprm(:,3:4) = pi * nprm(:,3:4)/180;
-
-% Set the default modulation parameters to empty indicating no modulator; set default filename.
-mprm  = [];
-nmcomp = 0;
-
-opts.filename = 'planenoisy.obj';
-opts.m = 256;
-opts.n = 256;
-opts.use_rms = false;
-
-[modpar,par] = parseparams(varargin);
-
-% If modulator parameters are given as input, set mprm to these values
-if ~isempty(modpar)
-  mprm = modpar{1};
-  % Set default values to modulator parameters as needed
-  [nmcomp,ncol] = size(mprm);
-  if ncol<5
-    defprm = ones(nmcomp,1)*[1 0 0 0];
-    mprm(:,ncol+1:5) = defprm(:,ncol:4);
-    clear defprm
-  end
-  mprm(:,1) = mprm(:,1)*(pi);
-  mprm(:,3:4) = pi * mprm(:,3:4)/180;
-end
-
-% Check other optional input arguments
-[opts,plane] = objParseArgs(opts,par);
-
-%--------------------------------------------
-
-if opts.new_model
-  m = opts.m;
-  n = opts.n;
-
-  w = 2; % width of the plane
-  h = 2; % m/n * w;
-  
-  x = linspace(-w/2,w/2,n); % 
-  y = linspace(-h/2,h/2,m)'; % 
-
-  [X,Y] = meshgrid(x,y);
-  Z = 0;
-else
-  m = plane.m;
-  n = plane.n;
-  X = reshape(plane.X,[n m])';
-  Y = reshape(plane.Y,[n m])';
-  Z = reshape(plane.Z,[n m])';
-end
-
-%--------------------------------------
-
-Z = Z + objMakeNoiseComponents(nprm,mprm,X,Y,opts.use_rms);
-
-X = X'; X = X(:);
-Y = Y'; Y = Y(:);
-Z = Z'; Z = Z(:);
-
-vertices = [X Y Z];
-
-
-if opts.new_model
-  plane.prm.nprm = nprm;
-  plane.prm.mprm = mprm;
-  plane.prm.nncomp = nncomp;
-  plane.prm.nmcomp = nmcomp;
-  plane.prm.use_rms = opts.use_rms;
-  plane.prm.mfilename = mfilename;
-  plane.normals = [];
-else
-  ii = length(plane.prm)+1;
-  plane.prm(ii).nprm = nprm;
-  plane.prm(ii).mprm = mprm;
-  plane.prm(ii).nncomp = nncomp;
-  plane.prm(ii).nmcomp = nmcomp;
-  plane.prm(ii).use_rms = opts.use_rms;
-  plane.prm(ii).mfilename = mfilename;
-  plane.normals = [];
-end
-plane.shape = 'plane';
-plane.filename = opts.filename;
-plane.mtlfilename = opts.mtlfilename;
-plane.mtlname = opts.mtlname;
-plane.comp_uv = opts.comp_uv;
-plane.comp_normals = opts.comp_normals;
-plane.w = w;
-plane.h = h;
-plane.n = n;
-plane.m = m;
-plane.X = X;
-plane.Y = Y;
-plane.Z = Z;
-plane.vertices = vertices;
-
-if opts.dosave
-  plane = objSaveModel(plane);
-end
+plane = objMakeNoise('plane',nprm,varargin{:});
 
 if ~nargout
-   clear plane
+  clear plane
 end
+

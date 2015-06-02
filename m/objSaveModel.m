@@ -22,26 +22,26 @@ function s = objSaveModel(s)
 %                    it's better now.
 % 2015-05-12 - ts - plane width and height are now 2, changed freq conversion
 % 2015-05-18 - ts - added new model shape, 'extrusion'
+% 2015-05-30 - ts - updated to work with new object structure format
 
 m = s.m;
 n = s.n;
-vertices = s.vertices;
 
 %--------------------------------------------
 % Faces, vertex indices
 
 switch s.shape
   case {'sphere','cylinder','revolution','extrusion'}
-    faces = zeros((m-1)*n*2,3);
+    s.faces = zeros((m-1)*n*2,3);
     F = ([1 1]'*[1:n]);
     F = F(:) * [1 1 1];
     F(:,2) = F(:,2) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
     F(:,3) = F(:,3) + [repmat([n n+1]',[n-1 1]); [n 1]'];
     for ii = 1:m-1
-      faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
+      s.faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
     end
   case 'plane'
-    faces = zeros((m-1)*(n-1)*2,3);
+    s.faces = zeros((m-1)*(n-1)*2,3);
     ftmp = [[1 1]'*[1:n-1]];
     F(:,1) = ftmp(:);
     % OR:
@@ -52,10 +52,10 @@ switch s.shape
     ftmp = ftmp(:);
     F(:,3) = ftmp(2:end-1);    
     for ii = 1:m-1
-      faces((ii-1)*(n-1)*2+1:ii*(n-1)*2,:) = (ii-1)*n + F;
+      s.faces((ii-1)*(n-1)*2+1:ii*(n-1)*2,:) = (ii-1)*n + F;
     end
   case 'torus'
-    faces = zeros(m*n*2,3);
+    s.faces = zeros(m*n*2,3);
     % The first part is the same as with the sphere:
     F = ([1 1]'*[1:n]);
     F = F(:) * [1 1 1];
@@ -64,47 +64,47 @@ switch s.shape
     % But loop until m, not m-1 as phi goes -pi to pi here (not -pi/2 to
     % pi/2) and faces wrap around the "tube".
     for ii = 1:m
-      faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
+      s.faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
     end
     % Finally, to wrap around properly in the phi-direction:
-    faces = 1 + mod(faces-1,m*n);
+    s.faces = 1 + mod(s.faces-1,m*n);
 end
 
 % Texture coordinates if material is defined
-if s.comp_uv
+if s.flags.comp_uv
   switch s.shape
     case {'sphere','cylinder','revolution','extrusion'}
       u = linspace(0,1,n+1);
       v = linspace(0,1,m);
       [U,V] = meshgrid(u,v);
       U = U'; V = V';
-      uvcoords = [U(:) V(:)];
+      s.uvcoords = [U(:) V(:)];
 
       % Faces, uv coordinate indices
-      facestxt = zeros((m-1)*n*2,3);
+      s.facestxt = zeros((m-1)*n*2,3);
       n2 = n + 1;
       F = ([1 1]'*[1:n]);
       F = F(:) * [1 1 1];
       F(:,2) = reshape([1 1]'*[2:n2]+[1 0]'*n2*ones(1,n),[2*n 1]);
       F(:,3) = n2 + [1; reshape([1 1]'*[2:n],[2*(n-1) 1]); n2];
       for ii = 1:m-1
-        facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n2 + F;
+        s.facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n2 + F;
       end
     case 'plane'
       U = (s.X-min(s.X))/(max(s.X)-min(s.X));
       V = (s.Y-min(s.Y))/(max(s.Y)-min(s.Y));
-      uvcoords = [U V];
+      s.uvcoords = [U V];
 
-      facestxt = faces;
+      s.facestxt = faces;
 
     case 'torus'
       u = linspace(0,1,n+1);
       v = linspace(0,1,m+1);
       [U,V] = meshgrid(u,v);
       U = U'; V = V';
-      uvcoords = [U(:) V(:)];
+      s.uvcoords = [U(:) V(:)];
 
-      facestxt = zeros(m*n*2,3);
+      s.facestxt = zeros(m*n*2,3);
       F1 = [1 1]' * [1:n];
       F1 = F1(:);
       F2 = [(n+3):2*(n+1);2:(n+1)];
@@ -114,7 +114,7 @@ if s.comp_uv
       F3 = F3(2:end-1);
       F = [F1 F2 F3];
       for ii = 1:m
-        facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*(n+1) + F;
+        s.facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*(n+1) + F;
       end
   end
   clear u v U V
@@ -124,13 +124,13 @@ end
 
 %--------------------------------------------
 % Vertex normals
-if s.comp_normals
+if s.flags.comp_normals
   % Surface normals for the faces
-  fn = cross([vertices(faces(:,2),:)-vertices(faces(:,1),:)],...
-             [vertices(faces(:,3),:)-vertices(faces(:,1),:)]);
+  fn = cross([s.vertices(s.faces(:,2),:)-s.vertices(s.faces(:,1),:)],...
+             [s.vertices(s.faces(:,3),:)-s.vertices(s.faces(:,1),:)]);
 
   % Vertex normals
-  normals = zeros(m*n,3);
+  s.normals = zeros(m*n,3);
   
   % Loop through vertices, slow
   % for ii = 1:m*n
@@ -149,22 +149,11 @@ if s.comp_normals
       nfaces = m*n*2;
   end
   for ii = 1:nfaces
-    normals(faces(ii,:),:) = normals(faces(ii,:),:) + [1 1 1]'*fn(ii,:);
+    s.normals(s.faces(ii,:),:) = s.normals(s.faces(ii,:),:) + [1 1 1]'*fn(ii,:);
   end
-  normals = normals./sqrt(sum(normals.^2,2)*[1 1 1]);
+  s.normals = s.normals./sqrt(sum(s.normals.^2,2)*[1 1 1]);
 
   clear fn
-end
-
-%--------------------------------------------
-% Output argument
-
-s.faces = faces;
-if s.comp_uv
-  s.uvcoords = uvcoords;
-end
-if s.comp_normals
-  s.normals = normals;
 end
 
 %--------------------------------------------
@@ -180,33 +169,21 @@ else
     fprintf(fid,'# %d. %s with function %s from ShapeToolbox.\n',ii,verb,s.prm(ii).mfilename);
   end
 end
-fprintf(fid,'#\n# Number of vertices: %d.\n',size(vertices,1));
-fprintf(fid,'# Number of faces: %d.\n',size(faces,1));
+fprintf(fid,'#\n# Base shape: %s.\n',s.shape);
+fprintf(fid,'#\n# Number of vertices: %d.\n',size(s.vertices,1));
+fprintf(fid,'# Number of faces: %d.\n',size(s.faces,1));
 
-if s.comp_uv
+if s.flags.comp_uv
   fprintf(fid,'# Texture (uv) coordinates defined: Yes.\n');
 else
   fprintf(fid,'# Texture (uv) coordinates defined: No.\n');
 end
 
-if s.comp_normals
+if s.flags.comp_normals
   fprintf(fid,'# Vertex normals included: Yes.\n');
 else
   fprintf(fid,'# Vertex normals included: No.\n');
 end
-
-modsine = {'objMakeSphere','objMakePlane',...
-           'objMakeCylinder','objMakeTorus',...
-           'objMakeRevolution','objMakeExtrusion'};
-modnoise = {'objMakeSphereNoisy','objMakePlaneNoisy',...
-           'objMakeCylinderNoisy','objMakeTorusNoisy',...
-           'objMakeRevolutionNoisy','objMakeExtrusionNoisy'};
-modbumpy = {'objMakeSphereBumpy','objMakePlaneBumpy',...
-           'objMakeCylinderBumpy','objMakeTorusBumpy',...
-           'objMakeRevolutionBumpy','objMakeExtrusionBumpy'};
-modcustom = {'objMakeSphereCustom','objMakePlaneCustom',...
-           'objMakeCylinderCustom','objMakeTorusCustom',...
-           'objMakeRevolutionCustom','objMakeExtrusionCustom'};
 
 for ii = 1:length(s.prm)
     if length(s.prm)==1
@@ -214,9 +191,9 @@ for ii = 1:length(s.prm)
     else
       fprintf(fid,'#\n# %s\n# %d. %s parameters:\n',repmat('-',1,50),ii,s.prm(ii).mfilename);
     end
-  switch s.prm(ii).mfilename
+  switch s.prm(ii).perturbation
     %---------------------------------------------------
-    case modsine
+    case 'sine'
       if strcmp(s.shape,'plane')
         %- Convert frequencies back to cycles/plane
         s.prm(ii).cprm(:,1) = s.prm(ii).cprm(:,1)/(pi);
@@ -226,10 +203,10 @@ for ii = 1:length(s.prm)
       end
       writeSpecs(fid,s.prm(ii).cprm,s.prm(ii).mprm);
     %---------------------------------------------------
-    case modbumpy
+    case 'bump'
       writeSpecsBumpy(fid,s.prm(ii).prm);
     %---------------------------------------------------
-    case modnoise
+    case 'noise'
       if strcmp(s.shape,'plane')
         %- Convert frequencies back to cycles/plane
         if ~isempty(s.prm(ii).mprm)
@@ -243,7 +220,7 @@ for ii = 1:length(s.prm)
         fprintf(fid,'# Use RMS contrast: No.\n');
       end
     %---------------------------------------------------
-    case modcustom
+    case 'custom'
       writeSpecsCustom(fid,s.prm(ii))
     %---------------------------------------------------
  end
@@ -256,44 +233,44 @@ if ~isempty(s.mtlfilename)
 end
 
 fprintf(fid,'\n# Vertices:\n');
-fprintf(fid,'v %8.6f %8.6f %8.6f\n',vertices');
+fprintf(fid,'v %8.6f %8.6f %8.6f\n',s.vertices');
 fprintf(fid,'# End vertices\n');
 
-if s.comp_uv
+if s.flags.comp_uv
   fprintf(fid,'\n# Texture coordinates:\n');
-  fprintf(fid,'vt %8.6f %8.6f\n',uvcoords');
+  fprintf(fid,'vt %8.6f %8.6f\n',s.uvcoords');
   fprintf(fid,'# End texture coordinates\n');
 end
 
-if s.comp_normals
+if s.flags.comp_normals
   fprintf(fid,'\n# Normals:\n');
-  fprintf(fid,'vn %8.6f %8.6f %8.6f\n',normals');
+  fprintf(fid,'vn %8.6f %8.6f %8.6f\n',s.normals');
   fprintf(fid,'# End normals\n');
 end
 
 # Write face defitions to file.  These are written differently
 # depending on whether uvcoordinates and/or normals are included.
 fprintf(fid,'\n# Faces:\n');
-if ~s.comp_uv
-  if s.comp_normals
+if ~s.flags.comp_uv
+  if s.flags.comp_normals
     fprintf(fid,'f %d//%d %d//%d %d//%d\n',...
-            [faces(:,1) faces(:,1) ...
-             faces(:,2) faces(:,2) ...
-             faces(:,3) faces(:,3)]');
+            [s.faces(:,1) s.faces(:,1) ...
+             s.faces(:,2) s.faces(:,2) ...
+             s.faces(:,3) s.faces(:,3)]');
   else
-    fprintf(fid,'f %d %d %d\n',faces');    
+    fprintf(fid,'f %d %d %d\n',s.faces');    
   end
 else
-  if s.comp_normals
+  if s.flags.comp_normals
     fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
-            [faces(:,1) facestxt(:,1) faces(:,1)...
-             faces(:,2) facestxt(:,2) faces(:,2)...
-             faces(:,3) facestxt(:,3) faces(:,3)]');
+            [s.faces(:,1) s.facestxt(:,1) s.faces(:,1)...
+             s.faces(:,2) s.facestxt(:,2) s.faces(:,2)...
+             s.faces(:,3) s.facestxt(:,3) s.faces(:,3)]');
   else
     fprintf(fid,'f %d/%d %d/%d %d/%d\n',...
-            [faces(:,1) facestxt(:,1) ...
-             faces(:,2) facestxt(:,2) ...
-             faces(:,3) facestxt(:,3)]');
+            [s.faces(:,1) s.facestxt(:,1) ...
+             s.faces(:,2) s.facestxt(:,2) ...
+             s.faces(:,3) s.facestxt(:,3)]');
   end
 end
 fprintf(fid,'# End faces\n');

@@ -20,7 +20,7 @@ function Z = objMakeNoiseComponents(nprm,mprm,X,Y,use_rms)
 % 2015-04-03 - ts - changed sign of noise filter orientation to make
 %                    consistent with the sign convention of sine wave
 %                    components --- positive is clock-wise
-
+% 2015-05-31 - ts - minor change in noise filtering
 
 
 
@@ -175,7 +175,7 @@ F = fftshift(fft2(I));
 u = [-n:2:n-2]/n;
 v = [-m:2:m-2]/m;
 [U,V] = meshgrid(u,v);
-fnyquist = m / 2;
+fnyquist = n / 2;
 f0 = f0 / fnyquist;
 
 % Full width at half-height to sd:

@@ -5,7 +5,7 @@
 Spheres
 =======
 
-These function perturb a unit sphere (radius 1) with different kinds
+These functions perturb a unit sphere (radius 1) with different kinds
 of modulation.
 
 .. _ref-objmakesphere:
@@ -29,7 +29,15 @@ optionally envelopes that modulate their amplitude.
         ...
         frequencyN amplitudeN phaseN angleN [group_idN]]
 
-      Frequency is given in cycles per :math:`2\pi`.  Phase and angle in degrees.
+      Frequency is given in cycles per :math:`2\pi`, phase and angle
+      in degrees.  Optional group id number can be defined to couple
+      carriers with envelopes (see below).  Carriers with the same
+      group id are added together and then multiplied by the
+      corresponding envelope.  Finally, the groups are added together.
+      Group id 0 (default) is special: carriers with id 0 are first
+      added to the other components without an envelope.  Possible
+      envelope (see below) with id 0 finally multiplies all other
+      components, no matter what their group id is.
 
    :param mpar: 
       Modulation envelope parameters::
@@ -112,6 +120,8 @@ optionally envelopes that modulate the noise amplitude.
       given in degrees.  Amplitude is the peak absolute value of the
       modulation.  If the option ``rms`` is true (see below),
       the amplitude parameter defines the root-mean-square contrast.
+
+      Group id numbers are as in :ref:`ref-objmakesphere` above.
 
    :param mpar: Same format as :ref:`ref-objmakesphere` above. 
 
