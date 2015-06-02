@@ -23,6 +23,7 @@ function s = objSaveModel(s)
 % 2015-05-12 - ts - plane width and height are now 2, changed freq conversion
 % 2015-05-18 - ts - added new model shape, 'extrusion'
 % 2015-05-30 - ts - updated to work with new object structure format
+% 2015-06-01 - ts - fixed a comment string to work with matlab (# to %)
 
 m = s.m;
 n = s.n;
@@ -248,8 +249,8 @@ if s.flags.comp_normals
   fprintf(fid,'# End normals\n');
 end
 
-# Write face defitions to file.  These are written differently
-# depending on whether uvcoordinates and/or normals are included.
+% Write face defitions to file.  These are written differently
+% depending on whether uvcoordinates and/or normals are included.
 fprintf(fid,'\n# Faces:\n');
 if ~s.flags.comp_uv
   if s.flags.comp_normals
