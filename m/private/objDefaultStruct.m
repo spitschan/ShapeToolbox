@@ -9,6 +9,7 @@ function model = objDefaultStruct(shape,reset)
 % Copyright (C) 2015 Toni Saarela
 % 2015-05-30 - ts - first version
 % 2015-05-31 - ts - added the 'reset'-option
+% 2015-06-03 - ts - new flag to indicate custom locations are set
 
 if nargin<2 || isempty(reset)
   reset = false;
@@ -52,3 +53,4 @@ model.flags.comp_uv = false;
 model.flags.comp_normals = false;
 model.flags.use_rms = false;
 model.flags.use_map = false;
+model.flags.custom_locations = false;

@@ -21,6 +21,8 @@ function Z = objMakeNoiseComponents(nprm,mprm,X,Y,use_rms)
 %                    consistent with the sign convention of sine wave
 %                    components --- positive is clock-wise
 % 2015-05-31 - ts - minor change in noise filtering
+% 2015-06-03 - ts - envelopes that share a group index are multiplied,
+%                    not added
 
 
 
@@ -70,12 +72,14 @@ if ~isempty(mprm)
        % If there's a modulator in this group, make it
        midx = find(mprm(:,5)==ngroups2(gi));
        if ~isempty(midx)          
-         M = zeros(m,n);
+         % M = zeros(m,n);
+         M = ones(m,n);
          for ii = 1:length(midx)
            %M = M + mprm(midx(ii),2) * sin(2*pi*mprm(midx(ii),1)*(X*cos(mprm(midx(ii),4))-Y*sin(mprm(midx(ii),4)))+mprm(midx(ii),3));
-           M = M + makeComp(mprm(midx(ii),:),X,Y);
+           % M = M + makeComp(mprm(midx(ii),:),X,Y);
+           M = M .* .5 .* (1 + makeComp(mprm(midx(ii),:),X,Y));
          end % loop over modulator components
-         M = .5 * (1 + M);
+         % M = .5 * (1 + M);
          if any(M(:)<0) || any(M(:)>1)
            if nmcomp>1
              warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');
@@ -121,12 +125,14 @@ if ~isempty(mprm)
 
    midx = find(mprm(:,5)==0);
    if ~isempty(midx)
-     M = zeros(m,n);
+     % M = zeros(m,n);
+     M = ones(m,n);
      for ii = 1:length(midx)
-       M = M + makeComp(mprm(midx(ii),:),X,Y);
+       % M = M + makeComp(mprm(midx(ii),:),X,Y);
+       M = M .* .5 .* (1 + makeComp(mprm(midx(ii),:),X,Y));
        %M = M + mprm(midx(ii),2) * sin(2*pi*mprm(midx(ii),1)*(X*cos(mprm(midx(ii),4))-Y*sin(mprm(midx(ii),4)))+mprm(midx(ii),3));
      end % loop over modulator components
-     M = .5 * (1 + M);
+     % M = .5 * (1 + M);
      if any(M(:)<0) || any(M(:)>1)
        if nmcomp>1
          warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');

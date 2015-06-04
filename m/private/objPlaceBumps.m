@@ -8,6 +8,7 @@ function model = objPlaceBumps(model)
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-06-01 - ts - first version
+% 2015-06-03 - ts - fixed a bug in checking for user-defined locations
 
 ii = length(model.prm);
 prm = model.prm(ii).prm;
@@ -23,8 +24,8 @@ end
 switch model.shape
   case 'sphere'
     for jj = 1:nbumptypes
-        
-      if ~isempty(model.opts.locations) && ~isempty(model.opts.locations{1}{jj})
+
+      if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
 
         theta0 = model.opts.locations{1}{jj};
         phi0 = model.opts.locations{2}{jj};
@@ -113,7 +114,7 @@ switch model.shape
 
     for jj = 1:nbumptypes
 
-      if ~isempty(model.opts.locations) && ~isempty(model.opts.locations{1}{jj})
+      if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
 
         x0 = model.opts.locations{1}{jj};
         y0 = model.opts.locations{2}{jj};
@@ -191,7 +192,7 @@ switch model.shape
   case {'cylinder','revolution','extrusion'}
     for jj = 1:nbumptypes
         
-      if ~isempty(model.opts.locations) && ~isempty(model.opts.locations{1}{jj})
+      if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
 
         theta0 = model.opts.locations{1}{jj};
         y0 = model.opts.locations{2}{jj};

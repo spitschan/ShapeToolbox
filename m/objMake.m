@@ -7,7 +7,8 @@ function model = objMake(shape,varargin)
 %         MODEL = OBJMAKE(...)
 %
 % Produce a 3D model mesh object of a given shape and save it to a
-% file in Wavefront obj-format.
+% file in Wavefront obj-format.  Optionally return a structure that
+% holds the model information.
 % 
 % SHAPE:
 % ======
@@ -128,6 +129,7 @@ function model = objMake(shape,varargin)
 %------------------------------------------------------------
 
 if ischar(shape)
+  shape = lower(shape);
   model = objDefaultStruct(shape);
 elseif isstruct(shape)
   model = shape;

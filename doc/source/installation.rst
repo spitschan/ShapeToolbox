@@ -5,6 +5,22 @@
 Installation
 ************
 
+=============
+Prerequisites
+=============
+
+Platform
+========
+
+Should run on GLU/Linux, Mac, and Windows.
+
+Octave or Matlab
+================
+
+Mainly developed on Ubuntu Linux using Octave 3.8.1.  Tested on XXXX.
+Should work with any reasonably up-to-date version of Octave or
+Matlab, but no guarantees.
+
 ================
 Getting the code
 ================
@@ -47,4 +63,17 @@ That's it.  Add that command to your startup-file, either
 automatically add ShapeToolbox to the path every time you start Octave
 or Matlab.
 
+=========================
+Structure of ShapeToolbox
+=========================
+
+Folder m has the code.  It has a private folder which holds functions
+called by the main toolbox functions.
+
+folder doc has the docs.  In the folder doc/build/html is the html
+documentation.  Open the file doc/build/html/index.html to view the
+manual.
+
+Folder demos has a bunch of subfolder with short demos illustrating
+the functionality of the toolbox.
 

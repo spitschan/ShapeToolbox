@@ -11,10 +11,13 @@ function model = objMakeNoise(shape,nprm,varargin)
 % Copyright (C) 2015 Toni Saarela
 % 2015-05-31 - ts - first version, based on objMakeSphereNoisy and
 %                    others
+% 2015-06-03 - ts - envelope parameter scaling for planes
+%                   added handling of tori (yeah i'd just forgotten it)
 
 %------------------------------------------------------------
 
 if ischar(shape)
+  shape = lower(shape);
   model = objDefaultStruct(shape);
 elseif isstruct(shape)
   model = shape;
@@ -89,6 +92,9 @@ if ~isempty(modpar)
     mprm(:,ncol+1:5) = defprm(:,ncol:4);
     clear defprm
   end
+  if strcmp(model.shape,'plane')
+    mprm(:,1) = mprm(:,1)*pi;
+  end
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
 
@@ -133,6 +139,26 @@ switch model.shape
     model.X =  model.R .* cos(model.Theta);
     model.Z = -model.R .* sin(model.Theta);
     model.vertices = [model.X model.Y model.Z];
+  case 'torus'
+    if ~isempty(model.opts.rprm)
+      rprm = model.opts.rprm;
+      for ii = 1:size(rprm,1)
+        model.R = model.R + rprm(ii,2) * sin(rprm(ii,1)*model.Theta + rprm(ii,3));
+      end
+    end
+    if ~isempty(nprm)
+      Theta = reshape(model.Theta,[model.n model.m])';
+      Phi = reshape(model.Phi,[model.n model.m])';
+      r = reshape(model.r,[model.n model.m])';
+
+      r = r + objMakeNoiseComponents(nprm,mprm,Theta,Phi,model.flags.use_rms);
+
+      r = r';
+      model.r = r(:);
+    end
+    model.vertices = objSph2XYZ(model.Theta,model.Phi,model.r,model.R);
+  otherwise
+    error('Unknown shape.');
 end
 %------------------------------------------------------------
 % 

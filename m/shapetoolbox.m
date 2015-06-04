@@ -2,35 +2,19 @@
 %
 % Functions for 3D-models:
 % ========================
+% objMake
+% objMakeSine
+% objMakeNoise
+% objMakeBump
+% objMakeCustom
 %
-%  objMakeSphere
-%  objMakeSphereNoisy
-%  objMakeSphereBumpy
-%  objMakeSphereCustom
-%
-%  objMakePlane
-%  objMakePlaneNoisy
-%  objMakePlaneBumpy
-%  objMakePlaneCustom
-%
-%  objMakeCylinder
-%  objMakeCylinderNoisy
-%  objMakeCylinderBumpy
-%  objMakeCylinderCustom
-%
-%  objMakeTorus
-%  objMakeTorusNoisy
-%  objMakeTorusBumpy
-%  objMakeTorusCustom
-%
-%  objMakeRevolution
-%  objMakeRevolutionNoisy
-%  objMakeRevolutionBumpy
-%  objMakeRevolutionCustom
-%
+% Blending / morphing
+% ===================
+% objBlend
+% 
 % Helper functions
 % ================
-% 
-%  objFindFreqs
-%  objFindAngles
-%  objShow
+% objFindFreqs
+% objFindAngles
+% objShow
+% objSaveModel

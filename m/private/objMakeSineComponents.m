@@ -10,6 +10,8 @@ function Z = objMakeSineComponents(cprm,mprm,X,Y)
 % 2014-10-15 - ts - first version written
 % 2014-11-10 - ts - renamed (removed leading underscore that's not
 %                    allowed by Matlab)
+% 2015-06-03 - ts - envelopes that share a group index are multiplied,
+%                    not added
 
 [m,n] = size(X);
 
@@ -41,11 +43,13 @@ if ~isempty(mprm)
        % If there's a modulator in this group, make it
        midx = find(mprm(:,5)==cgroups2(gi));
        if ~isempty(midx)          
-         M = zeros(m,n);
+         % M = zeros(m,n);
+         M = ones(m,n);
          for ii = 1:length(midx)
-           M = M + makeComp(mprm(midx(ii),:),X,Y);
+           % M = M + makeComp(mprm(midx(ii),:),X,Y);
+           M = M .* .5 .* (1 + makeComp(mprm(midx(ii),:),X,Y));
          end % loop over modulator components
-         M = .5 * (1 + M);
+         % M = .5 * (1 + M);
          if any(M(:)<0) || any(M(:)>1)
            if nmcomp>1
              warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');
@@ -86,11 +90,13 @@ if ~isempty(mprm)
 
    midx = find(mprm(:,5)==0);
    if ~isempty(midx)          
-     M = zeros(m,n);
+     %M = zeros(m,n);
+     M = ones(m,n);
      for ii = 1:length(midx)
-       M = M + makeComp(mprm(midx(ii),:),X,Y);
+       %M = M + makeComp(mprm(midx(ii),:),X,Y);
+       M = M .* .5 .* (1 + makeComp(mprm(midx(ii),:),X,Y));
      end % loop over modulator components
-     M = .5 * (1 + M);
+     %M = .5 * (1 + M);
      if any(M(:)<0) || any(M(:)>1)
        if nmcomp>1
          warning('The amplitude of the compound modulator is out of bounds (0-1).\n Expect wonky results.');

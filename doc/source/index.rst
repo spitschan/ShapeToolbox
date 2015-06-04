@@ -43,6 +43,8 @@ at the :ref:`gallery`.
    
    .. intro
    installation
+   gettinghelp
+   models
    quickstart
    object_types
    combinations
@@ -52,6 +54,7 @@ at the :ref:`gallery`.
    rendering
    gallery
    reference
+   license
 
 ..
    Indices and tables

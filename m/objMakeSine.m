@@ -6,13 +6,160 @@ function model = objMakeSine(shape,cprm,varargin)
 %                 objMakeSine(SHAPE,CPAR,[OPTIONS])
 %                 objMakeSine(SHAPE,CPAR,MPAR,[OPTIONS]) 
 %         MODEL = objMakeSine(...)
+%
+% Produce a 3D model mesh object of a given shape, perturbed by
+% sinusoidal modulation, and save it to a file in Wavefront
+% obj-format.  Optionally return a structure that holds the model
+% information.
+%
+% The base shape is defined by the first argument, SHAPE.  The
+% parameters for the modulation are defined by CPAR, and the
+% parameters for the optional envelope of the modulation are defined
+% in MPAR.  See details below.
+% 
+% SHAPE:
+% ======
+%
+% One of 'sphere', 'plane', 'cylinder', 'torus', 'revolution', and
+% 'extrusion'.  Example: objMakeSine('sphere')
+%
+% The shapes use a coordinate system where the y-direction is "up" and
+% the x-z plane is the reference plane.
+% 
+% Some notes and default values for the shapes (some can be changed
+% with the optional input arguments, see below):
+%
+% SPHERE: A unit sphere (radius 1), default mesh size 128x256.  Saved
+% to 'sphere.obj'.
+%
+% PLANE: A plane with a width and height of 2, lying on the x-y plane,
+% centered on the origin.  Default mesh size 256x256.  Obviously a
+% size of 2x2 would be enough; the larger size is used so that fine
+% modulations can later be added to the shape if needed.  Saved in
+% 'plane.obj'.
+%
+% CYLINDER: A cylinder with radius 1 and height of 2*pi.  Default mesh
+% size 256x256.  Saved in 'cylinder.obj'.
+%
+% TORUS: A torus with ring radius of 1 and tube radius of 0.4.
+% Default mesh size 256x256, saved in 'torus.obj'.
+%
+% REVOLUTION: A surface of revolution based on a user-defined profile,
+% height 2*pi.  See the option 'curve' below on how to define the
+% profile.  Default mesh size 256x256, saved in 'revolution.obj'.
+%
+% EXTRUSION: An extrusion based on a user-defined cross-sectional
+% profile, height 2*pi.  See option 'curve' below on how to define the
+% profile.  Default mesh size 256x256, saved in 'extrusion.obj'.
+%
+% CPAR:
+% =====
+%
+% Parameters for the modulation "carriers".  The parameters are the
+% frequency, amplitude, phase, and angle (orientation):
+%   CPAR = [FREQ AMPL PH ANGLE]
+%
+% The sinusoidal modulation is added to the base shape: to the radius
+% for spheres, cylinder, surfaces of revolution, and extrusions; to
+% the "tube" radius for tori; and to the z-component of planes.
+%
+% Unit of frequency is cycle/(2*pi) for the sphere, cylinder, torus,
+% surface of revolution, and extrusion shapes; and cycle/plane for the
+% plane shape.  Phase and angle/orientation are given in degrees.
+% Modulations are in sine phase (phase 0 is sine phase).  Angle 0 is
+% "vertical", parallel to the y-axis.
+%
+% Several carriers are defined in rows of CPAR:
+%   CPAR = [FREQ1 AMPL1 PH1 ANGLE1 
+%           FREQ2 AMPL2 PH2 ANGLE2 
+%           ... 
+%           FREQN AMPLN PHN ANGLEN]
+%
+% MPAR:
+% =====
+%
+% Parameters for the modulation "envelopes".  The envelope modulates
+% the amplitude of the carrier.  TODO.
+% 
+% OPTIONS:
+% ========
+%
+% With the exception of the filename, all options are gives as
+% name-value pairs.  All possible options are listed below.
+%
+% FILENAME
+% A single string giving the name of the file in which to
+% save the model.  Example: objMakeSine(...,'mymodel.obj',...)
+%
+% NPOINTS
+% Resolution of the model mesh (number of vertices).  Given as a
+% two-vector for the number of vertices in the "vertical" (elevation
+% or y, depending on the shape) and "horizontal" (azimuth or x)
+% directions.  Example: objMakeSine(...,'npoints',[64 64],...)
+% 
+% MATERIAL
+% Name of the material library (.mtl) file and the name of the
+% material for the model.  Given as a cell array of length two.  The
+% elements of the cell array are two strings, the first one for the
+% material library file and the second for the material name.  This
+% option forces the option uvcoords (see below) to true.  Example:
+% objMakeSine(...,'material',{'matfile.mtl','mymaterial'},...)
+%
+% UVCOORDS
+% Boolean, toggles the computation of texture (uv) coordinates
+% (default is false).  Example: objMakeSine(...,'uvcoords',true,...)
+%
+% NORMALS
+% Boolean, toggle the computation of vertex normals (default false).
+% Turning this on improves the quality of rendering, but note that
+% some rendering programs might compute the normals for you, making
+% it unnecessary to include them in the file.  Example:
+% objMakeSine(...,'normals',true,...)
+%
+% SAVE
+% Boolean, toggle saving the model to a file.  Default is true, the
+% model is saved.  You might want to set this to false if you just
+% want to make the model structure and modify it with another
+% objMake*-function or with objBlend.  Example: 
+% m = objMakeSine(...,'save',false,...)
+%
+% TUBE_RADIUS
+% Sets the radius of the "tube" of a torus.  Default 0.4 (the radius
+% of the ring, or the distance from the origin to the center of the
+% tube is 1).  Example: objMakeSine(...,'tube_radius',0.2,...)
+%
+% CURVE
+% A vector giving the curve to use with shapes 'revolution' and
+% 'extrusion'.  When the shape is 'revolution', a surface of
+% revolution is produced by revolving the curve about the y-axis.
+% When the shape is 'extrusion', the curve gives the cross-sectional
+% profile of the object.  This profile is translated along the y-axis
+% to produce a 3D shape.  Example: 
+%  profile = .1 + ((-64:63)/64).^2;
+%  objMakeSine('revolution','curve',profile)
+% 
+% RPRM
+% TODO: Parameters for modulating the "main" radius of the torus.
+%
+% RETURNS:
+% ========
+% A structure holding all the information about the model.  This
+% structure can be given as input to another objMake*-function to
+% perturb the shape, or it can be given as input to objSaveModel to
+% save it to file (but the saving to file is a default behavior of
+% objMake, so unless the option 'save' is set to false, it is not
+% necessary to save the model manually).
+% 
+
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-05-31 - ts - first version, based on objmakeSphere and others
+% 2015-06-03 - ts - wrote help
 
 %------------------------------------------------------------
 
 if ischar(shape)
+  shape = lower(shape);
   model = objDefaultStruct(shape);
 elseif isstruct(shape)
   model = shape;

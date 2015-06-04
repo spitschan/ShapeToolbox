@@ -122,8 +122,8 @@ defined. ::
 
 If there is more than one carrier in a group, they are added together
 first before being multiplied by the envelope.  If there is more than
-one envelope in a group, they are added together before they multiply
-the carriers.
+one envelope in a group, they are multiplied before they multiply the
+carriers.
 
 .. _qs-modulation-amplitude:
 

@@ -13,6 +13,8 @@ function model = objParseArgs(model,par)
 % 2015-05-30 - ts - no separate opts-structure; just update the model
 %                    structure given as input
 % 2015-05-31 - ts - improved updating of existing model
+% 2015-06-03 - ts - added a new flag to indicate custom bump location
+%                    are set
 
 % Flag to indicate whether uv-coordinate computation was set to false
 % explicitly.  This is used so that the option 'uvcoords' can be used
@@ -112,6 +114,7 @@ if ~isempty(par)
            if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
              ii = ii + 1;
              model.opts.locations = par{ii};
+             model.flags.custom_locations = true;
            else
              error('No value or a bad value given for option ''locations''.');
            end

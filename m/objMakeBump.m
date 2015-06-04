@@ -11,6 +11,7 @@ function model = objMakeBump(shape,prm,varargin)
 % 2015-05-31 - ts - first version, based on objMakeSphereBumpy and
 %                    others
 % 2015-06-01 - ts - does planes, cylinders, and other shapes
+% 2015-06-03 - ts - fixed a bug in setting the cutoff parameter
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
@@ -18,6 +19,7 @@ function model = objMakeBump(shape,prm,varargin)
 %------------------------------------------------------------
 
 if ischar(shape)
+  shape = lower(shape);
   model = objDefaultStruct(shape);
 elseif isstruct(shape)
   model = shape;
@@ -82,7 +84,7 @@ end
 % This is too hacky but whatever.  Make a temporary parameter vector
 % that has the cutoff as the second argument.  This way we can use
 % objPlaceBumps from both objMakeBump and objMakeCustom.
-model.prm(ii).prm = [prm(1) 3.5 prm(2:end)];
+model.prm(ii).prm = [prm(:,1) 3.5*ones(size(prm,1),1) prm(:,2:end)];
 model.prm(ii).nbumptypes = nbumptypes;
 model.prm(ii).nbumps = nbumps;
 

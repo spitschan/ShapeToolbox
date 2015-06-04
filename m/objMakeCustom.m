@@ -18,6 +18,7 @@ function model = objMakeCustom(shape,f,prm,varargin)
 %------------------------------------------------------------
 
 if ischar(shape)
+  shape = lower(shape);
   model = objDefaultStruct(shape);
 elseif isstruct(shape)
   model = shape;
