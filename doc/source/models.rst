@@ -1,7 +1,7 @@
 
-================================
-Models, materials, and rendering
-================================
+===================================
+3D models, materials, and rendering
+===================================
 
 Go through the steps of creating images.  Build a model (using
 |toolbox|, define material properties (by hand), render/raytrace

@@ -87,7 +87,7 @@ function model = objMake(shape,varargin)
 % objMake*-function or with objBlend.  Example: 
 % m = objMake(...,'save',false,...)
 %
-% TUBE_RADIUS
+% TUBE_RADIUS, MINOR_RADIUS
 % Sets the radius of the "tube" of a torus.  Default 0.4 (the radius
 % of the ring, or the distance from the origin to the center of the
 % tube is 1).  Example: objMake(...,'tube_radius',0.2,...)
@@ -101,6 +101,10 @@ function model = objMake(shape,varargin)
 % to produce a 3D shape.  Example: 
 %  profile = .1 + ((-64:63)/64).^2;
 %  objMake('revolution','curve',profile)
+%
+% CAPS
+% Boolean.  Set this to true to put "caps" at the end of cylinders, 
+% surfaces of revolution, and extrusions.  Default false.
 % 
 % RETURNS:
 % ========
@@ -125,18 +129,21 @@ function model = objMake(shape,varargin)
 % Copyright (C) 2015 Toni Saarela
 % 2015-06-01 - ts - first version, based on objMakeSine
 % 2015-06-02 - ts - wrote help
+% 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
 
 %------------------------------------------------------------
 
 if ischar(shape)
   shape = lower(shape);
   model = objDefaultStruct(shape);
-elseif isstruct(shape)
-  model = shape;
-  model = objDefaultStruct(shape,true);
-  model.flags.new_model = false;
-else
-  error('Argument ''shape'' has to be a string or a model structure.');
+ else
+   error('Argument ''shape'' has to be a string.');
+% elseif isstruct(shape)
+%   model = shape;
+%   model = objDefaultStruct(shape,true);
+%   model.flags.new_model = false;
+% else
+%   error('Argument ''shape'' has to be a string or a model structure.');
 end
 clear shape
 model.filename = [model.shape,'.obj'];
@@ -175,6 +182,9 @@ switch model.shape
   case 'plane'
     model.vertices = [model.X model.Y model.Z];
   case {'cylinder','revolution','extrusion'}
+    if model.flags.caps
+      model = objAddCaps(model);
+    end
     model.X =  model.R .* cos(model.Theta);
     model.Z = -model.R .* sin(model.Theta);
     model.vertices = [model.X model.Y model.Z];

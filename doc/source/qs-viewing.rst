@@ -39,7 +39,7 @@ disk.  Examples of use::
   objShow(sphere)
 
   tor = objMakeTorusNoise();
-  objShow(tor,'surfl')
+  objShow(tor,'surf')
 
 See :ref:`ref-objshow` (or ``help objShow`` in Octave/Matlab) for details.
 This is useful for quickly viewing the shape.  It does not render

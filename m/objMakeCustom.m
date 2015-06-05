@@ -12,6 +12,7 @@ function model = objMakeCustom(shape,f,prm,varargin)
 % Copyright (C) 2015 Toni Saarela
 % 2015-06-01 - ts - first version, based on objMakeBumpy and
 %                    others
+% 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
 
 % TODO
 
@@ -23,7 +24,6 @@ if ischar(shape)
 elseif isstruct(shape)
   model = shape;
   model = objDefaultStruct(shape,true);
-  model.flags.new_model = false;
 else
   error('Argument ''shape'' has to be a string or a model structure.');
 end
@@ -51,12 +51,22 @@ model.prm(ii).nbumps = model.opts.nbumps;
 % Vertices
 if model.flags.new_model
   model = objSetCoords(model);
+elseif ~isempty(strmatch(model.shape,{'cylinder','revolution','extrusion'}))
+  if model.flags.oldcaps
+     model = objRemCaps(model);
+  end
 end
 
 if ~model.flags.use_map
   model = objPlaceBumps(model);
 else
   model = objMakeBumpMap(model);
+end
+
+if ~isempty(strmatch(model.shape,{'cylinder','revolution','extrusion'}))
+  if model.flags.caps
+     model = objAddCaps(model);
+  end
 end
 
 %------------------------------------------------------------

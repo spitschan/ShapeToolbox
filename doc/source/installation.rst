@@ -12,14 +12,16 @@ Prerequisites
 Platform
 ========
 
-Should run on GLU/Linux, Mac, and Windows.
+|toolbox| *should* run on GNU/Linux, Mac, and Windows.  It was
+developed in GNU/Linux, and tested most extensively on GNU/Linux and
+Mac.  
 
 Octave or Matlab
 ================
 
-Mainly developed on Ubuntu Linux using Octave 3.8.1.  Tested on XXXX.
-Should work with any reasonably up-to-date version of Octave or
-Matlab, but no guarantees.
+|toolbox| was mainly developed on Ubuntu Linux using Octave 3.8.1.
+Tested on XXXX.  It should work with any reasonably up-to-date version
+of Octave or Matlab, but no guarantees.
 
 ================
 Getting the code
@@ -33,6 +35,12 @@ up-to-date with the latest version of the toolbox.  Go to the
 directory where you want to keep the files, and do::
   
   git clone https://github.com/saarela/ShapeToolbox.git
+
+To keep the code up to date with latest bug fixes, do::
+
+  git pull
+
+often.
 
 
 Download zip file
@@ -67,13 +75,13 @@ or Matlab.
 Structure of ShapeToolbox
 =========================
 
-Folder m has the code.  It has a private folder which holds functions
-called by the main toolbox functions.
+Folder "m" has the code.  It has a sub-folder "private", which holds
+functions called by the main toolbox functions.
 
-folder doc has the docs.  In the folder doc/build/html is the html
-documentation.  Open the file doc/build/html/index.html to view the
-manual.
+Folder "doc" has the documentation.  The folder ``doc/build/html`` has
+the html documentation.  Open the file ``doc/build/html/index.html``
+to view the manual.
 
-Folder demos has a bunch of subfolder with short demos illustrating
+Folder "demos" has several subfolders with short demos illustrating
 the functionality of the toolbox.
 

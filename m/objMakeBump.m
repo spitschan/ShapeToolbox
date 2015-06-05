@@ -12,6 +12,7 @@ function model = objMakeBump(shape,prm,varargin)
 %                    others
 % 2015-06-01 - ts - does planes, cylinders, and other shapes
 % 2015-06-03 - ts - fixed a bug in setting the cutoff parameter
+% 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
@@ -24,7 +25,6 @@ if ischar(shape)
 elseif isstruct(shape)
   model = shape;
   model = objDefaultStruct(shape,true);
-  model.flags.new_model = false;
 else
   error('Argument ''shape'' has to be a string or a model structure.');
 end
@@ -95,9 +95,17 @@ model.opts.f = @(d,prm) prm(1)*exp(-d.^2/(2*prm(2)^2));
 % Vertices
 if model.flags.new_model
   model = objSetCoords(model);
+elseif ~isempty(strmatch(model.shape,{'cylinder','revolution','extrusion'}))
+  if model.flags.oldcaps
+     model = objRemCaps(model);
+  end
 end
-
 model = objPlaceBumps(model);
+if ~isempty(strmatch(model.shape,{'cylinder','revolution','extrusion'}))
+  if model.flags.caps
+     model = objAddCaps(model);
+  end
+end
 
 % Set the parameter vector back to what it was.
 model.prm(ii).prm = prm;

@@ -90,7 +90,7 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''save''.');
            end
-         case 'tube_radius'
+         case {'tube_radius','minor_radius'}
            if ~model.flags.new_model
               error('You cannot change the radius of an existing model.');
            end
@@ -100,13 +100,13 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''tube_radius''.');
            end              
-         case {'rprm','radius_prm'}
+         case 'rpar'
            if ~model.flags.new_model
               error('You cannot change the radius of an existing model.');
            end
            if ii<length(par) && isnumeric(par{ii+1})
              ii = ii + 1;
-             model.rprm = par{ii};
+             model.opts.rprm = par{ii};
            else
              error('No value or a bad value given for option ''radius''.');
            end
@@ -136,6 +136,13 @@ if ~isempty(par)
           else
              error('No value or a bad value given for option ''curve''.');
           end
+         case 'caps'
+           if ii<length(par) && isscalar(par{ii+1})
+             ii = ii + 1;
+             model.flags.caps = par{ii};
+           else
+             error('No value or a bad value given for option ''caps''.');
+           end
         otherwise
           model.filename = par{ii};
       end

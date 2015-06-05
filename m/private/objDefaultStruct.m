@@ -10,6 +10,7 @@ function model = objDefaultStruct(shape,reset)
 % 2015-05-30 - ts - first version
 % 2015-05-31 - ts - added the 'reset'-option
 % 2015-06-03 - ts - new flag to indicate custom locations are set
+% 2015-06-05 - ts - flag to indicate "caps" on cylinders etc
 
 if nargin<2 || isempty(reset)
   reset = false;
@@ -37,9 +38,11 @@ if ~reset
   end
   model.shape = shape;
   model.flags.new_model = true;
+  model.flags.caps = false;
 else
   model = shape;
   model.flags.new_model = false;
+  model.flags.oldcaps = model.flags.caps;
 end
 
 model.mtlfilename = '';

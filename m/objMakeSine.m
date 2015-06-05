@@ -20,8 +20,15 @@ function model = objMakeSine(shape,cprm,varargin)
 % SHAPE:
 % ======
 %
-% One of 'sphere', 'plane', 'cylinder', 'torus', 'revolution', and
+% Either an existing model returned by one of the objMake*-functions,
+% or a string defining a new shape.  If a string, has to be one of
+% 'sphere', 'plane', 'cylinder', 'torus', 'revolution', and
 % 'extrusion'.  Example: objMakeSine('sphere')
+%
+% If an existing model structure is given as input, new modulation is
+% added to the existing model.  Example:
+%   m = objMakeNoise('cylinder');
+%   objMakeSine(m);
 %
 % The shapes use a coordinate system where the y-direction is "up" and
 % the x-z plane is the reference plane.
@@ -79,8 +86,33 @@ function model = objMakeSine(shape,cprm,varargin)
 % =====
 %
 % Parameters for the modulation "envelopes".  The envelope modulates
-% the amplitude of the carrier.  TODO.
+% the amplitude of the carrier.  The format of the parameter vector is
+% the same as as CPAR.  Envelope contrast 0 means no modulation of
+% carrier amplitude, contrast 1 means the amplitude varies between 0
+% and the carrier amplitude set in CPAR.  If several envelopes are
+% defined, they are multiplied.
+%
+% To pair carriers with envelopes (for example, to alternate between
+% two carriers), additional group indices can be defined.  Carriers
+% with the same index are added together, and the amplitude of the
+% compound is multiplied with the corresponding envelope.  The group
+% inde is the (optional) fifth entry of the parameter vector:
+%   CPAR = [FREQ1 AMPL1 PH1 ANGLE1 GROUP1
+%           ...
+%           FREQN AMPLN PHN ANGLEN GROUPN]
 % 
+%   MPAR = [FREQ1 AMPL1 PH1 ANGLE1 GROUP1
+%           ...
+%           FREQM AMPLM PHM ANGLEM GROUPM]
+% 
+% Group index is a non-negative integer.  Group index 0 (the default
+% group index) is special: All carriers with index zero are added to
+% the other components WITHOUT first being multiplied with a
+% modulator.  Modulators with group index 0 multiply the sum of ALL
+% components, including components already multiplied by their own
+% modulators.  Gets confusing, right?  See examples below and in the
+% online help.
+%
 % OPTIONS:
 % ========
 %
@@ -123,7 +155,7 @@ function model = objMakeSine(shape,cprm,varargin)
 % objMake*-function or with objBlend.  Example: 
 % m = objMakeSine(...,'save',false,...)
 %
-% TUBE_RADIUS
+% TUBE_RADIUS, MINOR_RADIUS
 % Sets the radius of the "tube" of a torus.  Default 0.4 (the radius
 % of the ring, or the distance from the origin to the center of the
 % tube is 1).  Example: objMakeSine(...,'tube_radius',0.2,...)
@@ -138,8 +170,17 @@ function model = objMakeSine(shape,cprm,varargin)
 %  profile = .1 + ((-64:63)/64).^2;
 %  objMakeSine('revolution','curve',profile)
 % 
-% RPRM
-% TODO: Parameters for modulating the "main" radius of the torus.
+% RPAR
+% When the shape is 'torus', the parameters CPAR and MPAR define the
+% modulation of the radius of the 'tube' of the torus (the minor
+% radius).  The optional parameter vector RPAR defines the modulation
+% for the major radius; the distance from the center of the tube to
+% the center of the torus.  Example:
+%  objMakeSine('torus',[0 0 0 0],'rpar',[4 .1 0 0])
+%
+% CAPS
+% Boolean.  Set this to true to put "caps" at the end of cylinders, 
+% surfaces of revolution, and extrusions.  Default false.
 %
 % RETURNS:
 % ========
@@ -150,11 +191,15 @@ function model = objMakeSine(shape,cprm,varargin)
 % objMake, so unless the option 'save' is set to false, it is not
 % necessary to save the model manually).
 % 
-
+% EXAMPLES:
+% =========
+% TODO
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-05-31 - ts - first version, based on objmakeSphere and others
 % 2015-06-03 - ts - wrote help
+% 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
+%                   updated help
 
 %------------------------------------------------------------
 
@@ -164,7 +209,6 @@ if ischar(shape)
 elseif isstruct(shape)
   model = shape;
   model = objDefaultStruct(shape,true);
-  model.flags.new_model = false;
 else
   error('Argument ''shape'' has to be a string or a model structure.');
 end
@@ -259,7 +303,13 @@ switch model.shape
     model.Z = model.Z + objMakeSineComponents(cprm,mprm,model.X,model.Y);
     model.vertices = [model.X model.Y model.Z];
   case {'cylinder','revolution','extrusion'}
+    if ~model.flags.new_model && model.flags.oldcaps
+      model = objRemCaps(model);
+    end
     model.R = model.R + objMakeSineComponents(cprm,mprm,model.Theta,model.Y);
+    if model.flags.caps
+      model = objAddCaps(model);
+    end
     model.X =  model.R .* cos(model.Theta);
     model.Z = -model.R .* sin(model.Theta);
     model.vertices = [model.X model.Y model.Z];
