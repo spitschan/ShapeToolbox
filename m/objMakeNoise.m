@@ -26,7 +26,7 @@ function model = objMakeNoise(shape,nprm,varargin)
 %
 % If an existing model structure is given as input, new modulation is
 % added to the existing model.  Example:
-%   m = objMakeNoise('cylinder');
+%   m = objMakeSine('cylinder');
 %   objMakeNoise(m);
 %
 % The shapes use a coordinate system where the y-direction is "up" and

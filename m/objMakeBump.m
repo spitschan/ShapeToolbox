@@ -6,6 +6,167 @@ function model = objMakeBump(shape,prm,varargin)
 %                 objMakeBump(SHAPE,PAR,[OPTIONS])
 %         model = objMakeBump(...)
 %
+% Produce a 3D model mesh object of a given shape, perturbed by
+% Gaussian bumps or dents, and save it to a file in Wavefront obj-format.  
+% Optionally return a structure that holds the model information.
+%
+% The base shape is defined by the first argument, SHAPE.  The
+% parameters for the bumps are defined by PAR.  By default the bump
+% locations are chosen at random, but custom locations can also be
+% used.  See details below.
+% 
+% SHAPE:
+% ======
+%
+% Either an existing model returned by one of the objMake*-functions,
+% or a string defining a new shape.  If a string, has to be one of
+% 'sphere', 'plane', 'cylinder', 'torus', 'revolution', and
+% 'extrusion'.  Example: objMakeBump('sphere')
+%
+% If an existing model structure is given as input, new modulation is
+% added to the existing model.  Example:
+%   m = objMakeSine('cylinder');
+%   objMakeBump(m);
+%
+% The shapes use a coordinate system where the y-direction is "up" and
+% the x-z plane is the reference plane.
+% 
+% Some notes and default values for the shapes (some can be changed
+% with the optional input arguments, see below):
+%
+% SPHERE: A unit sphere (radius 1), default mesh size 128x256.  Saved
+% to 'sphere.obj'.
+%
+% PLANE: A plane with a width and height of 2, lying on the x-y plane,
+% centered on the origin.  Default mesh size 256x256.  Obviously a
+% size of 2x2 would be enough; the larger size is used so that fine
+% modulations can later be added to the shape if needed.  Saved in
+% 'plane.obj'.
+%
+% CYLINDER: A cylinder with radius 1 and height of 2*pi.  Default mesh
+% size 256x256.  Saved in 'cylinder.obj'.
+%
+% TORUS: A torus with ring radius of 1 and tube radius of 0.4.
+% Default mesh size 256x256, saved in 'torus.obj'.
+%
+% REVOLUTION: A surface of revolution based on a user-defined profile,
+% height 2*pi.  See the option 'curve' below on how to define the
+% profile.  Default mesh size 256x256, saved in 'revolution.obj'.
+%
+% EXTRUSION: An extrusion based on a user-defined cross-sectional
+% profile, height 2*pi.  See option 'curve' below on how to define the
+% profile.  Default mesh size 256x256, saved in 'extrusion.obj'.
+%
+% PAR:
+% ====
+%
+% Parameters for the Gaussian bumps.  The vector PAR defines the
+% number of bumps, their amplitude, and the space constant:
+%   PAR = [NBUMPS AMPL SD]
+% 
+% Amplitude can be negative to produce dents.  Units for the space
+% constant are radians for spheres, tori, cylinder, surfaces of
+% revolution, and extrusions.
+%
+% To have different types of bump in the same model, define several
+% sets of parameters in the rows of PAR:
+%   PAR = [NBUMPS1 AMPL1 SD1
+%          NBUMPS2 AMPL2 SD2
+%          ...
+%          NBUMPSN AMPLN SDN]
+%
+% OPTIONS:
+% ========
+%
+% With the exception of the filename, all options are gives as
+% name-value pairs.  All possible options are listed below.
+%
+% FILENAME
+% A single string giving the name of the file in which to
+% save the model.  Example: objMakeBump(...,'mymodel.obj',...)
+%
+% NPOINTS
+% Resolution of the model mesh (number of vertices).  Given as a
+% two-vector for the number of vertices in the "vertical" (elevation
+% or y, depending on the shape) and "horizontal" (azimuth or x)
+% directions.  Example: objMakeBump(...,'npoints',[64 64],...)
+% 
+% MATERIAL
+% Name of the material library (.mtl) file and the name of the
+% material for the model.  Given as a cell array of length two.  The
+% elements of the cell array are two strings, the first one for the
+% material library file and the second for the material name.  This
+% option forces the option uvcoords (see below) to true.  Example:
+% objMakeBump(...,'material',{'matfile.mtl','mymaterial'},...)
+%
+% UVCOORDS
+% Boolean, toggles the computation of texture (uv) coordinates
+% (default is false).  Example: objMakeBump(...,'uvcoords',true,...)
+%
+% NORMALS
+% Boolean, toggle the computation of vertex normals (default false).
+% Turning this on improves the quality of rendering, but note that
+% some rendering programs might compute the normals for you, making
+% it unnecessary to include them in the file.  Example:
+% objMakeBump(...,'normals',true,...)
+%
+% SAVE
+% Boolean, toggle saving the model to a file.  Default is true, the
+% model is saved.  You might want to set this to false if you just
+% want to make the model structure and modify it with another
+% objMake*-function or with objBlend.  Example: 
+% m = objMakeBump(...,'save',false,...)
+%
+% TUBE_RADIUS, MINOR_RADIUS
+% Sets the radius of the "tube" of a torus.  Default 0.4 (the radius
+% of the ring, or the distance from the origin to the center of the
+% tube is 1).  Example: objMakeBump(...,'tube_radius',0.2,...)
+%
+% CURVE
+% A vector giving the curve to use with shapes 'revolution' and
+% 'extrusion'.  When the shape is 'revolution', a surface of
+% revolution is produced by revolving the curve about the y-axis.
+% When the shape is 'extrusion', the curve gives the cross-sectional
+% profile of the object.  This profile is translated along the y-axis
+% to produce a 3D shape.  Example: 
+%  profile = .1 + ((-64:63)/64).^2;
+%  objMakeBump('revolution','curve',profile)
+%
+% CAPS
+% Boolean.  Set this to true to put "caps" at the end of cylinders, 
+% surfaces of revolution, and extrusions.  Default false.
+%
+% MINDIST
+% Minimum distance between bumps.  A scalar of a vector the length of
+% which equals the number of bump types.  Note: The minimum distance
+% only applies to bumps of the same type, it is not applied across
+% bump types.  Example: objMakeBump('plane',[20 .05 .06],'mindist',.3)
+%
+% LOCATIONS
+% Locations of the bumps in a cell array.  The locations are given as
+% X and Y for planes, azimuth and elevation / Theta and Phi for
+% spheres and tori, and azimuth and Y for cylinders, surfaces of
+% revolution, and extrusions.  The format of the cell array (for
+% planes, as this example uses x and y) is: 
+%   {{[x1 x2 ...]},{[y1 y2 ...]}} 
+% for a single bump type.  For several bump types: 
+%   {{[x11 x12 ...],[x21 x22 ...],...},{[y11 y12 ...],[y21 y22 ...],...}}
+% Example: place two bumps and two dents diagonally on a plane:
+%   objMakeBump('plane',[2 .1 .1; 2 -.1 .1],'locations',...
+%               {{[-.5 .5],[-.5 .5]},{[-.5 .5],[.5 -.5]}})
+% 
+% RETURNS:
+% ========
+% A structure holding all the information about the model.  This
+% structure can be given as input to another objMake*-function to
+% perturb the shape, or it can be given as input to objSaveModel to
+% save it to file (but the saving to file is a default behavior of
+% objMake, so unless the option 'save' is set to false, it is not
+% necessary to save the model manually).
+% 
+% EXAMPLES:
+% =========
+% TODO
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-05-31 - ts - first version, based on objMakeSphereBumpy and
