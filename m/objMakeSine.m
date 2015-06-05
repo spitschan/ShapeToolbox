@@ -168,7 +168,7 @@ function model = objMakeSine(shape,cprm,varargin)
 % profile of the object.  This profile is translated along the y-axis
 % to produce a 3D shape.  Example: 
 %  profile = .1 + ((-64:63)/64).^2;
-%  objMakeSine('revolution','curve',profile)
+%  objMakeSine('revolution',...,'curve',profile)
 % 
 % RPAR
 % When the shape is 'torus', the parameters CPAR and MPAR define the

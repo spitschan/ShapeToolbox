@@ -35,27 +35,27 @@ function model = objMakeBump(shape,prm,varargin)
 % with the optional input arguments, see below):
 %
 % SPHERE: A unit sphere (radius 1), default mesh size 128x256.  Saved
-% to 'sphere.obj'.
+% to 'spherebumpy.obj'.
 %
 % PLANE: A plane with a width and height of 2, lying on the x-y plane,
 % centered on the origin.  Default mesh size 256x256.  Obviously a
 % size of 2x2 would be enough; the larger size is used so that fine
 % modulations can later be added to the shape if needed.  Saved in
-% 'plane.obj'.
+% 'planebumpy.obj'.
 %
 % CYLINDER: A cylinder with radius 1 and height of 2*pi.  Default mesh
-% size 256x256.  Saved in 'cylinder.obj'.
+% size 256x256.  Saved in 'cylinderbumpy.obj'.
 %
 % TORUS: A torus with ring radius of 1 and tube radius of 0.4.
-% Default mesh size 256x256, saved in 'torus.obj'.
+% Default mesh size 256x256, saved in 'torusbumpy.obj'.
 %
 % REVOLUTION: A surface of revolution based on a user-defined profile,
 % height 2*pi.  See the option 'curve' below on how to define the
-% profile.  Default mesh size 256x256, saved in 'revolution.obj'.
+% profile.  Default mesh size 256x256, saved in 'revolutionbumpy.obj'.
 %
 % EXTRUSION: An extrusion based on a user-defined cross-sectional
 % profile, height 2*pi.  See option 'curve' below on how to define the
-% profile.  Default mesh size 256x256, saved in 'extrusion.obj'.
+% profile.  Default mesh size 256x256, saved in 'extrusionbumpy.obj'.
 %
 % PAR:
 % ====
@@ -130,7 +130,7 @@ function model = objMakeBump(shape,prm,varargin)
 % profile of the object.  This profile is translated along the y-axis
 % to produce a 3D shape.  Example: 
 %  profile = .1 + ((-64:63)/64).^2;
-%  objMakeBump('revolution','curve',profile)
+%  objMakeBump('revolution',...,'curve',profile)
 %
 % CAPS
 % Boolean.  Set this to true to put "caps" at the end of cylinders, 
@@ -174,6 +174,7 @@ function model = objMakeBump(shape,prm,varargin)
 % 2015-06-01 - ts - does planes, cylinders, and other shapes
 % 2015-06-03 - ts - fixed a bug in setting the cutoff parameter
 % 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
+%                   help
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
