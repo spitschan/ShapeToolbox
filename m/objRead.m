@@ -30,10 +30,11 @@ function model = objRead(fn)
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-06-04 - ts - first version
+% 2015-06-05 - ts - fixed a string quote bug
 
 model.vertices = [];
 
-fp = fopen(fn,"r");
+fp = fopen(fn,'r');
 s = fgetl(fp);
 while isempty(regexp(s,'^v\s+'))
   s = fgetl(fp);
