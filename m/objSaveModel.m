@@ -8,6 +8,7 @@ function s = objSaveModel(s)
 % texture coordinates, faces, and so forth; and to write the model
 % to a file.
 %
+
 % I'd love to start the names of these helper functions with an
 % underscore (_) to make it clear they're helper functions not to
 % be directly called by the user, but Matlab doesn't allow it
@@ -24,6 +25,7 @@ function s = objSaveModel(s)
 % 2015-05-18 - ts - added new model shape, 'extrusion'
 % 2015-05-30 - ts - updated to work with new object structure format
 % 2015-06-01 - ts - fixed a comment string to work with matlab (# to %)
+% 2015-06-06 - ts - explicitly open file in text mode (for windows)
 
 m = s.m;
 n = s.n;
@@ -160,7 +162,7 @@ end
 %--------------------------------------------
 % Write to file
 
-fid = fopen(s.filename,'w');
+fid = fopen(s.filename,'wt');
 fprintf(fid,'# %s\n',datestr(now,31));
 if length(s.prm)==1
    fprintf(fid,'# Created with function %s from ShapeToolbox.\n',s.prm.mfilename);
