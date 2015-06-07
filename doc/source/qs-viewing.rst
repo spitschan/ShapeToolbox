@@ -35,11 +35,11 @@ This function takes as its input a structure returned by one of the
 objMake*-functions in the toolbox---it does not read an obj-file from
 disk.  Examples of use::
 
-  sphere = objMakeSphere();
-  objShow(sphere)
+  sphere=objMake('sphere');
+  objShow(sphere);
 
-  tor = objMakeTorusNoise();
-  objShow(tor,'surf')
+  tor = objMakeNoise('torus')
+  objShow(tor,'surf');
 
 See :ref:`ref-objshow` (or ``help objShow`` in Octave/Matlab) for details.
 This is useful for quickly viewing the shape.  It does not render
