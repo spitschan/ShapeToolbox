@@ -92,15 +92,20 @@ function model = objMake(shape,varargin)
 % of the ring, or the distance from the origin to the center of the
 % tube is 1).  Example: objMake(...,'tube_radius',0.2,...)
 %
-% CURVE
-% A vector giving the curve to use with shapes 'revolution' and
-% 'extrusion'.  When the shape is 'revolution', a surface of
-% revolution is produced by revolving the curve about the y-axis.
-% When the shape is 'extrusion', the curve gives the cross-sectional
-% profile of the object.  This profile is translated along the y-axis
-% to produce a 3D shape.  Example: 
+% RCURVE, ECURVE
+% A vector giving the curve to use with shapes 'revolution' ('rcurve')
+% and 'extrusion' ('ecurve').  When the shape is 'revolution', a
+% surface of revolution is produced by revolving the curve about the
+% y-axis.  When the shape is 'extrusion', the curve gives the
+% cross-sectional profile of the object.  This profile is translated
+% along the y-axis to produce a 3D shape.  Example: 
 %  profile = .1 + ((-64:63)/64).^2;
-%  objMake('revolution','curve',profile)
+%  objMake('revolution','rcurve',profile)
+%  objMake('extrusion','ecurve',profile)
+%
+% You can also combine the two curve types by giving both options.  In
+% this case, the 'rcurve' is revolved around the y-axis along a path
+% (or radial profile) defined by 'ecurve'.
 %
 % CAPS
 % Boolean.  Set this to true to put "caps" at the end of cylinders, 

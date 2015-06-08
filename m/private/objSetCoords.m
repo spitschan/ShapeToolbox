@@ -79,7 +79,7 @@ switch model.shape
     if isfield(model,'rcurve')
       R = model.r * model.ecurve' * model.rcurve;
     else
-      R = model.r*repmat(model.curve',[1 model.m]);
+      R = model.r*repmat(model.ecurve',[1 model.m]);
     end
 
     model.R = R(:);
