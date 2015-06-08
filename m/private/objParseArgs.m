@@ -17,6 +17,7 @@ function model = objParseArgs(model,par)
 %                    are set
 % 2015-06-08 - ts - separate arguments for revolution and extrusion
 %                    profiles (rcurve and ecurve)
+% 2015-06-08 - ts - fixed a bug in objParseArgs in setting file name
 
 % Flag to indicate whether uv-coordinate computation was set to false
 % explicitly.  This is used so that the option 'uvcoords' can be used
@@ -173,7 +174,7 @@ end
 
 % Add file name extension if needed
 if isempty(regexp(model.filename,'\.obj$'))
-  model.filename = [opts.filename,'.obj'];
+  model.filename = [model.filename,'.obj'];
 end
 
 % if ~model.flags.new_model
