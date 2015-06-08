@@ -130,6 +130,7 @@ function model = objMake(shape,varargin)
 % 2015-06-01 - ts - first version, based on objMakeSine
 % 2015-06-02 - ts - wrote help
 % 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
+% 2015-06-08 - ts - revolution and extrusion can be combined
 
 %------------------------------------------------------------
 
@@ -155,16 +156,10 @@ model = objParseArgs(model,par);
 switch model.shape
   case {'sphere','plane','cylinder','torus'}
   case 'revolution'
-    ncurve = length(model.curve);
-    if ncurve~=model.m
-      model.curve = interp1(linspace(0,1,ncurve),model.curve,linspace(0,1,model.m));
-    end
+    model = objInterpCurves(model);
     %model.curve = model.curve/max(model.curve);
   case 'extrusion'
-    ncurve = length(model.curve);
-    if ncurve~=model.n
-      model.curve = interp1(linspace(0,1,ncurve),model.curve,linspace(0,1,model.n));
-    end
+    model = objInterpCurves(model);
     %model.curve = model.curve/max(model.curve);
   otherwise
     error('Unknown shape');

@@ -201,6 +201,7 @@ function model = objMakeCustom(shape,f,prm,varargin)
 %                    others
 % 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
 %                   help
+% 2015-06-08 - ts - revolution and extrusion can be combined
 
 % TODO
 
@@ -223,6 +224,18 @@ model = objParseCustomParams(model,f,prm);
 % Check and parse optional input arguments
 [modpar,par] = parseparams(varargin);
 model = objParseArgs(model,par);
+
+switch model.shape
+  case {'sphere','plane','cylinder','torus'}
+  case 'revolution'
+    model = objInterpCurves(model);
+    %model.curve = model.curve/max(model.curve);
+  case 'extrusion'
+    model = objInterpCurves(model);
+    %model.curve = model.curve/max(model.curve);
+  otherwise
+    error('Unknown shape');
+end
 
 %------------------------------------------------------------
 

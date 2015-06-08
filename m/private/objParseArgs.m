@@ -15,6 +15,8 @@ function model = objParseArgs(model,par)
 % 2015-05-31 - ts - improved updating of existing model
 % 2015-06-03 - ts - added a new flag to indicate custom bump location
 %                    are set
+% 2015-06-08 - ts - separate arguments for revolution and extrusion
+%                    profiles (rcurve and ecurve)
 
 % Flag to indicate whether uv-coordinate computation was set to false
 % explicitly.  This is used so that the option 'uvcoords' can be used
@@ -125,16 +127,27 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''rotate''.');
            end
-         case 'curve'
+         case 'rcurve'
            if ~model.flags.new_model
-              error('You cannot change the option ''curve'' in an existing model.');
+              error('You cannot change the option ''rcurve'' in an existing model.');
            end
           if ii<length(par) && isnumeric(par{ii+1})
              ii = ii+1;
-             model.curve = par{ii};
-             model.curve = model.curve(:)';
+             model.rcurve = par{ii};
+             model.rcurve = model.rcurve(:)';
           else
-             error('No value or a bad value given for option ''curve''.');
+             error('No value or a bad value given for option ''rcurve''.');
+          end
+         case 'ecurve'
+           if ~model.flags.new_model
+              error('You cannot change the option ''ecurve'' in an existing model.');
+           end
+          if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii+1;
+             model.ecurve = par{ii};
+             model.ecurve = model.ecurve(:)';
+          else
+             error('No value or a bad value given for option ''ecurve''.');
           end
          case 'caps'
            if ii<length(par) && isscalar(par{ii+1})

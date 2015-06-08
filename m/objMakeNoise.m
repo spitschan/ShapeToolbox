@@ -200,6 +200,7 @@ function model = objMakeNoise(shape,nprm,varargin)
 %                   updated help
 %                   removed the option to modulate torus major radius
 %                   (this can now only be done in objMakeSine)
+% 2015-06-08 - ts - revolution and extrusion can be combined
 
 %------------------------------------------------------------
 
@@ -232,17 +233,11 @@ switch model.shape
     defprm = [8 1 0 45 .1 0];
   case 'revolution'
     defprm = [8 1 0 45 .1 0];
-    ncurve = length(model.curve);
-    if ncurve~=model.m
-      model.curve = interp1(linspace(0,1,ncurve),model.curve,linspace(0,1,model.m));
-    end
+    model = objInterpCurves(model);
     %model.curve = model.curve/max(model.curve);
   case 'extrusion'
     defprm = [8 1 0 45 .1 0];
-    ncurve = length(model.curve);
-    if ncurve~=model.n
-      model.curve = interp1(linspace(0,1,ncurve),model.curve,linspace(0,1,model.n));
-    end
+    model = objInterpCurves(model);
     %model.curve = model.curve/max(model.curve);
   otherwise
     error('Unknown shape');

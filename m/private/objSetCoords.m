@@ -8,6 +8,8 @@ function model = objSetCoords(model)
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-05-30 - ts - first version
+% 2015-06-08 - ts - separate arguments for revolution and extrusion
+%                    profiles, can be combined
 
 switch model.shape
   case 'sphere'
@@ -56,7 +58,13 @@ switch model.shape
     Theta = Theta'; Y = Y'; 
     model.Theta = Theta(:);
     model.Y = Y(:);
-    R = model.r*repmat(model.curve,[model.n 1]);
+
+    if isfield(model,'ecurve')
+      R = model.r * model.ecurve' * model.rcurve;
+    else
+      R = model.r*repmat(model.rcurve,[model.n 1]);
+    end
+
     model.R = R(:);
   case 'extrusion'
     model.r = 1; % radius
@@ -67,7 +75,13 @@ switch model.shape
     Theta = Theta'; Y = Y'; 
     model.Theta = Theta(:);
     model.Y = Y(:);
-    R = model.r*repmat(model.curve',[1 model.m]);
+
+    if isfield(model,'rcurve')
+      R = model.r * model.ecurve' * model.rcurve;
+    else
+      R = model.r*repmat(model.curve',[1 model.m]);
+    end
+
     model.R = R(:);
 end
 

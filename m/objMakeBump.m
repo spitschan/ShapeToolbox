@@ -175,6 +175,7 @@ function model = objMakeBump(shape,prm,varargin)
 % 2015-06-03 - ts - fixed a bug in setting the cutoff parameter
 % 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
 %                   help
+% 2015-06-08 - ts - revolution and extrusion can be combined
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
@@ -214,17 +215,11 @@ switch model.shape
     return
   case 'revolution'
     defprm = [20 .1 pi/12];
-    ncurve = length(model.curve);
-    if ncurve~=model.m
-      model.curve = interp1(linspace(0,1,ncurve),model.curve,linspace(0,1,model.m));
-    end
+    model = objInterpCurves(model);
     %model.curve = model.curve/max(model.curve);
   case 'extrusion'
     defprm = [20 .1 pi/12];
-    ncurve = length(model.curve);
-    if ncurve~=model.n
-      model.curve = interp1(linspace(0,1,ncurve),model.curve,linspace(0,1,model.n));
-    end
+    model = objInterpCurves(model);
     %model.curve = model.curve/max(model.curve);
   otherwise
     error('Unknown shape');

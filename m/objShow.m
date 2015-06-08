@@ -65,7 +65,7 @@ switch lower(func)
   case 'surf'
     h = surf(X,Y,Z);
   case 'surfl'
-    h = surfl(X,Y,Z);
+    h = surfl(X,Y,Z,[4 10 4]);
   case 'mesh'
     h = mesh(X,Y,Z);
 end
@@ -76,7 +76,8 @@ set(gca,'Visible','Off');
 % 
 
 try
-  set(gca,'CameraUpVector',[0 1 0]);
+  set(gca,'CameraUpVector',[0 1 0]);%,'CameraPosition',[0 0 1]);
+  view([1 1 1]);
   rotate3d on
 catch
   ;
