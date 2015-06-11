@@ -58,7 +58,7 @@ if ~isempty(par)
              ii = ii + 1;
              model.mtlfilename = par{ii}{1};
              model.mtlname = par{ii}{2};
-             model.comp_uv = true;
+             model.flags.comp_uv = true;
            else
              error('No value or a bad value given for option ''material''.');
            end
@@ -182,7 +182,7 @@ if ~isempty(par)
           model.filename = par{ii};
       end
     else
-        
+      ;
     end
     ii = ii + 1;
   end % while over par
