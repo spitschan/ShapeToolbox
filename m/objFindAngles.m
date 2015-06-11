@@ -22,6 +22,11 @@ function [a1,a2] = objFindAngles(f)
 % Toni Saarela, 2014
 % 2014-10-10 - ts - first version
 % 2014-10-21 - ts - renamed, also computes angles for torus
+% 2015-06-10 - ts - input arg checking
+
+if ~isscalar(f)
+  error('Input must be a scalar.');
+end
 
 n = [0:f]';
 a1 = 180*acos(n./f)/pi;

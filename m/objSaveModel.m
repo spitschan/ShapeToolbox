@@ -26,6 +26,8 @@ function s = objSaveModel(s)
 % 2015-05-30 - ts - updated to work with new object structure format
 % 2015-06-01 - ts - fixed a comment string to work with matlab (# to %)
 % 2015-06-06 - ts - explicitly open file in text mode (for windows)
+% 2015-06-10 - ts - changed freq conversion for plane
+% 2015-06-10 - ts - added mesh reso to obj comments
 
 m = s.m;
 n = s.n;
@@ -174,6 +176,7 @@ else
 end
 fprintf(fid,'#\n# Base shape: %s.\n',s.shape);
 fprintf(fid,'#\n# Number of vertices: %d.\n',size(s.vertices,1));
+fprintf(fid,'# Mesh resolution: %dx%d.\n',s.m,s.n);
 fprintf(fid,'# Number of faces: %d.\n',size(s.faces,1));
 
 if s.flags.comp_uv
@@ -199,9 +202,9 @@ for ii = 1:length(s.prm)
     case 'sine'
       if strcmp(s.shape,'plane')
         %- Convert frequencies back to cycles/plane
-        s.prm(ii).cprm(:,1) = s.prm(ii).cprm(:,1)/(pi);
+        s.prm(ii).cprm(:,1) = s.prm(ii).cprm(:,1)/(2*pi);
         if ~isempty(s.prm(ii).mprm)
-          s.prm(ii).mprm(:,1) = s.prm(ii).mprm(:,1)/(pi);
+          s.prm(ii).mprm(:,1) = s.prm(ii).mprm(:,1)/(2*pi);
         end         
       end
       writeSpecs(fid,s.prm(ii).cprm,s.prm(ii).mprm);
@@ -213,7 +216,7 @@ for ii = 1:length(s.prm)
       if strcmp(s.shape,'plane')
         %- Convert frequencies back to cycles/plane
         if ~isempty(s.prm(ii).mprm)
-          s.prm(ii).mprm(:,1) = s.prm(ii).mprm(:,1)/(pi);
+          s.prm(ii).mprm(:,1) = s.prm(ii).mprm(:,1)/(2*pi);
         end
       end
       writeSpecsNoisy(fid,s.prm(ii).nprm,s.prm(ii).mprm);

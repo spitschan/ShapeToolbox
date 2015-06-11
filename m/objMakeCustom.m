@@ -40,7 +40,7 @@ function model = objMakeCustom(shape,f,prm,varargin)
 % SPHERE: A unit sphere (radius 1), default mesh size 128x256.  Saved
 % to 'spherecustom.obj'.
 %
-% PLANE: A plane with a width and height of 2, lying on the x-y plane,
+% PLANE: A plane with a width and height of 1, lying on the x-y plane,
 % centered on the origin.  Default mesh size 256x256.  Obviously a
 % size of 2x2 would be enough; the larger size is used so that fine
 % modulations can later be added to the shape if needed.  Saved in
@@ -161,7 +161,16 @@ function model = objMakeCustom(shape,f,prm,varargin)
 %
 % CAPS
 % Boolean.  Set this to true to put "caps" at the end of cylinders, 
-% surfaces of revolution, and extrusions.  Default false.
+% surfaces of revolution, and extrusions.  Default false.  Example:
+%  objMakeSine('cylinder',[],'caps',true);
+%
+% WIDTH, HEIGHT
+% Scalars, width and height of the model.  Option 'width' can only be
+% used with shape 'plane' to set the plane width.  'height' can be
+% used with 'plane', 'cylinder', 'revolution', and 'extrusion'.
+% Examples:
+%  objMakeCustom('plane',...,'width',2,'height',0.5);
+%  objMakeCustom('cylinder',...,'height',1.35);
 %
 % MINDIST
 % Minimum distance between the locations at which the user-defined
@@ -202,6 +211,7 @@ function model = objMakeCustom(shape,f,prm,varargin)
 % 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
 %                   help
 % 2015-06-08 - ts - revolution and extrusion can be combined
+% 2015-06-10 - ts - help
 
 % TODO
 

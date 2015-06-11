@@ -20,7 +20,7 @@ function [f1,f2] = objFindFreqs(a,n)
   % By default, returns 11 suitable frequencies, ordered from low to
   % high.  You can change this with the optional input argument n:
   %        f = objFindFreqs(a,n)
-  % where n is an integer, which will return n+1 ferquencies (the
+  % where n is an integer, which will return n+1 frequencies (the
   % first one is always zero).
   %
   % See also: objFindAngles
@@ -28,16 +28,33 @@ function [f1,f2] = objFindFreqs(a,n)
 % Toni Saarela, 2014
 % 2014-10-10 - ts - first version
 % 2014-10-21 - ts - renamed, also computes frequencies for torus
+% 2015-06-10 - ts - input arg checking
 
-% TODO: How to set n here?
-% Define some default value (say, 10), but have an optional input
-% argument to give the desired number of frequencies?
+% TODO: 
+%
+% Handle +-90 multiples
+
+if ~isscalar(a)
+  error('Input must be a scalar.');
+end
+
+a = pi*a/180;
 
 if nargin<2 || isempty(n)
   n = 10;
 end
 
 n = [0:n]';
-f1 = n./cos(pi*a/180);
-f2 = n./sin(pi*a/180);
+
+if a==0
+  f1 = n;
+  f2 = [];
+elseif abs(a)==90
+  f1 = [];
+  f2 = n;
+else
+  f1 = abs(n./cos(a));
+  f2 = abs(n./sin(a));
+end
+
 

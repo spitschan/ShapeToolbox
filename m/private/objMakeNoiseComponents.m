@@ -1,4 +1,4 @@
-function Z = objMakeNoiseComponents(nprm,mprm,X,Y,use_rms)
+function Z = objMakeNoiseComponents(nprm,mprm,X,Y,use_rms,w,h)
 
 % OBJMAKENOISECOMPONENTS
 %
@@ -23,8 +23,15 @@ function Z = objMakeNoiseComponents(nprm,mprm,X,Y,use_rms)
 % 2015-05-31 - ts - minor change in noise filtering
 % 2015-06-03 - ts - envelopes that share a group index are multiplied,
 %                    not added
+% 2015-06-10 - ts - added width and height parameters
 
+if nargin<6 || isempty(w)
+  w = 1;
+end
 
+if nargin<6 || isempty(h)
+  h = 1;
+end
 
 f = nprm(:,1);
 fw = nprm(:,2);
@@ -61,7 +68,7 @@ if ~isempty(mprm)
        for ii = 1:length(cidx)
          %I = normrnd(0,1,[m n]);
          I = randn([m n]);
-         I = imgFilterBand(I,f(cidx(ii)),fw(cidx(ii)),th(cidx(ii)),thw(cidx(ii)));%,0,pi/2);
+         I = imgFilterBand(I,f(cidx(ii)),fw(cidx(ii)),th(cidx(ii)),thw(cidx(ii)),w,h);%,0,pi/2);
          if use_rms
            C = C + a(cidx(ii)) * I / sqrt(I(:)'*I(:)/(m*n));
          else
@@ -113,7 +120,7 @@ if ~isempty(mprm)
      for ii = 1:length(cidx)
        %I = normrnd(0,1,[m n]);
        I = randn([m n]);
-       I = imgFilterBand(I,f(cidx(ii)),fw(cidx(ii)),th(cidx(ii)),thw(cidx(ii)));%,0,pi/2);
+       I = imgFilterBand(I,f(cidx(ii)),fw(cidx(ii)),th(cidx(ii)),thw(cidx(ii)),w,h);%,0,pi/2);
        if use_rms
          C = C + a(cidx(ii)) * I / sqrt(I(:)'*I(:)/(m*n));
        else
@@ -150,7 +157,7 @@ else % there are no modulators
   for ii = 1:nncomp
     %I = normrnd(0,1,[m n]);
     I = randn([m n]);
-    I = imgFilterBand(I,f(ii),fw(ii),th(ii),thw(ii));%,0,pi/2);
+    I = imgFilterBand(I,f(ii),fw(ii),th(ii),thw(ii),w,h);%,0,pi/2);
     if use_rms
       C = C + a(ii) * I / sqrt(I(:)'*I(:)/(m*n));
     else
@@ -164,22 +171,23 @@ end % if modulators defined
 %-------------------------------------------------
 % Functions
 
-function If = imgFilterBand(I,f0,fw,th0,thw)
+function If = imgFilterBand(I,f0,fw,th0,thw,w,h)
 
 % IMGFILTERBAND
 %
-% Usage:  If = imgFilterBand(I,f0,fw,th0,thw)
+% Usage:  If = imgFilterBand(I,f0,fw,th0,thw,w,h)
 %
 
 % Toni Saarela, 2014
 % 2014-10-11 - ts - first version
+% 2015-06-10 - ts - added width, height
 
 F = fftshift(fft2(I));
 
 [m,n] = size(F);
 
-u = [-n:2:n-2]/n;
-v = [-m:2:m-2]/m;
+u = [-n:2:n-2]/(n*w);
+v = [-m:2:m-2]/(m*h);
 [U,V] = meshgrid(u,v);
 fnyquist = n / 2;
 f0 = f0 / fnyquist;

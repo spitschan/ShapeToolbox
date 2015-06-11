@@ -11,6 +11,7 @@ function model = objDefaultStruct(shape,reset)
 % 2015-05-31 - ts - added the 'reset'-option
 % 2015-06-03 - ts - new flag to indicate custom locations are set
 % 2015-06-05 - ts - flag to indicate "caps" on cylinders etc
+% 2015-06-10 - ts - set default radius, width, height here
 
 if nargin<2 || isempty(reset)
   reset = false;
@@ -21,12 +22,17 @@ if ~reset
     case 'sphere'
       model.m = 128;
       model.n = 256;
+      model.radius = 1;
     case 'plane'
       model.m = 256;
       model.n = 256;
+      model.width = 1;
+      model.height = 1;
     case {'cylinder','revolution','extrusion'}
       model.m = 256;
       model.n = 256;
+      model.radius = 1;
+      model.height = 2*pi*model.radius;
     case 'torus'
       model.m = 256;
       model.n = 256;

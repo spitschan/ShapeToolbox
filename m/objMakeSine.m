@@ -39,7 +39,7 @@ function model = objMakeSine(shape,cprm,varargin)
 % SPHERE: A unit sphere (radius 1), default mesh size 128x256.  Saved
 % to 'sphere.obj'.
 %
-% PLANE: A plane with a width and height of 2, lying on the x-y plane,
+% PLANE: A plane with a width and height of 1, lying on the x-y plane,
 % centered on the origin.  Default mesh size 256x256.  Obviously a
 % size of 2x2 would be enough; the larger size is used so that fine
 % modulations can later be added to the shape if needed.  Saved in
@@ -70,11 +70,11 @@ function model = objMakeSine(shape,cprm,varargin)
 % for spheres, cylinder, surfaces of revolution, and extrusions; to
 % the "tube" radius for tori; and to the z-component of planes.
 %
-% Unit of frequency is cycle/(2*pi) for the sphere, cylinder, torus,
-% surface of revolution, and extrusion shapes; and cycle/plane for the
-% plane shape.  Phase and angle/orientation are given in degrees.
-% Modulations are in sine phase (phase 0 is sine phase).  Angle 0 is
-% "vertical", parallel to the y-axis.
+% Frequency is radial (in cycle/(2*pi)) for the sphere, cylinder,
+% torus, surface of revolution, and extrusion shapes; and spatial
+% frequency for the plane shape.  Phase and angle/orientation are
+% given in degrees.  Modulations are in sine phase (phase 0 is sine
+% phase).  Angle 0 is "vertical", parallel to the y-axis.
 %
 % Several carriers are defined in rows of CPAR:
 %   CPAR = [FREQ1 AMPL1 PH1 ANGLE1 
@@ -180,8 +180,17 @@ function model = objMakeSine(shape,cprm,varargin)
 %
 % CAPS
 % Boolean.  Set this to true to put "caps" at the end of cylinders, 
-% surfaces of revolution, and extrusions.  Default false.
+% surfaces of revolution, and extrusions.  Default false.  Example:
+%  objMakeSine('cylinder',[],'caps',true);
 %
+% WIDTH, HEIGHT
+% Scalars, width and height of the model.  Option 'width' can only be
+% used with shape 'plane' to set the plane width.  'height' can be
+% used with 'plane', 'cylinder', 'revolution', and 'extrusion'.
+% Examples:
+%  objMakeSine('plane',[],'width',2,'height',0.5);
+%  objMakeSine('cylinder',[],'height',1.35);
+% 
 % RETURNS:
 % ========
 % A structure holding all the information about the model.  This
@@ -201,7 +210,9 @@ function model = objMakeSine(shape,cprm,varargin)
 % 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
 %                   updated help
 % 2015-06-08 - ts - revolution and extrusion can be combined
-
+% 2015-06-10 - ts - freq units for plane changed (again)--not in
+%                    cycle/object anymore
+%                   help
 %------------------------------------------------------------
 
 if ischar(shape)
@@ -258,7 +269,7 @@ end
 clear defprm
 
 if strcmp(model.shape,'plane')
-  cprm(:,1) = cprm(:,1)*pi;
+  cprm(:,1) = cprm(:,1)*2*pi;
 end
 cprm(:,3:4) = pi * cprm(:,3:4)/180;
 
@@ -279,7 +290,7 @@ if ~isempty(modpar)
     clear defprm
   end
   if strcmp(model.shape,'plane')
-    mprm(:,1) = mprm(:,1)*pi;
+    mprm(:,1) = mprm(:,1)*2*pi;
   end
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end

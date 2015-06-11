@@ -38,7 +38,7 @@ function model = objMakeNoise(shape,nprm,varargin)
 % SPHERE: A unit sphere (radius 1), default mesh size 128x256.  Saved
 % to 'spherenoisy.obj'.
 %
-% PLANE: A plane with a width and height of 2, lying on the x-y plane,
+% PLANE: A plane with a width and height of 1, lying on the x-y plane,
 % centered on the origin.  Default mesh size 256x256.  Obviously a
 % size of 2x2 would be enough; the larger size is used so that fine
 % modulations can later be added to the shape if needed.  Saved in
@@ -64,7 +64,8 @@ function model = objMakeNoise(shape,nprm,varargin)
 % Parameters for the filtered noise:
 %   NPAR = [FREQ FREQWDT OR ORWDT AMPL],
 % where
-%   FREQ    - middle frequency, in cycle/(2pi) or cycle/plane
+%   FREQ    - middle frequency, radial (cycle/(2pi)) or, 
+%             for plane, spatial frequency
 %   FREQWDT - full width at half height, in octaves
 %   OR      - orientation in degrees (0 is 'vertical')
 %   ORWDT   - orientation bandwidth (FWHH), in degrees
@@ -170,7 +171,16 @@ function model = objMakeNoise(shape,nprm,varargin)
 %
 % CAPS
 % Boolean.  Set this to true to put "caps" at the end of cylinders, 
-% surfaces of revolution, and extrusions.  Default false.
+% surfaces of revolution, and extrusions.  Default false.  Example:
+%  objMakeNoise('cylinder',[],'caps',true);
+%
+% WIDTH, HEIGHT
+% Scalars, width and height of the model.  Option 'width' can only be
+% used with shape 'plane' to set the plane width.  'height' can be
+% used with 'plane', 'cylinder', 'revolution', and 'extrusion'.
+% Examples:
+%  objMakeNoise('plane',[],'width',2,'height',0.5);
+%  objMakeNoise('cylinder',[],'height',1.35);
 %
 % RMS
 % Boolean.  If true, the amplitude parameter sets the root mean square
@@ -201,6 +211,10 @@ function model = objMakeNoise(shape,nprm,varargin)
 %                   removed the option to modulate torus major radius
 %                   (this can now only be done in objMakeSine)
 % 2015-06-08 - ts - revolution and extrusion can be combined
+% 2015-06-10 - ts - freq units for plane changed (again)--not in
+%                    cycle/object anymore; width and height given as
+%                    input to noise-making function
+%                   help 
 
 %------------------------------------------------------------
 
@@ -274,7 +288,7 @@ if ~isempty(modpar)
     clear defprm
   end
   if strcmp(model.shape,'plane')
-    mprm(:,1) = mprm(:,1)*pi;
+    mprm(:,1) = mprm(:,1)*2*pi;
   end
   mprm(:,3:4) = pi * mprm(:,3:4)/180;
 end
@@ -291,7 +305,7 @@ switch model.shape
     Theta = reshape(model.Theta,[model.n model.m])';
     Phi = reshape(model.Phi,[model.n model.m])';
     R = reshape(model.R,[model.n model.m])';
-    R = R + objMakeNoiseComponents(nprm,mprm,Theta,Phi,model.flags.use_rms);
+    R = R + objMakeNoiseComponents(nprm,mprm,Theta,Phi,model.flags.use_rms,1,1);
     
     % Reshape the radius matrix to a vector again
     R = R'; 
@@ -302,7 +316,7 @@ switch model.shape
     X = reshape(model.X,[model.n model.m])';
     Y = reshape(model.Y,[model.n model.m])';
     Z = reshape(model.Z,[model.n model.m])';
-    Z = Z + objMakeNoiseComponents(nprm,mprm,X,Y,model.flags.use_rms);
+    Z = Z + objMakeNoiseComponents(nprm,mprm,X,Y,model.flags.use_rms,model.width,model.height);
 
     % Reshape Z matrix to a vector again
     Z = Z'; 
@@ -315,7 +329,7 @@ switch model.shape
     Theta = reshape(model.Theta,[model.n model.m])';
     Y = reshape(model.Y,[model.n model.m])';
     R = reshape(model.R,[model.n model.m])';
-    R = R + objMakeNoiseComponents(nprm,mprm,Theta,Y,model.flags.use_rms);
+    R = R + objMakeNoiseComponents(nprm,mprm,Theta,Y,model.flags.use_rms,1,model.height/(2*pi*model.radius));
 
     R = R';
     model.R = R(:);
@@ -338,7 +352,7 @@ switch model.shape
       Phi = reshape(model.Phi,[model.n model.m])';
       r = reshape(model.r,[model.n model.m])';
 
-      r = r + objMakeNoiseComponents(nprm,mprm,Theta,Phi,model.flags.use_rms);
+      r = r + objMakeNoiseComponents(nprm,mprm,Theta,Phi,model.flags.use_rms,1,1);
 
       r = r';
       model.r = r(:);

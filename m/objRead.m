@@ -10,16 +10,18 @@ function model = objRead(fn)
 % The function returns a model structure that holds the vertex and
 % other data.  This model can be viewed with objShow.  objShow needs 
 % to know the size of the mesh, saved in the model structure in fields
-% m and n.  objRead assumes the mesh is square, in other words, that
-% m=n=sqrt(n_of_vertices).  If this is not the case, viewing with
-% objShow does not work.  If you know the size of the mesh, you can
-% set the values of m and n manually.
+% m and n.  The objMake*-functions in ShapeToolbox write the mesh
+% resolution to the comments of the obj-file.  objRead attempts to
+% read this.  Otherwise, objRead assumes the mesh is square, in other
+% words, that m=n=sqrt(n_of_vertices).  If this is not the case,
+% viewing with objShow does not work.  If you know the size of the
+% mesh, you can set the values of m and n in the structure manually.
 %
 % Note that this function is very limited.  It is not meant as a
 % general-purpose function for reading Wavefront obj files.  It only
 % reads the vertex, texture coordinate, normal, and face data from a
 % well-structured file.   It should work reasonably well for files
-% written by ShapeToolbox though
+% written by ShapeToolbox though.
 % 
 % Example:
 % model = objRead('my_funky_object.obj');
@@ -37,7 +39,11 @@ function model = objRead(fn)
 % 2015-06-04 - ts - first version
 % 2015-06-05 - ts - fixed a string quote bug
 % 2015-06-06 - ts - reads normals, uv, faces in addition to vertex data
+% 2015-06-10 - ts - read base shape and mesh resolution from obj comments
 
+model.shape = '';
+model.m = [];
+model.n = [];
 model.vertices = zeros(1e5,3);
 model.normals = zeros(1e5,3);
 model.uvcoords = zeros(1e5,2);
@@ -72,6 +78,17 @@ while ischar(s)
     val = sscanf(s,'f %d %d %d')';
     nf = nf + 1;
     model.faces(nf,:) = val;
+  elseif strncmp(s,'# Base shape',12)
+    tok = regexp(s,'^# Base shape: (\w+)\.','tokens');
+    if ~isempty(tok)
+      model.shape = tok{1}{1};
+    end
+  elseif strncmp(s,'# Mesh reso',11)
+    tok = regexp(s,'^# Mesh resolution: (\d+)x(\d+)\.','tokens');
+    if ~isempty(tok)
+      model.m = str2num(tok{1}{1});
+      model.n = str2num(tok{1}{2});
+    end
   end
   ii = ii + 1;
   s = fgetl(fp);
@@ -117,10 +134,16 @@ end
 % end
 % fclose(fp);
 
-model.m = int32(sqrt(nv));
-if model.m^2==nv
-  model.n = model.m;
-else
-  model.m = [];
-  model.n = [];
+if isempty(model.m)
+  model.m = int32(sqrt(nv));
+  if model.m^2==nv
+    model.n = model.m;
+    fprintf('Guessing the mesh is square.\n');
+    fprintf('Change the mesh resolution manually if needed\n');
+    fprintf('by setting the fields m and n in the model structure.\n');
+  else
+    model.m = [];
+    model.n = [];
+  end
 end
+

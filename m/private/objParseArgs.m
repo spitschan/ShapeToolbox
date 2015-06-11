@@ -18,6 +18,7 @@ function model = objParseArgs(model,par)
 % 2015-06-08 - ts - separate arguments for revolution and extrusion
 %                    profiles (rcurve and ecurve)
 % 2015-06-08 - ts - fixed a bug in objParseArgs in setting file name
+% 2015-06-10 - ts - added options to change width, height
 
 % Flag to indicate whether uv-coordinate computation was set to false
 % explicitly.  This is used so that the option 'uvcoords' can be used
@@ -157,6 +158,26 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''caps''.');
            end
+        case 'width'
+           if ~model.flags.new_model
+              error('You cannot change the option ''width'' in an existing model.');
+           end
+          if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii+1;
+             model.width = par{ii};
+          else
+             error('No value or a bad value given for option ''width''.');
+          end
+        case 'height'
+           if ~model.flags.new_model
+              error('You cannot change the option ''height'' in an existing model.');
+           end
+          if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii+1;
+             model.height = par{ii};
+          else
+             error('No value or a bad value given for option ''height''.');
+          end
         otherwise
           model.filename = par{ii};
       end
