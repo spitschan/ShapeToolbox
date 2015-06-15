@@ -49,7 +49,7 @@ function m1 = objBlend(m1,m2,varargin)
 %
 % % Make models:
 % m1 = objMakeNoise('sphere',[],'save',false);
-% m2 = objMakeBumpy('sphere',[],'save',false);
+% m2 = objMakeBump('sphere',[],'save',false);
 %
 % % Blend 50-50, save in 'sphere_050_050.obj':
 % objBlend(m1,m2)
