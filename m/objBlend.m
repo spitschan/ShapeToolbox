@@ -119,24 +119,24 @@ else
 end
 
 if isempty(filename)
-   filename = sprintf('%s_%03d_%03d.obj',m1.shape,100*w(1),100*w(2));
+   filename = sprintf('%s_%03d_%03d.obj',m1.shape,round(100*w(1)),round(100*w(2)));
 end
 
+shapes = {'cylinder','revolution','extrusion'};
 if ~strcmp(m1.shape,m2.shape)
-  error('Only objects with the same base shape can be blended.');
+  if ~(ismember(m1.shape,shapes) && ismember(m2.shape,shapes))
+    error('Incompatible shapes.');
+  end
 end
 
 switch m1.shape
   case 'sphere'
     m1.R = w(1)*m1.R + w(2)*m2.R;
-    [X,Y,Z] = sph2cart(m1.Theta,m1.Phi,m1.R);
-    % Switch z- and y-coordinates so that the reference plane is the
-    % x-z plane and y is "up", for consistency across all functions.
-    m1.vertices = [X Z -Y];
+    m1.vertices = objSph2XYZ(m1.Theta,m1.Phi,m1.R);
   case 'plane'
     m1.Z = w(1)*m1.Z + w(2)*m2.Z;
     m1.vertices = [m1.X m1.Y m1.Z];
-  case 'cylinder'
+  case {'cylinder','revolution','extrusion'}
     m1.R = w(1)*m1.R + w(2)*m2.R;
     X =  m1.R .* cos(m1.Theta);
     Z = -m1.R .* sin(m1.Theta);
@@ -144,19 +144,7 @@ switch m1.shape
   case 'torus'
     m1.R = w(1)*m1.R + w(2)*m2.R;
     m1.r = w(1)*m1.r + w(2)*m2.r;
-
-    X = (m1.R + m1.r .* cos(m1.Phi)).*cos(m1.Theta);
-    Y = (m1.R + m1.r .* cos(m1.Phi)).*sin(m1.Theta);
-    Z = m1.r .* sin(m1.Phi);
-
-    % Switch z- and y-coordinates so that the reference plane is the
-    % x-z plane and y is "up", for consistency across all functions.
-    m1.vertices = [X Z -Y];
-  case 'revolution'
-    m1.R = w(1)*m1.R + w(2)*m2.R;
-    X =  m1.R .* cos(m1.Theta);
-    Z = -m1.R .* sin(m1.Theta);
-    m1.vertices = [X m1.Y Z];
+    m1.vertices = objSph2XYZ(m1.Theta,m1.Phi,m1.r,m1.R);
   otherwise
     error('Unknown or unsupported shape.');
 end
