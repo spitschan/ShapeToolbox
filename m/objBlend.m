@@ -36,30 +36,38 @@ function m1 = objBlend(m1,m2,varargin)
 % 
 % FILENAME
 % A single string giving the name of the file in which to
-% save the model.  Example: objBlend(m1,m2,.5,'blended.obj',...)
+% save the model.  If a filename is set, the option 'save' (see below)
+% is set to true.  Example: 
+%   objBlend(m1,m2,.5,'blended.obj',...)
 %
 % SAVE
-% Boolean, toggle saving the model to a file.  Default is true, the
-% model is saved.  You might want to set this to false if you just
+% Boolean, toggle saving the model to a file.  Default is false, the
+% model is not saved.  You might want to keep this as false if you just
 % want to make the model structure and modify it with another
-% objMake*-function or with objBlend.  Example: 
-% m = objMake(...,'save',false,...)
+% objMake*-function or with objBlend.  Set to true to save the model
+% you want to keep.  Example: 
+%   m = objBlend(...,'save',false,...)
+% saves the model with the default filename.  The default filename is
+% the shape of the first model, followed by the weight for each model,
+% for example 'plane_080_020.obj' for a plane where the two weights
+% are 0.8 and 0.2.
+% 
 %
 % EXAMPLES:
 % =========
 %
 % % Make models:
-% m1 = objMakeNoise('sphere',[],'save',false);
-% m2 = objMakeBump('sphere',[],'save',false);
+% m1 = objMakeNoise('sphere',[]);
+% m2 = objMakeBump('sphere',[]);
 %
 % % Blend 50-50, save in 'sphere_050_050.obj':
-% objBlend(m1,m2)
+% objBlend(m1,m2,'save',true)
 %
 % % Save the same model in 'blob.obj':
 % objBlend(m1,m2,'blob.obj')
 %
 % % Weights 0.2 and 0.8, not saved:
-% m = objBlend(m1,m2,0.2,'save',false);
+% m = objBlend(m1,m2,0.2);
 %
 % % Weights again 0.2 and 0.8, save in 'blob.obj':
 % m = objBlend(m1,m2,[4 16],'blob.obj');
@@ -71,7 +79,8 @@ function m1 = objBlend(m1,m2,varargin)
 %                   wrote help, added options, saving of model
 % 2015-06-02 - ts - updated help; fixed a bug in setting default weights
 % 2015-06-16 - ts - added handling of extrusions.  cylinders,
-%                   revolutions, and extrusions can be blended
+%                   revolutions, and extrusions can be blended.
+%                   updated help
 
 % TODO:
 % - Better parsing of input arguments.
@@ -82,7 +91,7 @@ function m1 = objBlend(m1,m2,varargin)
 % - Vectors of weights are accepted as input but not really
 %   used---implement
 
-dosave = true;
+dosave = false;
 filename = '';
 [w,par] = parseparams(varargin);
 if ~isempty(par)
@@ -99,6 +108,7 @@ if ~isempty(par)
           end
         otherwise
           filename = par{ii};
+          dosave = true;
       end
     end
     ii = ii + 1;
