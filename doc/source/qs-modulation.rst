@@ -57,7 +57,7 @@ and another envelope modulating another carrier.  This way you can,
 for example, alternate between two carriers.  In the next example, we
 have a low-frequency and a high-frequency carrier that have the same
 angle.  They are modulated by two low-frequency envelopes that are 180
-degrees out-of-phase but otherwise identical.  They way to connect the
+degrees out-of-phase but otherwise identical.  The way to connect the
 carrier to the envelope is to use an additional parameter, the **group
 index**.  The format of the parameter vector is then::
   

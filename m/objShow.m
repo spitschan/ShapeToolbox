@@ -77,7 +77,7 @@ if isfield(obj,'shape')
   end
 end
 
-figure;
+%figure;
 switch lower(func)
   case 'surf'
     h = surf(X,Y,Z);
