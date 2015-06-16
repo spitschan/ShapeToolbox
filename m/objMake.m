@@ -2,19 +2,19 @@ function model = objMake(shape,varargin)
 
 % OBJMAKE
 %
-% Usage:          OBJMAKE(SHAPE) 
+% Usage:  MODEL = OBJMAKE(SHAPE) 
+%         MODEL = OBJMAKE(SHAPE,[OPTIONS])
 %                 OBJMAKE(SHAPE,[OPTIONS])
-%         MODEL = OBJMAKE(...)
 %
-% Produce a 3D model mesh object of a given shape and save it to a
-% file in Wavefront obj-format.  Optionally return a structure that
+% Produce a 3D model mesh object of a given shape and optionally save 
+% it to a file in Wavefront obj-format and/or return a structure that
 % holds the model information.
 % 
 % SHAPE:
 % ======
 %
 % One of 'sphere', 'plane', 'cylinder', 'torus', 'revolution', and
-% 'extrusion'.  Example: objMake('sphere')
+% 'extrusion'.  Example: m = objMake('sphere')
 %
 % The shapes use a coordinate system where the y-direction is "up" and
 % the x-z plane is the reference plane.
@@ -22,29 +22,31 @@ function model = objMake(shape,varargin)
 % Some notes and default values for the shapes (some can be changed
 % with the optional input arguments, see below):
 %
-% SPHERE: A unit sphere (radius 1), default mesh size 128x256.  Saved
-% to 'sphere.obj'.
+% SPHERE: A unit sphere (radius 1), default mesh size 128x256.
 %
 % PLANE: A plane with a width and height of 1, lying on the x-y plane,
 % centered on the origin.  Default mesh size 256x256.  Obviously a
 % size of 2x2 would be enough; the larger size is used so that fine
-% modulations can later be added to the shape if needed.  Saved in
-% 'plane.obj'.
+% modulations can later be added to the shape if needed.
 %
 % CYLINDER: A cylinder with radius 1 and height of 2*pi.  Default mesh
-% size 256x256.  Saved in 'cylinder.obj'.
+% size 256x256.
 %
 % TORUS: A torus with ring radius of 1 and tube radius of 0.4.
-% Default mesh size 256x256, saved in 'torus.obj'.
+% Default mesh size 256x256.
 %
 % REVOLUTION: A surface of revolution based on a user-defined profile,
 % height 2*pi.  See the option 'curve' below on how to define the
-% profile.  Default mesh size 256x256, saved in 'revolution.obj'.
+% profile.  Default mesh size 256x256.
 %
 % EXTRUSION: An extrusion based on a user-defined cross-sectional
 % profile, height 2*pi.  See option 'curve' below on how to define the
-% profile.  Default mesh size 256x256, saved in 'extrusion.obj'.
+% profile.  Default mesh size 256x256.
 %
+% NOTE: By default, the model IS NOT SAVED TO A FILE.  To save, you
+% have to set the option 'FILENAME' or 'SAVE' (see below).
+% 
+% 
 % OPTIONS:
 % ========
 %
@@ -52,8 +54,20 @@ function model = objMake(shape,varargin)
 % name-value pairs.  All possible options are listed below.
 %
 % FILENAME
-% A single string giving the name of the file in which to
-% save the model.  Example: objMake(...,'mymodel.obj',...)
+% A single string giving the name of the file in which to save the
+% model.  Setting the filename forces the option 'save' (see below) to
+% true. Example:
+%  objMake(...,'mymodel.obj',...)
+%
+% SAVE
+% Boolean, toggle saving the model to a file.  Default is false, the
+% model is not saved.  Setting the filename (see above) sets this
+% option to true.  If filename is not set and the option 'save' is
+% true, a default filename is used; the default filename is the name
+% of the base shape appended with .obj: 'sphere.obj', 'plane.obj',
+% 'torus.obj', 'cylinder.obj', 'revolution.obj', and 'extrusion.obj'.
+% Example:
+%  objMake('cylinder','save',true);
 %
 % NPOINTS
 % Resolution of the model mesh (number of vertices).  Given as a
@@ -79,13 +93,6 @@ function model = objMake(shape,varargin)
 % some rendering programs might compute the normals for you, making
 % it unnecessary to include them in the file.  Example:
 % objMake(...,'normals',true,...)
-%
-% SAVE
-% Boolean, toggle saving the model to a file.  Default is true, the
-% model is saved.  You might want to set this to false if you just
-% want to make the model structure and modify it with another
-% objMake*-function or with objBlend.  Example: 
-% m = objMake(...,'save',false,...)
 %
 % TUBE_RADIUS, MINOR_RADIUS
 % Sets the radius of the "tube" of a torus.  Default 0.4 (the radius
@@ -146,6 +153,7 @@ function model = objMake(shape,varargin)
 % 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
 % 2015-06-08 - ts - revolution and extrusion can be combined
 % 2015-06-10 - ts - help
+% 2015-06-16 - ts - removed setting of default file name
 
 %------------------------------------------------------------
 
@@ -162,7 +170,6 @@ if ischar(shape)
 %   error('Argument ''shape'' has to be a string or a model structure.');
 end
 clear shape
-model.filename = [model.shape,'.obj'];
 
 % Check and parse optional input arguments
 [tmp,par] = parseparams(varargin);

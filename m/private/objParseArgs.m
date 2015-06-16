@@ -19,6 +19,7 @@ function model = objParseArgs(model,par)
 %                    profiles (rcurve and ecurve)
 % 2015-06-08 - ts - fixed a bug in objParseArgs in setting file name
 % 2015-06-10 - ts - added options to change width, height
+% 2015-06-16 - ts - setting a filename sets dosave to true
 
 % Flag to indicate whether uv-coordinate computation was set to false
 % explicitly.  This is used so that the option 'uvcoords' can be used
@@ -29,6 +30,8 @@ function model = objParseArgs(model,par)
 % properties are set.  File size will be smaller with no
 % uv-coordinates.
 uv_explicit_false = false;
+
+save_explicit_false = false;
 
 if ~isempty(par)
   ii = 1;
@@ -91,6 +94,9 @@ if ~isempty(par)
            if ii<length(par) && isscalar(par{ii+1})
              ii = ii + 1;
              model.flags.dosave = par{ii};
+             if ~model.flags.dosave
+                save_explicit_false = true;
+             end
            else
              error('No value or a bad value given for option ''save''.');
            end
@@ -180,6 +186,7 @@ if ~isempty(par)
           end
         otherwise
           model.filename = par{ii};
+          model.flags.dosave = true;
       end
     else
       ;
@@ -192,6 +199,11 @@ end
 if uv_explicit_false
    model.flags.comp_uv = false;
 end
+
+if save_explicit_false
+  model.flags.dosave = false;
+end
+
 
 % Add file name extension if needed
 if isempty(regexp(model.filename,'\.obj$'))

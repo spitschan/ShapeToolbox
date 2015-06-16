@@ -186,6 +186,7 @@ function model = objMakeBump(shape,prm,varargin)
 %                   help
 % 2015-06-08 - ts - revolution and extrusion can be combined
 % 2015-06-10 - ts - help
+% 2015-06-16 - ts - removed setting of default file name
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
@@ -202,7 +203,6 @@ else
   error('Argument ''shape'' has to be a string or a model structure.');
 end
 clear shape
-model.filename = [model.shape,'bumpy.obj'];
 
 % Check and parse optional input arguments
 [modpar,par] = parseparams(varargin);

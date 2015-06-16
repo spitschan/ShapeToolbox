@@ -12,6 +12,8 @@ function model = objDefaultStruct(shape,reset)
 % 2015-06-03 - ts - new flag to indicate custom locations are set
 % 2015-06-05 - ts - flag to indicate "caps" on cylinders etc
 % 2015-06-10 - ts - set default radius, width, height here
+% 2015-06-16 - ts - changed default value for dosave to false
+%                   added setting default file name
 
 if nargin<2 || isempty(reset)
   reset = false;
@@ -43,6 +45,7 @@ if ~reset
       error('Unknown shape.');
   end
   model.shape = shape;
+  model.filename = [model.shape,'.obj'];
   model.flags.new_model = true;
   model.flags.caps = false;
 else
@@ -57,7 +60,7 @@ model.normals = [];
 model.opts.mindist = 0;
 model.opts.locations = {};
 
-model.flags.dosave = true;
+model.flags.dosave = false;
 model.flags.comp_uv = false;
 model.flags.comp_normals = false;
 model.flags.use_rms = false;

@@ -215,6 +215,7 @@ function model = objMakeNoise(shape,nprm,varargin)
 %                    cycle/object anymore; width and height given as
 %                    input to noise-making function
 %                   help 
+% 2015-06-16 - ts - removed setting of default file name
 
 %------------------------------------------------------------
 
@@ -228,7 +229,6 @@ else
   error('Argument ''shape'' has to be a string or a model structure.');
 end
 clear shape
-model.filename = [model.shape,'noisy.obj'];
 
 % Check and parse optional input arguments
 [modpar,par] = parseparams(varargin);

@@ -19,9 +19,10 @@ function m1 = objBlend(m1,m2,varargin)
 % If the weight is omitted, average the models (weights 0.5 and 0.5).
 % 
 % The input models (MODEL1 and MODEL2) are structures returned by the
-% objMake*-functions.  The models have to have the same base shape
-% (sphere, plane...) and their mesh sizes (number of vertices in each
-% direction) have to match.
+% objMake*-functions.  Models with the same base shape (sphere, plane,
+% torus...) can be blended.  Additionally, cylinders, surfaces of
+% revolution, and extrusions can be blended.  The mesh resolution of
+% the two models has to match.
 %
 % RETURNS:
 % ========
@@ -69,6 +70,8 @@ function m1 = objBlend(m1,m2,varargin)
 % 2015-05-14 - ts - devours tori, surfaces of revolution
 %                   wrote help, added options, saving of model
 % 2015-06-02 - ts - updated help; fixed a bug in setting default weights
+% 2015-06-16 - ts - added handling of extrusions.  cylinders,
+%                   revolutions, and extrusions can be blended
 
 % TODO:
 % - Better parsing of input arguments.

@@ -213,6 +213,8 @@ function model = objMakeSine(shape,cprm,varargin)
 % 2015-06-10 - ts - freq units for plane changed (again)--not in
 %                    cycle/object anymore
 %                   help
+% 2015-06-16 - ts - removed setting of default file name
+
 %------------------------------------------------------------
 
 if ischar(shape)
@@ -225,7 +227,6 @@ else
   error('Argument ''shape'' has to be a string or a model structure.');
 end
 clear shape
-model.filename = [model.shape,'.obj'];
 
 % Check and parse optional input arguments
 [modpar,par] = parseparams(varargin);
