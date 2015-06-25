@@ -12,16 +12,16 @@ Prerequisites
 Platform
 ========
 
-|toolbox| *should* run on GNU/Linux, Mac, and Windows.  It was
+|toolbox| should run on GNU/Linux, Mac, and Windows.  It was
 developed in GNU/Linux, and tested most extensively on GNU/Linux and
 Mac.  
 
 Octave or Matlab
 ================
 
-|toolbox| was mainly developed on Ubuntu Linux using Octave 3.8.1.
-Tested on XXXX.  It should work with any reasonably up-to-date version
-of Octave or Matlab, but no guarantees.
+|toolbox| was mainly developed on Ubuntu Linux using Octave 3.8.1 and
+Octave 4.0.0.  Tested on XXXX.  It should work with any reasonably
+up-to-date version of Octave or Matlab, but no guarantees.
 
 ================
 Getting the code
@@ -30,9 +30,10 @@ Getting the code
 Using Git
 =========
 
-If you have git installed, you can clone the repository and stay
-up-to-date with the latest version of the toolbox.  Go to the
-directory where you want to keep the files, and do::
+If you have `git <http://www.git-scm.com/>`_ installed, you can clone
+the repository and stay up-to-date with the latest version of the
+toolbox.  In the terminal or command line, go to the directory where
+you want to keep the files, and do::
   
   git clone https://github.com/saarela/ShapeToolbox.git
 
@@ -75,13 +76,13 @@ or Matlab.
 Structure of ShapeToolbox
 =========================
 
-Folder "m" has the code.  It has a sub-folder "private", which holds
+Folder ``ShapeToolbox/m`` has the code.  It has a sub-folder ``private``, which holds
 functions called by the main toolbox functions.
 
-Folder "doc" has the documentation.  The folder ``doc/build/html`` has
+Folder ``ShapeToolbox/doc`` has the documentation.  The folder ``doc/build/html`` has
 the html documentation.  Open the file ``doc/build/html/index.html``
 to view the manual.
 
-Folder "demos" has several subfolders with short demos illustrating
+Folder ``ShapeToolbox/demos`` has several subfolders with short demos illustrating
 the functionality of the toolbox.
 
