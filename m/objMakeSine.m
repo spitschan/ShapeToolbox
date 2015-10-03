@@ -52,11 +52,11 @@ function model = objMakeSine(shape,cprm,varargin)
 % Default mesh size 256x256, saved in 'torus.obj'.
 %
 % REVOLUTION: A surface of revolution based on a user-defined profile,
-% height 2*pi.  See the option 'curve' below on how to define the
+% height 2*pi.  See the option 'rcurve' below on how to define the
 % profile.  Default mesh size 256x256, saved in 'revolution.obj'.
 %
 % EXTRUSION: An extrusion based on a user-defined cross-sectional
-% profile, height 2*pi.  See option 'curve' below on how to define the
+% profile, height 2*pi.  See option 'ecurve' below on how to define the
 % profile.  Default mesh size 256x256, saved in 'extrusion.obj'.
 %
 % CPAR:
@@ -160,15 +160,20 @@ function model = objMakeSine(shape,cprm,varargin)
 % of the ring, or the distance from the origin to the center of the
 % tube is 1).  Example: objMakeSine(...,'tube_radius',0.2,...)
 %
-% CURVE
-% A vector giving the curve to use with shapes 'revolution' and
-% 'extrusion'.  When the shape is 'revolution', a surface of
-% revolution is produced by revolving the curve about the y-axis.
-% When the shape is 'extrusion', the curve gives the cross-sectional
-% profile of the object.  This profile is translated along the y-axis
-% to produce a 3D shape.  Example: 
+% RCURVE, ECURVE
+% A vector giving the curve to use with shapes 'revolution' ('rcurve')
+% and 'extrusion' ('ecurve').  When the shape is 'revolution', a
+% surface of revolution is produced by revolving the curve about the
+% y-axis.  When the shape is 'extrusion', the curve gives the
+% cross-sectional profile of the object.  This profile is translated
+% along the y-axis to produce a 3D shape.  Example: 
 %  profile = .1 + ((-64:63)/64).^2;
-%  objMakeSine('revolution',...,'curve',profile)
+%  objMakeSine('revolution',...,'rcurve',profile)
+%  objMakeSine('extrusion',...,'ecurve',profile)
+%
+% You can also combine the two curve types by giving both options.  In
+% this case, the 'rcurve' is revolved around the y-axis along a path
+% (or radial profile) defined by 'ecurve'.
 % 
 % RPAR
 % When the shape is 'torus', the parameters CPAR and MPAR define the
@@ -214,9 +219,36 @@ function model = objMakeSine(shape,cprm,varargin)
 %                    cycle/object anymore
 %                   help
 % 2015-06-16 - ts - removed setting of default file name
+% 2015-10-02 - ts - minor fixes to help (rcurve, ecurve params)
+%                   added option for batch processing
 
 %------------------------------------------------------------
 
+% For batch processing.  If there's only one input arg and it's a cell
+% array, it has all the parameters.
+if iscell(shape) && nargin==1
+  % If the only input argument is a cell array of cell arrays, recurse
+  % through the cells. Each cell holds parameters for one shape.
+  if all(cellfun('iscell',shape))
+    if length(shape)>1
+      objMakeSine(shape(1:end-1));
+    end
+    objMakeSine(shape{end});
+    return
+  end
+  % Otherwise, unpack the mandatory input arguments from the beginning
+  % of the array and assign the rest to varargin:
+  nargin = length(shape);
+  if nargin>2
+    varargin = shape(3:end);
+  end
+  if nargin>1
+    cprm = shape{2};
+  end
+  shape = shape{1};
+end
+
+% Set up the model structure
 if ischar(shape)
   shape = lower(shape);
   model = objDefaultStruct(shape);

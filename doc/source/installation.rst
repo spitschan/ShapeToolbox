@@ -67,6 +67,13 @@ For example, ::
   
   addpath('~/Documents/MATLAB/ShapeToolbox/m')
 
+on Unixy systems or ::
+
+  addpath('C:\MATLAB\ShapeToolbox\m')
+
+on Windozy ones.  Of course, edit the path above to where you actually
+have the files.
+
 That's it.  Add that command to your startup-file, either
 ``.octaverc`` (for Octave) or ``startup.m`` (for Matlab) to
 automatically add ShapeToolbox to the path every time you start Octave

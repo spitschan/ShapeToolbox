@@ -7,19 +7,20 @@
 |toolbox| manual
 ================
 
-**NOTE: This manual is a work in progress.  Currently only the
-Getting Started -section has any meaningful content.  More added as
-often as possible.**
+**NOTE: This manual is a work in progress.  Several sections are still
+to be written.  More content is added as often as possible.**
 
 |toolbox| is a collection of Octave/Matlab functions for generating 3D
 models of various shapes and saving them in the Wavefront .obj-file
 format.  The shapes available include spheres, planes, cylinders,
-tori, and surfaces or revolution of your choice.
+tori, as well as surfaces or revolution and extrusions based on
+user-defined shape profiles.
 
 These shapes can be further perturbed by different kinds of
 modulation: sinusoidal and filtered noise components allow for
-parametric modulation of the shapes.  Gaussian bumps of other
-user-defined surface perturbations can also be used.
+parametric modulation of the shapes.  Gaussian bumps or other, custom,
+user-defined surface perturbations can also be used to modulate the
+shape.
 
 The main purpose of |toolbox| is to provide a tool for producing
 controlled stimulus sets for experiments in visual perception and
