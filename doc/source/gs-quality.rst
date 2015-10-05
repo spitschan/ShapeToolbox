@@ -1,9 +1,17 @@
 
-.. _qs-normals:
+.. _gs-normals:
 
-======================================
-Improved rendering with vertex normals
-======================================
+=========================================================
+Improving rendering quality: mesh size and vertex normals
+=========================================================
+
+
+Mesh resolution
+===============
+
+TODO: Larger/finer mesh: better approximation of the surface.  Also larger
+files.  Finer mesh enables higher-frequency modulation, but don't use
+too large mash size as the file size increases accordingly.
 
 Vertex normals
 ==============
@@ -20,7 +28,7 @@ three-dimensional vector that points in the direction of the surface
 normal of the surface-to-be-approximated at that location.
 
 Turning the computation of normals on
-=====================================
+-------------------------------------
 
 |toolbox| has an option to compute the vertex normals.  By default
 the computation is off to facilitate quick testing (computing the
@@ -71,11 +79,11 @@ The top row shows the low-resolution models and the bottom row the
 high-resolution models.  The left-hand models are without vertex
 normals, the right-hand models are with vertex normals.
 
-.. image:: ../images/normals001.png
+.. image:: ../images/normals002.png
 
 
 How the vertex normals are computed
-===================================
+-----------------------------------
 
 The vertex normals are computed as a weighted average of the surface
 normals of all the faces the vertex belongs to.  Each weight is

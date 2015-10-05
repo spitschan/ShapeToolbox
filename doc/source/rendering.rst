@@ -1,9 +1,9 @@
 
 .. _rendering:
 
-*********
+=========
 Rendering
-*********
+=========
 
 Some tools for rendering images of the 3D shapes are listed below.
 Please note that |toolbox| does *not* include any rendering
@@ -12,7 +12,7 @@ can be useful for rendering the shapes, but they are not part of
 |toolbox|, and they are not the only ones available out there.
 
 
-=======
+
 Mitsuba
 =======
 
@@ -33,7 +33,7 @@ It is relatively easy to configure the rendering parameters in Mitsuba by editin
 Mitsuba allows for environment maps to illuminate the scenes, which creates a more realistic illumimation. `The Mitsuba project <http://www.mitsuba-renderer.org/download.html>`_ webpage has some examples with environment maps, and we also have some example scenes with environment maps (see e.g. demos/demo_sphere/sphere_env.xml). Unlike RADIANCE, Mitsuba requires the maps to be in longitude-latitude format ("unwrapped"). Such maps are available in high resolution and high dynamic range (for free!) from `Paul Debevec  <http://www.pauldebevec.com/Probes/>`_ and `Bernhard Vogel  <http://dativ.at/lightprobes/>`_. 
 
 Batch rendering in Mitsuba
-===============
+--------------------------
 
 Once you have .xml files for your shapes, you can render scenes in batches by using wildcars, assuming all of the scene files have the same prefix. E.g. if the prefix for all of your scenes is 'myObject', you can render all your scenes in one folder by saying::
 
@@ -42,7 +42,7 @@ Once you have .xml files for your shapes, you can render scenes in batches by us
 
 Since we are comfortable working within Octave/Matlab, there are example scripts in the ShapeToolbox/demos to batch render simple scenes in Mitsuba from within Matlab (TODO). The xml-files in the examples directory contain default parameters that can be modified as desired. The  m-file wrappers to the mitsuba command can also be modified to change paths to files, filename prefixes, etc.  
 
-========
+
 Radiance
 ========
 
@@ -54,13 +54,13 @@ TODO: an example on how to do the texture mapping in radiance
 (obj2mesh, colorpict...).
 
 
-==============
+
 RenderToolbox3
 ==============
 
 `RenderToolbox3 <http://rendertoolbox.org/>`_  is a set of free and open-source Matlab tools that facilitate 3D rendering with physically-based renderers.A particular focus is on easy manipulation of surface spectral reflectances, surface materials, and illuminant spectral power distributions. Setting up RenderToolbox for Mac is probably straightforward, but might be tricky for Linux (although there are instructions for CentOS Linux on the webpage). RenderTooolbox is not implemented on Windows. RenderToolbox is great for rendering scenes with parametric manipulation of surface reflectance and illumination. For simple scenes and demos it may be easier to start with Mitsuba or Blender, which are simple to get running.        
 
-=======
+
 Blender
 =======
 

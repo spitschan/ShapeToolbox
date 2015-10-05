@@ -56,7 +56,7 @@ Explanation, function handles, blah blah.
 A bumpy sphere
 ^^^^^^^^^^^^^^
 
-First, give an example how one might mimick :ref:`ref-objmakespherebumpy` using
+First, give an example how one might mimick :ref:`ref-objmakebump` using
 the custom function.  Define the bump function in-line.
 
 Define the function::

@@ -1,5 +1,5 @@
 
-.. _blending:
+.. _gs-blending:
 
 ======================================
 Blending (morphing between) two models

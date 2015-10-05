@@ -1,11 +1,11 @@
 
-.. _qs-modulation:
+.. _gs-modulation:
 
 =========================
 Modulating the modulation
 =========================
 
-.. _qs-modulation-carrenv:
+.. _gs-modulation-carrenv:
 
 Carriers and envelopes
 ======================
@@ -19,7 +19,7 @@ The envelope multiplies the carrier amplitude as illustrated below:
 .. image:: ../images/modsphere001profile.png
 
 The envelope (or "modulator") parameters are given as the second input
-argument to :ref:`ref-objmakesphere`.  The format of the parameter
+argument to :ref:`ref-objmakesine`.  The format of the parameter
 vector is the same as that for the carrier components.  The example
 below has a single carrier component and a single envelope, or
 modulator, with the same parameters the illustration above uses::
@@ -35,7 +35,7 @@ carrier amplitude goes to zero.  If the envelope amplitude is lower
 than one, the range of envelope values is decreased (a trough will be
 higher than zero, peak will be lower than one).  An envelope amplitude
 of 0 leads to a uniform envelope with a constant value of 0.5.  See
-more below in :ref:`qs-modulation-amplitude`.
+more below in :ref:`tut-modulation-amplitude`.
 
 The carrier and the envelope do not need to have the same orientation.
 In the earlier examples, when using vertical carriers, the ridges in
@@ -47,7 +47,7 @@ these out, we could add a low-frequency, orthogonal envelope::
 
 .. image:: ../images/modsphere002.png
 
-.. _qs-modulation-groupid:
+.. _tut-modulation-groupid:
 
 Bundling carriers and envelopes: Group indices
 ==============================================
@@ -125,7 +125,7 @@ first before being multiplied by the envelope.  If there is more than
 one envelope in a group, they are multiplied before they multiply the
 carriers.
 
-.. _qs-modulation-amplitude:
+.. _tut-modulation-amplitude:
 
 
 Carrier and envelope amplitude

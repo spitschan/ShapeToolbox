@@ -1,7 +1,14 @@
 
-.. _qs-series:
+.. _gs-batch:
 
-==========================
+==============================================
+Making a series of shapes --- batch processing
+==============================================
+
+
+.. _gs-series:
+
+
 Making a series of stimuli
 ==========================
 
@@ -9,7 +16,7 @@ One of the purposes of |toolbox| is to provide a tool for making
 sets of stimuli with parametric variations in shape.  This section
 illustrates the creation of some example series.  This section does
 not introduce any new functionality of the toolbox, it's just calling
-the now-familiar function :ref:`ref-objmakesphere` inside a simple
+the now-familiar function :ref:`ref-objmakesine` inside a simple
 Octave/Matlab loop.
 
 The first example has a single component.  The frequency is varied
@@ -97,3 +104,15 @@ And the series of objects rendered:
 Note that these are only examples of making and saving a series of
 stimuli.  The particular stimuli produced are not necessarily
 interesting or informative to use in a vision experiment.
+
+
+
+Batch option in objMake*-functions
+==================================
+
+
+
+
+objMakeBatch-function
+=====================
+

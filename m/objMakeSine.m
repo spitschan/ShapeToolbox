@@ -180,8 +180,9 @@ function model = objMakeSine(shape,cprm,varargin)
 % modulation of the radius of the 'tube' of the torus (the minor
 % radius).  The optional parameter vector RPAR defines the modulation
 % for the major radius; the distance from the center of the tube to
-% the center of the torus.  Example:
-%  objMakeSine('torus',[0 0 0 0],'rpar',[4 .1 0 0])
+% the center of the torus.  The parameter vector is [freq amplitude phase]. 
+% Example:
+%  objMakeSine('torus',[0 0 0 0],'rpar',[4 .1 0])
 %
 % CAPS
 % Boolean.  Set this to true to put "caps" at the end of cylinders, 

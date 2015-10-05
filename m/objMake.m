@@ -73,7 +73,8 @@ function model = objMake(shape,varargin)
 % Resolution of the model mesh (number of vertices).  Given as a
 % two-vector for the number of vertices in the "vertical" (elevation
 % or y, depending on the shape) and "horizontal" (azimuth or x)
-% directions.  Example: objMake(...,'npoints',[64 64],...)
+% directions.  Example: 
+%  objMake(...,'npoints',[64 64],...)
 % 
 % MATERIAL
 % Name of the material library (.mtl) file and the name of the
@@ -81,23 +82,25 @@ function model = objMake(shape,varargin)
 % elements of the cell array are two strings, the first one for the
 % material library file and the second for the material name.  This
 % option forces the option uvcoords (see below) to true.  Example:
-% objMake(...,'material',{'matfile.mtl','mymaterial'},...)
+%  objMake(...,'material',{'matfile.mtl','mymaterial'},...)
 %
 % UVCOORDS
 % Boolean, toggles the computation of texture (uv) coordinates
-% (default is false).  Example: objMake(...,'uvcoords',true,...)
+% (default is false).  Example: 
+%  objMake(...,'uvcoords',true,...)
 %
 % NORMALS
 % Boolean, toggle the computation of vertex normals (default false).
 % Turning this on improves the quality of rendering, but note that
 % some rendering programs might compute the normals for you, making
 % it unnecessary to include them in the file.  Example:
-% objMake(...,'normals',true,...)
+%  objMake(...,'normals',true,...)
 %
 % TUBE_RADIUS, MINOR_RADIUS
 % Sets the radius of the "tube" of a torus.  Default 0.4 (the radius
 % of the ring, or the distance from the origin to the center of the
-% tube is 1).  Example: objMake(...,'tube_radius',0.2,...)
+% tube is 1).  Example: 
+%  objMake(...,'tube_radius',0.2,...)
 %
 % RCURVE, ECURVE
 % A vector giving the curve to use with shapes 'revolution' ('rcurve')
@@ -136,6 +139,23 @@ function model = objMake(shape,varargin)
 % objMake, so unless the option 'save' is set to false, it is not
 % necessary to save the model manually).
 % 
+% BATCH PROCESSING:
+% =================
+% For creating several objects with a single function call, there is
+% an option to provide all input arguments to objMake as a single cell
+% array.  For example, the following two calls are equivalent:
+%  objMake('cylinder','npoints',[64 64],'uvcoords',true,'cyl1.obj')
+%  objMake({'cylinder','npoints',[64 64],'uvcoords',true,'cyl1.obj'})
+% 
+% To create several objects with one call, define several sets of
+% parameters in the cells of the only input argument.  In this case,
+% then, the only input argument is a cell array of cell arrays:
+%  prm = {
+%         {'cylinder','npoints',[64 64],'uvcoords',true,'cyl1.obj'},
+%         {'plane','npoints',[64 64],'uvcoords',true,'pla1.obj'}
+%        };
+%  objMake(prm);
+% 
 % NOTE:
 % =====
 % Note that this function does not do anything that the any other
@@ -156,6 +176,7 @@ function model = objMake(shape,varargin)
 % 2015-06-16 - ts - removed setting of default file name
 % 2015-10-02 - ts - minor fixes to help (rcurve, ecurve params)
 %                   added option for batch processing
+% 2015-10-04 - ts - updated documentation
 
 %------------------------------------------------------------
 

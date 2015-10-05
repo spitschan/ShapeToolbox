@@ -1,5 +1,5 @@
 
-.. _qs-viewing:
+.. _gs-viewing:
 
 ===========================
 A note on viewing 3D-models

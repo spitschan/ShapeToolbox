@@ -10,8 +10,8 @@ defines a set of points (*vertices*) in three dimensions, and a set of
 surface to be modeled.  More information about vertex normals (the
 normal vector of the surface-to-be-approximated at that point) and
 texture coordinates can be defined to improve the rendering of the
-model.  The model is often saved in a text file.  This first step is
-the one |toolbox| can be used for.
+model.  The model is often saved in a text file.  **This first step is
+the one ShapeToolbox can be used for.**
 
 The next step is to define material properties for the model.  These
 are usually defined in a separate file.  Material properties include

@@ -5,7 +5,7 @@ function model = objRead(fn)
 % Usage: MODEL = OBJREAD(FILENAME)
 %
 % Try to read vertex, vertex normal, texture coordinate, and face data
-% from the Wavefront obj file FILENAME.
+% from the Wavefront obj file FILENAME.  Emphasis on the work 'try'.
 %
 % The function returns a model structure that holds the vertex and
 % other data.  This model can be viewed with objShow.  objShow needs 
@@ -24,22 +24,25 @@ function model = objRead(fn)
 % written by ShapeToolbox though.
 % 
 % Example:
-% model = objRead('my_funky_object.obj');
-% objShow(model);
+%  model = objRead('my_funky_object.obj');
+%  objShow(model);
 %
 % % Note that in the above example you could also just do:
-% objShow('my_funky_object.obj')
+%  objShow('my_funky_object.obj')
+% % because objShow calls objRead if necessary.
 %
-% model = objRead('my_funky_object.obj');
-% model.m = 50;
-% model.n = 40;
-% objShow(model);
+% Manually set the mesh size for a non-square mesh:
+%  model = objRead('my_funky_object.obj');
+%  model.m = 50;
+%  model.n = 40;
+%  objShow(model);
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-06-04 - ts - first version
 % 2015-06-05 - ts - fixed a string quote bug
 % 2015-06-06 - ts - reads normals, uv, faces in addition to vertex data
 % 2015-06-10 - ts - read base shape and mesh resolution from obj comments
+% 2015-10-04 - ts - updated help
 
 model.shape = '';
 model.m = [];
