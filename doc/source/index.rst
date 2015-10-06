@@ -41,11 +41,11 @@ at the :ref:`gallery`.
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    
    installation
    gettinghelp
-   models
+   overview
    gettingstarted
    tutorials
    object_types

@@ -1,5 +1,8 @@
 
-===================================
+=====================
+Overview of |toolbox|
+=====================
+
 3D models, materials, and rendering
 ===================================
 
@@ -25,3 +28,14 @@ with the object to produce an image.  Examples of rendering programs
 are Mitsuba and Radiance, and |toolbox| manual contains some examples
 of their use.  Other rendering engines, of course, exist.
 
+What |toolbox| does
+===================
+
+\...and by corollary, what it does not.
+
+TODO.
+
+Workflow
+========
+
+TODO.
