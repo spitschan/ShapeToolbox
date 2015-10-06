@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>3D models, materials, and rendering &mdash; ShapeToolbox 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
+    <link rel="next" title="Getting started with ShapeToolbox" href="gettingstarted.html" />
+    <link rel="prev" title="Getting help" href="gettinghelp.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="gettingstarted.html" title="Getting started with ShapeToolbox"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gettinghelp.html" title="Getting help"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="d-models-materials-and-rendering">
+<h1>3D models, materials, and rendering<a class="headerlink" href="#d-models-materials-and-rendering" title="Permalink to this headline">¶</a></h1>
+<p>There are many steps in producing a computer-rendered image of a 3D
+model.  The first step is to create the model.  The simplest model
+defines a set of points (<em>vertices</em>) in three dimensions, and a set of
+<em>faces</em>, or groups of vertices.  Together the faces approximate the
+surface to be modeled.  More information about vertex normals (the
+normal vector of the surface-to-be-approximated at that point) and
+texture coordinates can be defined to improve the rendering of the
+model.  The model is often saved in a text file.  <strong>This first step is
+the one ShapeToolbox can be used for.</strong></p>
+<p>The next step is to define material properties for the model.  These
+are usually defined in a separate file.  Material properties include
+surface color, the way the surface reflects light, transparency, and
+texture.  The appearance of a given model can be completely altered
+by changing the material properties.</p>
+<p>Finally, rendering.  Rendering is the process of taking a model object
+and its material definitions and modeling the interaction of light
+with the object to produce an image.  Examples of rendering programs
+are Mitsuba and Radiance, and ShapeToolbox manual contains some examples
+of their use.  Other rendering engines, of course, exist.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gettinghelp.html"
+                        title="previous chapter">Getting help</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gettingstarted.html"
+                        title="next chapter">Getting started with ShapeToolbox</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/models.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="gettingstarted.html" title="Getting started with ShapeToolbox"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gettinghelp.html" title="Getting help"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Toni P. Saarela.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

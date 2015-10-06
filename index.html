@@ -1,8 +1,144 @@
-<html>
-<head>
-<title>Test</title>
-</head>
-<body>
-Test gh-pages branch.
-</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ShapeToolbox manual &mdash; ShapeToolbox 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ShapeToolbox 0.1 documentation" href="#" />
+    <link rel="next" title="Installation" href="installation.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">ShapeToolbox 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="toolbox-manual">
+<h1>ShapeToolbox manual<a class="headerlink" href="#toolbox-manual" title="Permalink to this headline">¶</a></h1>
+<p><strong>NOTE: This manual is a work in progress.  Several sections are still
+to be written.  More content is added as often as possible.</strong></p>
+<p>ShapeToolbox is a collection of Octave/Matlab functions for generating 3D
+models of various shapes and saving them in the Wavefront .obj-file
+format.  The shapes available include spheres, planes, cylinders,
+tori, as well as surfaces or revolution and extrusions based on
+user-defined shape profiles.</p>
+<p>These shapes can be further perturbed by different kinds of
+modulation: sinusoidal and filtered noise components allow for
+parametric modulation of the shapes.  Gaussian bumps or other, custom,
+user-defined surface perturbations can also be used to modulate the
+shape.</p>
+<p>The main purpose of ShapeToolbox is to provide a tool for producing
+controlled stimulus sets for experiments in visual perception and
+cognition.  The target audience is thus psychophysisists,
+neuroscientists, and experimental psychologists; but anyone who might
+find the tools useful is welcome to use and build on them.</p>
+<p>The range of base shapes is limited to a handful of simple shapes, but
+the options for modulation can result in very complex shapes.
+However, ShapeToolbox is <em>not</em> a general-purpose 3D-modeling software with
+which you can create arbitrary or real-world stimuli such as houses
+and faces.  Nor is it a rendering tool: after creating the models with
+ShapeToolbox, you have to render them using some other program to create images.</p>
+<p>For examples of the shapes you can produce with ShapeToolbox, have a look
+at the <a class="reference internal" href="gallery.html#gallery"><span>Gallery</span></a>.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gettinghelp.html">Getting help</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview of ShapeToolbox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started with ShapeToolbox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object_types.html">Object types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helperfuncs.html">Helper functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rendering.html">Rendering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gallery.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Next topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="next chapter">Installation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">ShapeToolbox 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Toni P. Saarela.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
 </html>

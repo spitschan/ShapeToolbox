@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Modulating the modulation &mdash; ShapeToolbox 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
+    <link rel="up" title="Getting started with ShapeToolbox" href="gettingstarted.html" />
+    <link rel="next" title="Modulation types" href="gs-modulationtypes.html" />
+    <link rel="prev" title="A modulated sphere" href="gs-sphere.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="gs-modulationtypes.html" title="Modulation types"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gs-sphere.html" title="A modulated sphere"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gettingstarted.html" accesskey="U">Getting started with ShapeToolbox</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="modulating-the-modulation">
+<span id="gs-modulation"></span><h1>Modulating the modulation<a class="headerlink" href="#modulating-the-modulation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="carriers-and-envelopes">
+<span id="gs-modulation-carrenv"></span><h2>Carriers and envelopes<a class="headerlink" href="#carriers-and-envelopes" title="Permalink to this headline">¶</a></h2>
+<p>In the examples so far, the modulation had a constant amplitude
+everywhere.  It is possible to produce more complex or varied
+modulations by using separate carrier waves and envelopes.  In the
+examples so far, we have been using only the &#8220;carrier&#8221; components.
+The envelope multiplies the carrier amplitude as illustrated below:</p>
+<img alt="_images/modsphere001profile.png" src="_images/modsphere001profile.png" />
+<p>The envelope (or &#8220;modulator&#8221;) parameters are given as the second input
+argument to <a class="reference internal" href="ref-objmakesine.html#ref-objmakesine"><span>objMakeSine</span></a>.  The format of the parameter
+vector is the same as that for the carrier components.  The example
+below has a single carrier component and a single envelope, or
+modulator, with the same parameters the illustration above uses:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">16</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],[</span><span class="mi">4</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">]);</span>
+</pre></div>
+</div>
+<img alt="_images/modsphere001.png" src="_images/modsphere001.png" />
+<p>If the envelope amplitude is 1, the envelope values range from 0 to 1.
+At the peak of the envelope, the carrier thus has the peak amplitude
+defined by its own amplitude parameter.  At the trough of the envelope, the
+carrier amplitude goes to zero.  If the envelope amplitude is lower
+than one, the range of envelope values is decreased (a trough will be
+higher than zero, peak will be lower than one).  An envelope amplitude
+of 0 leads to a uniform envelope with a constant value of 0.5.  See
+more below in <a class="reference internal" href="#tut-modulation-amplitude"><span>Carrier and envelope amplitude</span></a>.</p>
+<p>The carrier and the envelope do not need to have the same orientation.
+In the earlier examples, when using vertical carriers, the ridges in
+the sphere object become very sharp near the poles of the sphere (as
+this is where the meridians, or lines of longitude, meet).  To smooth
+these out, we could add a low-frequency, orthogonal envelope:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">12</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],[</span><span class="mi">2</span> <span class="mi">1</span> <span class="mi">90</span> <span class="mi">90</span><span class="p">]);</span>
+</pre></div>
+</div>
+<img alt="_images/modsphere002.png" src="_images/modsphere002.png" />
+</div>
+<div class="section" id="bundling-carriers-and-envelopes-group-indices">
+<span id="tut-modulation-groupid"></span><h2>Bundling carriers and envelopes: Group indices<a class="headerlink" href="#bundling-carriers-and-envelopes-group-indices" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes you might want to have one envelope modulating one carrier
+and another envelope modulating another carrier.  This way you can,
+for example, alternate between two carriers.  In the next example, we
+have a low-frequency and a high-frequency carrier that have the same
+angle.  They are modulated by two low-frequency envelopes that are 180
+degrees out-of-phase but otherwise identical.  The way to connect the
+carrier to the envelope is to use an additional parameter, the <strong>group
+index</strong>.  The format of the parameter vector is then:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">prm</span> <span class="p">=</span> <span class="p">[</span><span class="n">frequency</span> <span class="n">amplitude</span> <span class="n">phase</span> <span class="nb">angle</span> <span class="n">groupid</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This example sets group indices 1 and 2 for the first and second
+component.</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">prm_carr</span> <span class="p">=</span> <span class="p">[</span> <span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span>
+            <span class="mi">24</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">2</span><span class="p">];</span>
+
+<span class="n">prm_env</span>  <span class="p">=</span> <span class="p">[</span><span class="mi">4</span> <span class="mi">1</span>   <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span>
+            <span class="mi">4</span> <span class="mi">1</span> <span class="mi">180</span> <span class="mi">0</span> <span class="mi">2</span><span class="p">];</span>
+
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="n">prm_carr</span><span class="p">,</span><span class="n">prm_env</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Below is the rendered object.  The schematic on the right shows the
+profile of the modulations and illustrates the multiplication and
+addition of the carriers and envelopes within the groups.</p>
+<img alt="_images/modsphere005.png" src="_images/modsphere005.png" />
+<a class="reference internal image-reference" href="_images/modsphere005profile.png"><img alt="_images/modsphere005profile.png" src="_images/modsphere005profile.png" style="width: 600px;" /></a>
+<p>In the next example, we have two high-frequency carriers that have
+opposite angle but that are otherwise identical:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">prm_carr</span> <span class="p">=</span> <span class="p">[</span><span class="mi">20</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span>  <span class="mi">60</span> <span class="mi">1</span>
+            <span class="mi">20</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="o">-</span><span class="mi">60</span> <span class="mi">2</span><span class="p">];</span>
+
+<span class="n">prm_env</span>  <span class="p">=</span> <span class="p">[</span><span class="mi">4</span> <span class="mi">1</span>   <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span>
+            <span class="mi">4</span> <span class="mi">1</span> <span class="mi">180</span> <span class="mi">0</span> <span class="mi">2</span><span class="p">];</span>
+
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="n">prm_carr</span><span class="p">,</span><span class="n">prm_env</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="_images/modsphere003.png" src="_images/modsphere003.png" />
+<p>Group index 0 is special: A <strong>carrier</strong> that has a group index of 0 is
+added to the other components as is, before being multiplied by any
+envelope.  These other components might be either single carriers or
+carriers already multiplied with an envelope (with a non-zero group
+index).  An <strong>envelope</strong> that has a group index 0 multiplies <strong>all</strong>
+the other components after they have been added together.  This is
+used in the following example, which is a modification of the one
+above.  We define the modulated carrier components as above, but we
+add an orthogonal modulator to get rid of the high-frequency ridges at
+the poles.  We give this third envelope a group index of 0 so that it
+multiplies <strong>all the other components after they have been added
+together</strong>.  Zero is also the default group index if none is
+defined.</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">prm_carr</span> <span class="p">=</span> <span class="p">[</span><span class="mi">20</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span>  <span class="mi">60</span> <span class="mi">1</span>
+            <span class="mi">20</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="o">-</span><span class="mi">60</span> <span class="mi">2</span><span class="p">];</span>
+
+<span class="n">prm_env</span>  <span class="p">=</span> <span class="p">[</span><span class="mi">4</span> <span class="mi">1</span>   <span class="mi">0</span>  <span class="mi">0</span> <span class="mi">1</span>
+            <span class="mi">4</span> <span class="mi">1</span> <span class="mi">180</span>  <span class="mi">0</span> <span class="mi">2</span>
+            <span class="mi">2</span> <span class="mi">1</span>  <span class="mi">90</span> <span class="mi">90</span> <span class="mi">0</span><span class="p">];</span>
+
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="n">prm_carr</span><span class="p">,</span><span class="n">prm_env</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="_images/modsphere004.png" src="_images/modsphere004.png" />
+<p>If there is more than one carrier in a group, they are added together
+first before being multiplied by the envelope.  If there is more than
+one envelope in a group, they are multiplied before they multiply the
+carriers.</p>
+</div>
+<div class="section" id="carrier-and-envelope-amplitude">
+<span id="tut-modulation-amplitude"></span><h2>Carrier and envelope amplitude<a class="headerlink" href="#carrier-and-envelope-amplitude" title="Permalink to this headline">¶</a></h2>
+<p>In this example, we&#8217;ll ignore the orientation of the carriers and
+envelopes and work with a simple one-dimensional example to illustrate
+how the carriers and envelopes are combined.  The profile of the
+carrier wave, as a function of the angle <img class="math" src="_images/math/a9cfbeb8ebee1f365919e147a79e242dcb67ee5d.png" alt="\theta"/>, is:</p>
+<div class="math">
+<p><img src="_images/math/e3e856991df921fed282cdda6a24dbd10230058e.png" alt="c(\theta) = a_{\mathrm{carr}}\sin(\omega_{\mathrm{carr}}\theta+\phi_{\mathrm{carr}})"/></p>
+</div><p>where <img class="math" src="_images/math/7dd2a5ea01fbd72ad2a58dd1f3d6ecbfde6208a1.png" alt="a"/>, <img class="math" src="_images/math/c7415c6919c2eb17b1ea36f0243079b59825ee89.png" alt="\omega"/>, and <img class="math" src="_images/math/10e009bdb83f96c5f47c58b34d5d4b12ef268d5b.png" alt="\phi"/> are the amplitude,
+frequency, and phase.  The values of the carrier range from
+<img class="math" src="_images/math/f5d3060b08362da47c4b4fbdb44ce066c7e08370.png" alt="-a_{\mathrm{carr}}"/> to <img class="math" src="_images/math/6bc4761a67b30ea399ec2bb70360620adab3a7bf.png" alt="a_{\mathrm{carr}}"/>.</p>
+<p>Next the envelope, or modulator:</p>
+<div class="math">
+<p><img src="_images/math/0d6ce0ca487fee31bc0b19cd97c1f444be45d4c2.png" alt="m(\theta) = 0.5(1+a_{\mathrm{env}}\sin(\omega_{\mathrm{env}}\theta+\phi_{\mathrm{env}}))"/></p>
+</div><p>The values of the envelope are positive.  With an amplitude of 1, the
+values range from 0 to 1, with an amplitude of 0.5, the values range
+from 0.25 to 0.75, and so on.</p>
+<p>Finally, the radius of the sphere, as a function of the angle, is:</p>
+<div class="math">
+<p><img src="_images/math/f910ddbf7ed43281f46fef09a910836597188238.png" alt="r(\theta) = 1 + m(\theta)c(\theta)"/></p>
+</div><p>That is, without any components to modulate the radius (or with a
+carrier amplitude of 0), the radius is one.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Modulating the modulation</a><ul>
+<li><a class="reference internal" href="#carriers-and-envelopes">Carriers and envelopes</a></li>
+<li><a class="reference internal" href="#bundling-carriers-and-envelopes-group-indices">Bundling carriers and envelopes: Group indices</a></li>
+<li><a class="reference internal" href="#carrier-and-envelope-amplitude">Carrier and envelope amplitude</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gs-sphere.html"
+                        title="previous chapter">A modulated sphere</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gs-modulationtypes.html"
+                        title="next chapter">Modulation types</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gs-modulation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="gs-modulationtypes.html" title="Modulation types"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gs-sphere.html" title="A modulated sphere"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gettingstarted.html" >Getting started with ShapeToolbox</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Toni P. Saarela.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

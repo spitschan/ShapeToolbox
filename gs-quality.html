@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Improving rendering quality: mesh size and vertex normals &mdash; ShapeToolbox 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
+    <link rel="up" title="Getting started with ShapeToolbox" href="gettingstarted.html" />
+    <link rel="next" title="Setting material and texture properties" href="gs-material-texture.html" />
+    <link rel="prev" title="Modulation types" href="gs-modulationtypes.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="gs-material-texture.html" title="Setting material and texture properties"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gs-modulationtypes.html" title="Modulation types"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gettingstarted.html" accesskey="U">Getting started with ShapeToolbox</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="improving-rendering-quality-mesh-size-and-vertex-normals">
+<span id="gs-normals"></span><h1>Improving rendering quality: mesh size and vertex normals<a class="headerlink" href="#improving-rendering-quality-mesh-size-and-vertex-normals" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="mesh-resolution">
+<h2>Mesh resolution<a class="headerlink" href="#mesh-resolution" title="Permalink to this headline">¶</a></h2>
+<p>TODO: Larger/finer mesh: better approximation of the surface.  Also larger
+files.  Finer mesh enables higher-frequency modulation, but don&#8217;t use
+too large mash size as the file size increases accordingly.</p>
+</div>
+<div class="section" id="vertex-normals">
+<h2>Vertex normals<a class="headerlink" href="#vertex-normals" title="Permalink to this headline">¶</a></h2>
+<p>ShapeToolbox saves the 3D models as Wavefront .obj-files.  The shape is
+represented as a collection of vertices and polygons, or faces,
+defined by these vertices.  The .obj-file stores the vertex positions
+and the information about the faces (a face is a list of vertices).
+The more vertices (and faces) there are, the better a smoothly curved
+surface can be approximated.  Of course, the more vertices, the larger
+the file size.  A typical way to improve the quality of rendering of
+the model is to define vertex normals.  A vertex normal is a
+three-dimensional vector that points in the direction of the surface
+normal of the surface-to-be-approximated at that location.</p>
+<div class="section" id="turning-the-computation-of-normals-on">
+<h3>Turning the computation of normals on<a class="headerlink" href="#turning-the-computation-of-normals-on" title="Permalink to this headline">¶</a></h3>
+<p>ShapeToolbox has an option to compute the vertex normals.  By default
+the computation is off to facilitate quick testing (computing the
+normals takes time), but it might be useful to turn it on for the
+final model.</p>
+<p>To turn the computation of normals on, set the <code class="docutils literal"><span class="pre">'normals'</span></code>-option to
+<code class="docutils literal"><span class="pre">true</span></code>:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% by default, vertex normals are not computed:</span>
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">4</span> <span class="p">.</span><span class="mi">15</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">])</span>
+
+<span class="c">% option &#39;normals&#39; turns computation of surface normals on:</span>
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">4</span> <span class="p">.</span><span class="mi">15</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">],</span><span class="s">&#39;normals&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The following example illustrates the effect of including the surface
+normals.  It also illustrates another option, <code class="docutils literal"><span class="pre">'npoints'</span></code>, which
+defines the resolution (number of vertices in the elevation and
+azimuth directions) of the model.  The example makes the same object
+in four ways: with two resolutions and with surface normal computation
+turned on/off.</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="c">...</span>
+            <span class="p">[</span><span class="mi">6</span> <span class="p">.</span><span class="mi">15</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">],</span><span class="c">...</span>
+            <span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">32</span> <span class="mi">64</span><span class="p">],</span><span class="c">...</span>
+            <span class="s">&#39;normals&#39;</span><span class="p">,</span><span class="n">false</span><span class="p">,</span><span class="c">...</span>
+            <span class="s">&#39;sphere_lowres_no_normals.obj&#39;</span><span class="p">)</span>
+
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="c">...</span>
+            <span class="p">[</span><span class="mi">6</span> <span class="p">.</span><span class="mi">15</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">],</span><span class="c">...</span>
+            <span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">32</span> <span class="mi">64</span><span class="p">],</span><span class="c">...</span>
+            <span class="s">&#39;normals&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">,</span><span class="c">...</span>
+            <span class="s">&#39;sphere_lowres_with_normals.obj&#39;</span><span class="p">)</span>
+
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="c">...</span>
+            <span class="p">[</span><span class="mi">6</span> <span class="p">.</span><span class="mi">15</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">],</span><span class="c">...</span>
+            <span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">64</span> <span class="mi">128</span><span class="p">],</span><span class="c">...</span>
+            <span class="s">&#39;normals&#39;</span><span class="p">,</span><span class="n">false</span><span class="p">,</span><span class="c">...</span>
+            <span class="s">&#39;sphere_hires_no_normals.obj&#39;</span><span class="p">)</span>
+
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="c">...</span>
+            <span class="p">[</span><span class="mi">6</span> <span class="p">.</span><span class="mi">15</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">],</span><span class="c">...</span>
+            <span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">64</span> <span class="mi">128</span><span class="p">],</span><span class="c">...</span>
+            <span class="s">&#39;normals&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">,</span><span class="c">...</span>
+            <span class="s">&#39;sphere_hires_with_normals.obj&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The top row shows the low-resolution models and the bottom row the
+high-resolution models.  The left-hand models are without vertex
+normals, the right-hand models are with vertex normals.</p>
+<img alt="_images/normals002.png" src="_images/normals002.png" />
+</div>
+<div class="section" id="how-the-vertex-normals-are-computed">
+<h3>How the vertex normals are computed<a class="headerlink" href="#how-the-vertex-normals-are-computed" title="Permalink to this headline">¶</a></h3>
+<p>The vertex normals are computed as a weighted average of the surface
+normals of all the faces the vertex belongs to.  Each weight is
+proportional to the surface area of the face.</p>
+<p>A few notes about the computation of vertex normals:</p>
+<ul class="simple">
+<li>Including the normals in the model results in a larger file size</li>
+<li>Computation of the normals takes time</li>
+<li>Some rendering programs might compute the normals automatically for
+the model object, so depending on what software you are using for
+rendering, you might or might not want to include the normals in the
+.obj-file.</li>
+<li>The computation of the normals in ShapeToolbox is not particularly
+advanced.  It should do a good job for most shapes that are
+reasonably smoothly varying (and the functions in this toolbox are
+mainly meant to produce smoothly varying shapes).  <strong>It does not
+handle sharp edges robustly:</strong> it calculates the vertex normals as
+it would for a smoothly curved surface, as a weighted average as
+described above.  Better vertex normal algorithms can spot the edges
+that are meant to be sharp and handle them differently.  The
+indiscriminate use of a weighted average by ShapeToolbox for all
+vertices means that sharp edges will appear duller than intended.
+Most of the time this should not be a problem though.</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Improving rendering quality: mesh size and vertex normals</a><ul>
+<li><a class="reference internal" href="#mesh-resolution">Mesh resolution</a></li>
+<li><a class="reference internal" href="#vertex-normals">Vertex normals</a><ul>
+<li><a class="reference internal" href="#turning-the-computation-of-normals-on">Turning the computation of normals on</a></li>
+<li><a class="reference internal" href="#how-the-vertex-normals-are-computed">How the vertex normals are computed</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gs-modulationtypes.html"
+                        title="previous chapter">Modulation types</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gs-material-texture.html"
+                        title="next chapter">Setting material and texture properties</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gs-quality.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="gs-material-texture.html" title="Setting material and texture properties"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gs-modulationtypes.html" title="Modulation types"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gettingstarted.html" >Getting started with ShapeToolbox</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Toni P. Saarela.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

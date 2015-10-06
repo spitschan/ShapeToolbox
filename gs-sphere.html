@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>A modulated sphere &mdash; ShapeToolbox 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
+    <link rel="up" title="Getting started with ShapeToolbox" href="gettingstarted.html" />
+    <link rel="next" title="Modulating the modulation" href="gs-modulation.html" />
+    <link rel="prev" title="A note on viewing 3D-models" href="gs-viewing.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="gs-modulation.html" title="Modulating the modulation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gs-viewing.html" title="A note on viewing 3D-models"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gettingstarted.html" accesskey="U">Getting started with ShapeToolbox</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="a-modulated-sphere">
+<span id="gs-simplesphere"></span><h1>A modulated sphere<a class="headerlink" href="#a-modulated-sphere" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="simplest-of-the-simple">
+<h2>Simplest of the simple<a class="headerlink" href="#simplest-of-the-simple" title="Permalink to this headline">¶</a></h2>
+<p>Let&#8217;s start simple.  The command:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>makes a model sphere, with the default sinusoidal modulation: vertical
+components, eight cycles around the sphere, with an amplitude of 0.1.
+(Other functions in the toolbox add other kinds of perturbation, but
+for now we&#8217;ll stick to sinusoids.)  The sphere has a base radius of
+one, so this amplitude is 10% of the sphere radius.  The model is
+saved in the file <code class="docutils literal"><span class="pre">sphere.obj</span></code>.  You can view the saved model object
+with one of the programs suggested in the section <a class="reference internal" href="gs-viewing.html#gs-viewing"><span>A note on viewing 3D-models</span></a>.
+Rendered, it would look something like this:</p>
+<img alt="_images/sphere001.png" src="_images/sphere001.png" />
+<img alt="_images/sphere001profile.png" src="_images/sphere001profile.png" />
+<p><strong>Above:</strong> A sphere with the default modulation parameters.  The
+right-hand panel shows the modulation of the radius as a function of
+the angle (azimuth) from <img class="math" src="_images/math/3723ed53ca6fd37b4ba725f84af223bb8a0c3966.png" alt="-\pi"/> to <img class="math" src="_images/math/c1bd4cb4e3647c6b2356b7ccf2f52aeffedd1b61.png" alt="\pi"/>.</p>
+<p>Next, we&#8217;ll start changing some of the parameters of the modulation.
+The parameters are given as the first input argument to
+<a class="reference internal" href="ref-objmakesine.html#ref-objmakesine"><span>objMakeSine</span></a>.  The parameter vector defining the
+modulation parameters has the form:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">par</span> <span class="p">=</span> <span class="p">[</span><span class="n">frequency</span> <span class="n">amplitude</span> <span class="n">phase</span> <span class="nb">angle</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>To have a frequency of 10 cycles per sphere instead of the default 8
+and saving the model in the file <code class="docutils literal"><span class="pre">sphere_10cycles.obj</span></code>:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">sphere</span> <span class="p">=</span> <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">10</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],</span><span class="s">&#39;sphere_10cycles.obj&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="_images/sphere002.png" src="_images/sphere002.png" />
+<p>In the above example, the vertex and face information of the object
+are also returned in the fields of the structure <code class="docutils literal"><span class="pre">sphere</span></code>.  Usually
+you don&#8217;t need to do this&#8212;most often you just want to have the model
+saved in a file.  But sometimes you might want to get the structure
+for quick viewing with the function <a class="reference internal" href="ref-helperfuncs.html#ref-objshow"><span>objShow</span></a>.  So after
+running the above command you might do:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objShow</span><span class="p">(</span><span class="n">sphere</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also go lower in frequency, such as in the example below.
+Note that the frequency is given in cycles per <img class="math" src="_images/math/9871bd64995368def3d10c85692a233e4cb5e3f9.png" alt="2\pi"/> (that is,
+in number of cycles around the sphere).  If frequency is not an
+integer, the modulation will not wrap around the object smoothly and
+you will have a discontinuity at <img class="math" src="_images/math/3723ed53ca6fd37b4ba725f84af223bb8a0c3966.png" alt="-\pi"/> and <img class="math" src="_images/math/c1bd4cb4e3647c6b2356b7ccf2f52aeffedd1b61.png" alt="\pi"/>:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mf">3.5</span> <span class="p">.</span><span class="mi">2</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">]);</span>
+</pre></div>
+</div>
+<img alt="_images/sphere003.png" src="_images/sphere003.png" />
+<img alt="_images/sphere003profile.png" src="_images/sphere003profile.png" />
+<p><strong>Above:</strong> Modulation with non-integer number of cycles leads to a
+discontinuity.  The right-hand panel shows the profile of the
+modulation; x-axis is the angle from <img class="math" src="_images/math/3723ed53ca6fd37b4ba725f84af223bb8a0c3966.png" alt="-\pi"/> to <img class="math" src="_images/math/c1bd4cb4e3647c6b2356b7ccf2f52aeffedd1b61.png" alt="\pi"/>.</p>
+<p>To have the modulation in the elevation (&#8220;horizontal&#8221;) instead of the
+azimuth direction, change the angle parameter.  The angle of the
+modulation is given in degrees, so value 90 gives a &#8220;horizontal&#8221;
+modulation:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">90</span><span class="p">]);</span>
+</pre></div>
+</div>
+<img alt="_images/sphere004.png" src="_images/sphere004.png" />
+<p>By default, the modulations are in sine phase.  In the above example,
+the top and bottom parts of the objects are not symmetrical (i.e., the
+object is not symmetrical with respect to the x-y plane).  To have that
+symmetry, change the phase of the modulation by 90 degrees:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">90</span> <span class="mi">90</span><span class="p">]);</span>
+</pre></div>
+</div>
+<img alt="_images/sphere005.png" src="_images/sphere005.png" />
+<p>The angle of the modulation does not have to be 0 or 90 degrees;
+intermediate angles are possible:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">])</span>
+</pre></div>
+</div>
+<img alt="_images/sphere006.png" src="_images/sphere006.png" />
+<p>Any arbitrary angle can be used, but note that at most angles the
+modulation does not wrap around smoothly around the object.  To find
+out which angles will wrap smoothly at a given frequency, use the
+helper function <a class="reference internal" href="ref-helperfuncs.html#ref-objfindangles"><span>objFindAngles</span></a>.  To find frequencies given
+an angle, use <a class="reference internal" href="ref-helperfuncs.html#ref-objfindfreqs"><span>objFindFreqs</span></a>.  For more information and
+examples, see <a class="reference internal" href="helperfuncs.html#helpers"><span>Helper functions</span></a>.</p>
+</div>
+<div class="section" id="adding-components">
+<span id="gs-components"></span><h2>Adding components<a class="headerlink" href="#adding-components" title="Permalink to this headline">¶</a></h2>
+<p>The modulations are not restricted to one component.  If more than one
+component are defined, the modulations are added together.  The
+modulation components are defined in the rows of the first input
+argument.  The following example has two components, both with the
+same angle but with different frequencies:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">par</span> <span class="p">=</span> <span class="p">[</span><span class="mi">4</span>  <span class="p">.</span><span class="mi">2</span>  <span class="mi">0</span> <span class="mi">0</span><span class="p">;</span>
+       <span class="mi">16</span> <span class="p">.</span><span class="mi">05</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="n">par</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="_images/sphere007.png" src="_images/sphere007.png" />
+<a class="reference internal image-reference" href="_images/sphere007profile.png"><img alt="_images/sphere007profile.png" src="_images/sphere007profile.png" style="width: 300px;" /></a>
+<p>The schematic on the right shows the individual and compound profiles.</p>
+<p>Or you can have two components at different angles:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">;</span> <span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">90</span> <span class="mi">90</span><span class="p">]);</span>
+</pre></div>
+</div>
+<img alt="_images/sphere008.png" src="_images/sphere008.png" />
+<p>The same but with non-cardinal angles:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">;</span> <span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="o">-</span><span class="mi">60</span><span class="p">]);</span>
+</pre></div>
+</div>
+<img alt="_images/sphere009.png" src="_images/sphere009.png" />
+<p>There is no limit to the number of components you can add.  Note,
+however, that there&#8217;s not much error checking done on the input
+arguments.  If several components are added with large enough
+amplitudes (and with appropriate phases), the total amplitude can
+exceed the radius of the sphere.  The results may look wonky.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">A modulated sphere</a><ul>
+<li><a class="reference internal" href="#simplest-of-the-simple">Simplest of the simple</a></li>
+<li><a class="reference internal" href="#adding-components">Adding components</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gs-viewing.html"
+                        title="previous chapter">A note on viewing 3D-models</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gs-modulation.html"
+                        title="next chapter">Modulating the modulation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gs-sphere.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="gs-modulation.html" title="Modulating the modulation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gs-viewing.html" title="A note on viewing 3D-models"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gettingstarted.html" >Getting started with ShapeToolbox</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Toni P. Saarela.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

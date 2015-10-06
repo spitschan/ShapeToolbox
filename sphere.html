@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Sphere &mdash; ShapeToolbox 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
+    <link rel="up" title="Object types" href="object_types.html" />
+    <link rel="next" title="Plane" href="plane.html" />
+    <link rel="prev" title="Object types" href="object_types.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="plane.html" title="Plane"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="object_types.html" title="Object types"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="object_types.html" accesskey="U">Object types</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="sphere">
+<span id="id1"></span><h1>Sphere<a class="headerlink" href="#sphere" title="Permalink to this headline">¶</a></h1>
+<img alt="_images/sphere_coords_3d_400.png" src="_images/sphere_coords_3d_400.png" />
+<img alt="_images/sphere_coords.png" src="_images/sphere_coords.png" />
+<div class="section" id="objmake">
+<span id="objmake-sphere"></span><h2>objMake<a class="headerlink" href="#objmake" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="objmakesine">
+<span id="objmakesine-sphere"></span><h2>objMakeSine<a class="headerlink" href="#objmakesine" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="objmakenoise">
+<span id="objmakenoise-sphere"></span><h2>objMakeNoise<a class="headerlink" href="#objmakenoise" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="objmakebump">
+<span id="objmakebump-sphere"></span><h2>objMakeBump<a class="headerlink" href="#objmakebump" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="objmakecustom">
+<span id="objmakecustom-sphere"></span><h2>objMakeCustom<a class="headerlink" href="#objmakecustom" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="image">
+<h3>Image<a class="headerlink" href="#image" title="Permalink to this headline">¶</a></h3>
+<img alt="_images/text.png" src="_images/text.png" />
+</div>
+<div class="section" id="a-matrix">
+<h3>A matrix<a class="headerlink" href="#a-matrix" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="user-defined-functions">
+<h3>User-defined functions<a class="headerlink" href="#user-defined-functions" title="Permalink to this headline">¶</a></h3>
+<p>Explanation, function handles, blah blah.</p>
+<div class="section" id="a-bumpy-sphere">
+<h4>A bumpy sphere<a class="headerlink" href="#a-bumpy-sphere" title="Permalink to this headline">¶</a></h4>
+<p>First, give an example how one might mimick <a class="reference internal" href="ref-objmakebump.html#ref-objmakebump"><span>objMakeBump</span></a> using
+the custom function.  Define the bump function in-line.</p>
+<p>Define the function:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">f</span> <span class="p">=</span> <span class="p">@(</span><span class="n">d</span><span class="p">,</span><span class="n">prm</span><span class="p">)</span> <span class="n">prm</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nb">exp</span><span class="p">(</span><span class="o">-</span><span class="n">d</span><span class="o">.^</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">prm</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>^<span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Now do the thing:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">prm</span> <span class="p">=</span> <span class="p">[</span><span class="mi">20</span> <span class="mf">3.5</span><span class="o">*</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">8</span><span class="p">]</span>
+
+<span class="n">objMakeCustom</span><span class="p">(</span><span class="s">&#39;custom&#39;</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">prm</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="a-cratered-moon">
+<h4>A cratered moon<a class="headerlink" href="#a-cratered-moon" title="Permalink to this headline">¶</a></h4>
+<p>Then, give the crater example.</p>
+<p>Specify the crater function:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="k">function</span><span class="w"> </span>C <span class="p">=</span><span class="w"> </span><span class="nf">crater</span><span class="p">(</span>d,prm<span class="p">)</span><span class="w"></span>
+
+<span class="n">r</span> <span class="p">=</span> <span class="n">prm</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>       <span class="c">% radius of the crater</span>
+<span class="n">a</span> <span class="p">=</span> <span class="n">prm</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>       <span class="c">% amplitude of the crater edge</span>
+<span class="n">width1</span> <span class="p">=</span> <span class="n">prm</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>  <span class="c">% width of the inner slope</span>
+<span class="n">width2</span> <span class="p">=</span> <span class="n">prm</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>  <span class="c">% width of the outer slope</span>
+
+<span class="n">d</span> <span class="p">=</span> <span class="n">d</span><span class="o">-</span><span class="n">r</span><span class="p">;</span>
+<span class="n">C</span> <span class="p">=</span> <span class="nb">zeros</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">d</span><span class="p">));</span>
+
+<span class="c">% The inner slope of the crater</span>
+<span class="n">idx</span> <span class="p">=</span> <span class="n">d</span><span class="o">&gt;-</span><span class="n">width1</span> <span class="o">&amp;</span> <span class="n">d</span><span class="o">&lt;</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">C</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="p">=</span> <span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">pi</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">width1</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">d</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span><span class="o">-</span><span class="nb">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">));</span>
+
+<span class="c">% The outer slope</span>
+<span class="n">idx</span> <span class="p">=</span> <span class="n">d</span><span class="o">&lt;</span><span class="n">width2</span> <span class="o">&amp;</span> <span class="n">d</span><span class="o">&gt;</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">C</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="p">=</span> <span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">pi</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">width2</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">d</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span><span class="o">+</span><span class="nb">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>Make the sphere with craters:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="c">%      n  cutoff radius amplitude width1 width2</span>
+<span class="n">prm</span> <span class="p">=</span> <span class="p">[</span><span class="mi">10</span> <span class="mi">25</span>   <span class="mi">15</span>  <span class="p">.</span><span class="mi">025</span> <span class="mi">10</span> <span class="mi">10</span>
+       <span class="mi">10</span> <span class="mf">12.5</span> <span class="mf">7.5</span> <span class="p">.</span><span class="mi">025</span> <span class="mi">5</span>  <span class="mi">5</span><span class="p">]</span>
+
+<span class="n">objMakeCustom</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="c">...</span>
+              <span class="p">@</span><span class="n">crater</span><span class="p">,</span><span class="n">prm</span><span class="p">,</span><span class="c">...</span>
+              <span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">256</span> <span class="mi">512</span><span class="p">],</span><span class="c">...</span>
+              <span class="s">&#39;mindist&#39;</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="c">...</span>
+              <span class="s">&#39;moon.obj&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or make a cylinder with craters:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">prm</span> <span class="p">=</span> <span class="p">[</span><span class="mi">20</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">8</span><span class="o">+</span><span class="nb">pi</span><span class="o">/</span><span class="mi">16</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">8</span> <span class="p">.</span><span class="mi">025</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">16</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">16</span><span class="p">]</span>
+
+<span class="n">objMakeCustom</span><span class="p">(</span><span class="s">&#39;cylinder&#39;</span><span class="p">,</span><span class="c">...</span>
+              <span class="p">@</span><span class="n">crater</span><span class="p">,</span><span class="n">prm</span><span class="p">,</span><span class="c">...</span>
+              <span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">512</span> <span class="mi">512</span><span class="p">],</span><span class="c">...</span>
+              <span class="s">&#39;mindist&#39;</span><span class="p">,</span><span class="nb">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Sphere</a><ul>
+<li><a class="reference internal" href="#objmake">objMake</a></li>
+<li><a class="reference internal" href="#objmakesine">objMakeSine</a></li>
+<li><a class="reference internal" href="#objmakenoise">objMakeNoise</a></li>
+<li><a class="reference internal" href="#objmakebump">objMakeBump</a></li>
+<li><a class="reference internal" href="#objmakecustom">objMakeCustom</a><ul>
+<li><a class="reference internal" href="#image">Image</a></li>
+<li><a class="reference internal" href="#a-matrix">A matrix</a></li>
+<li><a class="reference internal" href="#user-defined-functions">User-defined functions</a><ul>
+<li><a class="reference internal" href="#a-bumpy-sphere">A bumpy sphere</a></li>
+<li><a class="reference internal" href="#a-cratered-moon">A cratered moon</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="object_types.html"
+                        title="previous chapter">Object types</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="plane.html"
+                        title="next chapter">Plane</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/sphere.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="plane.html" title="Plane"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="object_types.html" title="Object types"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="object_types.html" >Object types</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Toni P. Saarela.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Setting material and texture properties &mdash; ShapeToolbox 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
+    <link rel="up" title="Getting started with ShapeToolbox" href="gettingstarted.html" />
+    <link rel="next" title="Making a series of shapes — batch processing" href="gs-batch.html" />
+    <link rel="prev" title="Improving rendering quality: mesh size and vertex normals" href="gs-quality.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="gs-batch.html" title="Making a series of shapes — batch processing"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gs-quality.html" title="Improving rendering quality: mesh size and vertex normals"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gettingstarted.html" accesskey="U">Getting started with ShapeToolbox</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="setting-material-and-texture-properties">
+<span id="gs-material-texture"></span><h1>Setting material and texture properties<a class="headerlink" href="#setting-material-and-texture-properties" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="material">
+<span id="gs-material"></span><h2>Material<a class="headerlink" href="#material" title="Permalink to this headline">¶</a></h2>
+<p>The appearance of a model can be changed by changing its material
+properties.  By setting these properties you can control the color,
+how the material reflects light, its transparency, and so forth.
+Setting materials themselves is not part of ShapeToolbox, but you can
+include information in the model about material library files and
+material names.</p>
+<div class="section" id="material-library-mtl-files">
+<h3>Material library (.mtl) files<a class="headerlink" href="#material-library-mtl-files" title="Permalink to this headline">¶</a></h3>
+<p>The materials are usually specified in a separate file.  These
+materials are named, and the the .obj-file where the model is saved
+then refers to these files for material specifications.  A &#8216;material
+template library&#8217; (.mtl) file format that accompanies an .obj-file is
+a common way to define the materials, but not all renderers understand
+the .mtl files (for example Radiance; more on that later).</p>
+<p>Note that ShapeToolbox <strong>does not have any functionality to create the
+material specifications</strong>.  But it does have an option to define the
+material names and the name of the .mtl-file from which those
+materials are found.  An example might help:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">12</span> <span class="p">.</span><span class="mi">15</span> <span class="mi">90</span> <span class="mi">90</span><span class="p">],</span><span class="s">&#39;material&#39;</span><span class="p">,{</span><span class="s">&#39;matfile.mtl&#39;</span><span class="p">,</span><span class="s">&#39;red_plastic&#39;</span><span class="p">},</span><span class="s">&#39;redsphere.obj&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>will produce the file <code class="docutils literal"><span class="pre">redsphere.obj</span></code> that contains the model object
+and references to the material library <code class="docutils literal"><span class="pre">matfile.mtl</span></code> and to the
+material <code class="docutils literal"><span class="pre">red_plastic</span></code>.  Now, if in the same directory there is a
+file <code class="docutils literal"><span class="pre">matfile.mtl</span></code> with the following lines:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">newmtl</span> <span class="n">red_plastic</span>
+  <span class="n">Ka</span> <span class="mf">1.0000</span> <span class="mf">0.0000</span> <span class="mf">0.0000</span>
+  <span class="n">Kd</span> <span class="mf">1.0000</span> <span class="mf">0.0000</span> <span class="mf">0.0000</span>
+  <span class="n">Ks</span> <span class="mf">1.0000</span> <span class="mf">1.0000</span> <span class="mf">1.0000</span>
+  <span class="n">Ns</span> <span class="mi">100</span>
+  <span class="n">illum</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>the model, when viewed, should appear shiny red, that is, not entirely
+unlike:</p>
+<img alt="_images/materialsphere001.png" src="_images/materialsphere001.png" />
+</div>
+<div class="section" id="materials-in-mitsuba">
+<h3>Materials in Mitsuba<a class="headerlink" href="#materials-in-mitsuba" title="Permalink to this headline">¶</a></h3>
+<p>The various programs and renderers available differ in the way
+the materials are specified.  Some may not understand or use the
+.mtl-files.  In these cases you have to define the materials in the
+native way for the program you&#8217;re using.</p>
+<p>The following shows how to include the obj-file produced above in a
+Mitsuba scene (Mitsuba uses xml files for its scene descriptions; the
+following is a snippet of such an xml file).  It loads the object and
+sets its material to red plastic:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="o">&lt;</span><span class="n">shape</span>  <span class="n">type</span><span class="p">=</span>&quot;<span class="n">obj</span>&quot;<span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">string</span>  <span class="n">name</span><span class="p">=</span>&quot;<span class="n">filename</span>&quot;  <span class="n">value</span><span class="p">=</span>&quot;<span class="n">redsphere</span><span class="p">.</span><span class="n">obj</span>&quot;<span class="o">/&gt;</span>
+  <span class="o">&lt;</span><span class="n">bsdf</span>  <span class="n">type</span><span class="p">=</span>&quot;<span class="n">plastic</span>&quot;<span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">srgb</span>  <span class="n">name</span><span class="p">=</span>&quot;<span class="n">diffuseReflectance</span>&quot;  <span class="n">value</span><span class="p">=</span>&quot;#<span class="n">ff0000</span>&quot;<span class="o">/&gt;</span>
+  <span class="o">&lt;/</span><span class="n">bsdf</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">shape</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="materials-in-radiance">
+<h3>Materials in Radiance<a class="headerlink" href="#materials-in-radiance" title="Permalink to this headline">¶</a></h3>
+<p>When using Radiance, you must, first, convert the .obj-file to a
+format Radiance knows how to use.  The simplest is to use the
+<code class="docutils literal"><span class="pre">obj2rad</span></code> -program of Radiance.  To convert the model from the above
+example to a Radiance .rad-file, one would do in the terminal
+(assuming Radiance is installed, a process which most definitely will
+never be covered in this tutorial):</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">obj2rad</span> <span class="n">redsphere</span><span class="p">.</span><span class="n">obj</span> <span class="o">&gt;</span> <span class="n">redsphere</span><span class="p">.</span><span class="n">rad</span>
+</pre></div>
+</div>
+<p>The resulting <code class="docutils literal"><span class="pre">redsphere.rad</span></code> can now be rendered with Radiance.
+The material names survive the conversion&#8212;conversion to .rad keeps
+the name of the material we defined in the .obj-file
+(&#8216;red_plastic&#8217;)&#8212;but Radiance does not use the associated material
+library (the .mtl-file), as its material specifications are different
+(Radiance material desciptions correspond to physical materials such
+as plastic, glass, and metal).  You must specify the material
+<code class="docutils literal"><span class="pre">red_plastic</span></code> in Radiance to get the desired appearance.  Something
+along the lines of:</p>
+<div class="highlight-matlab"><div class="highlight"><pre># <span class="n">modifier</span> <span class="n">material</span> <span class="n">material_name</span>
+<span class="n">void</span> <span class="n">plastic</span> <span class="n">red_plastic</span>
+<span class="mi">0</span>
+<span class="mi">0</span>
+<span class="mi">5</span> <span class="mf">1.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="p">.</span><span class="mi">02</span> <span class="mi">0</span>
+# <span class="n">red</span> <span class="n">green</span> <span class="n">blue</span> <span class="n">specularity</span> <span class="n">roughness</span>
+</pre></div>
+</div>
+<p>Note: If the .obj-file does not contain material names (if no
+materials are defined using the &#8216;material&#8217;-option), Radiance assigns
+the default material &#8216;white&#8217; to the object in the obj2rad-conversion.</p>
+<p>This section is not meant to be a rendering tutorial, it only explains
+how the references to materials are defined when creating the model.
+More on rendering in a later section.</p>
+</div>
+<div class="section" id="no-groups">
+<h3>No groups<a class="headerlink" href="#no-groups" title="Permalink to this headline">¶</a></h3>
+<p>In .obj-files, faces can be assigned to different groups so that
+different materials can then be specified for different parts of the
+object.  <strong>No groups for the faces and materials are implemented in</strong>
+ShapeToolbox.  You can only set one material for the whole object.</p>
+</div>
+</div>
+<div class="section" id="adding-texture">
+<span id="gs-texture"></span><h2>Adding texture<a class="headerlink" href="#adding-texture" title="Permalink to this headline">¶</a></h2>
+<p>In the previous section, we defined a material that set the color and
+specularity of the whole object.  With <strong>texture mapping</strong> it is
+possible to define more complex surface color or texture patterns.
+ShapeToolbox can compute texture coordinates (UV-coordinates) and save
+them with the model.  These coordinates can be used to map a texture
+(usually an image the user provides) onto the surface of the object.</p>
+<p>By default, the computation of texture coordinates is turned off.  To
+turn it on, use the &#8216;uvcoords&#8217;-option and set its value to &#8216;true&#8217;</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],</span><span class="s">&#39;uvcoords&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">,</span><span class="s">&#39;sphere_with_uvcoords.obj&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="section" id="texture-descriptions-in-mtl-files">
+<h3>Texture descriptions in .mtl -files<a class="headerlink" href="#texture-descriptions-in-mtl-files" title="Permalink to this headline">¶</a></h3>
+<p>If you are using a program that understand mtl-files, you can use them
+to define textures.  To do this, use the &#8216;material&#8217;-option as in the
+previous section on material properties.  Setting the
+&#8216;material&#8217;-option forces the computation of the UV-coordinates.  For
+example:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],</span><span class="s">&#39;material&#39;</span><span class="p">,{</span><span class="s">&#39;matfile.mtl&#39;</span><span class="p">,</span><span class="s">&#39;mytexture&#39;</span><span class="p">},</span><span class="s">&#39;texturedsphere.obj&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>produces a file called &#8216;texturedsphere.obj&#8217; which includes the
+UV-coordinates for texture mapping.  It also contains a reference to
+the file &#8216;matfile.mtl&#8217; and defines &#8216;mytexture&#8217; as the material for the
+object.</p>
+<p>So far, we haven&#8217;t mapped any textures yet.  The texture to map to the
+UV-coordinates of the object we created has to be defined somewhere,
+usually in the .mtl-file.  If we have an image file &#8216;texture.tiff&#8217;
+that contains a sine wave grating, coincidentally with the same number
+of cycles (eight) as the model we made above:</p>
+<img alt="_images/texture001.png" src="_images/texture001.png" />
+<p>and we define the material &#8216;mytexture&#8217; in the file &#8216;matfile.mtl&#8217; like
+so:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">newmtl</span> <span class="n">mytexture</span>
+ <span class="n">Ka</span> <span class="mf">0.500</span> <span class="mf">0.500</span> <span class="mf">0.500</span>
+ <span class="n">Kd</span> <span class="mf">0.500</span> <span class="mf">0.500</span> <span class="mf">0.500</span>
+ <span class="n">Ks</span> <span class="mf">0.500</span> <span class="mf">0.500</span> <span class="mf">0.500</span>
+ <span class="n">illum</span> <span class="mi">2</span>
+
+ <span class="n">map_Ka</span> <span class="n">texture</span><span class="p">.</span><span class="n">tiff</span>   # <span class="n">ambient</span> <span class="n">texture</span> <span class="n">map</span>
+ <span class="n">map_Kd</span> <span class="n">texture</span><span class="p">.</span><span class="n">tiff</span>   # <span class="n">diffuse</span> <span class="n">texture</span> <span class="n">map</span>
+ <span class="n">map_Ks</span> <span class="n">texture</span><span class="p">.</span><span class="n">tiff</span>   # <span class="n">specularity</span> <span class="n">texture</span> <span class="n">map</span>
+</pre></div>
+</div>
+<p>and then view the model, we should see:</p>
+<img alt="_images/texturesphere001.png" src="_images/texturesphere001.png" />
+<p>In the above example, the material library file &#8216;matfile.mtl&#8217; sets the
+same image&#8212;&#8217;texture.tiff&#8217;&#8212;as the texture map for ambient, diffuse,
+and specular reflectivity of the object.  The values for Ka, Kd, and
+Ks multiply the values of the texture maps.</p>
+<p>Next, make another model with the modulation in opposite phase, but
+use the same texture as above:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">180</span> <span class="mi">0</span><span class="p">],</span><span class="s">&#39;material&#39;</span><span class="p">,{</span><span class="s">&#39;matfile.mtl&#39;</span><span class="p">,</span><span class="s">&#39;mytexture&#39;</span><span class="p">},</span><span class="s">&#39;texturedsphere2.obj&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="_images/texturesphere002.png" src="_images/texturesphere002.png" />
+<p>By using a different image as texture and/or changing the material
+properties, you can have the texture pattern at a different
+orientation, with a tint:</p>
+<img alt="_images/texturesphere003.png" src="_images/texturesphere003.png" />
+<p>or map a picture of cat&#8217;s fur onto a bumpy shape to get:</p>
+<img alt="_images/texturesphere005.png" src="_images/texturesphere005.png" />
+<p>which should prove useful for some carefully controlled, low-level
+psychophysics.</p>
+</div>
+<div class="section" id="mitsuba">
+<h3>Mitsuba<a class="headerlink" href="#mitsuba" title="Permalink to this headline">¶</a></h3>
+<p>Texture mapping with Mitsuba is demonstrated in the
+<a class="reference internal" href="rendering.html#rendering"><span>Rendering</span></a> -section of this manual.</p>
+</div>
+<div class="section" id="radiance">
+<h3>Radiance<a class="headerlink" href="#radiance" title="Permalink to this headline">¶</a></h3>
+<p>The material and texture properties are not transferred to Radiance
+for the reasons explained in the previous section.  Texture mapping
+with Radiance is demonstrated in the <a class="reference internal" href="rendering.html#rendering"><span>Rendering</span></a> -section of this
+manual.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Setting material and texture properties</a><ul>
+<li><a class="reference internal" href="#material">Material</a><ul>
+<li><a class="reference internal" href="#material-library-mtl-files">Material library (.mtl) files</a></li>
+<li><a class="reference internal" href="#materials-in-mitsuba">Materials in Mitsuba</a></li>
+<li><a class="reference internal" href="#materials-in-radiance">Materials in Radiance</a></li>
+<li><a class="reference internal" href="#no-groups">No groups</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#adding-texture">Adding texture</a><ul>
+<li><a class="reference internal" href="#texture-descriptions-in-mtl-files">Texture descriptions in .mtl -files</a></li>
+<li><a class="reference internal" href="#mitsuba">Mitsuba</a></li>
+<li><a class="reference internal" href="#radiance">Radiance</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gs-quality.html"
+                        title="previous chapter">Improving rendering quality: mesh size and vertex normals</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gs-batch.html"
+                        title="next chapter">Making a series of shapes &#8212; batch processing</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gs-material-texture.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="gs-batch.html" title="Making a series of shapes — batch processing"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gs-quality.html" title="Improving rendering quality: mesh size and vertex normals"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gettingstarted.html" >Getting started with ShapeToolbox</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Toni P. Saarela.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; ShapeToolbox 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
+    <link rel="next" title="Getting help" href="gettinghelp.html" />
+    <link rel="prev" title="ShapeToolbox manual" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="gettinghelp.html" title="Getting help"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="ShapeToolbox manual"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="installation">
+<span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="platform">
+<h3>Platform<a class="headerlink" href="#platform" title="Permalink to this headline">¶</a></h3>
+<p>ShapeToolbox should run on GNU/Linux, Mac, and Windows.  It was
+developed in GNU/Linux, and tested most extensively on GNU/Linux and
+Mac.</p>
+</div>
+<div class="section" id="octave-or-matlab">
+<h3>Octave or Matlab<a class="headerlink" href="#octave-or-matlab" title="Permalink to this headline">¶</a></h3>
+<p>ShapeToolbox was mainly developed on Ubuntu Linux using Octave 3.8.1 and
+Octave 4.0.0.  Tested on XXXX.  It should work with any reasonably
+up-to-date version of Octave or Matlab, but no guarantees.</p>
+</div>
+</div>
+<div class="section" id="getting-the-code">
+<h2>Getting the code<a class="headerlink" href="#getting-the-code" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="using-git">
+<h3>Using Git<a class="headerlink" href="#using-git" title="Permalink to this headline">¶</a></h3>
+<p>If you have <a class="reference external" href="http://www.git-scm.com/">git</a> installed, you can clone
+the repository and stay up-to-date with the latest version of the
+toolbox.  In the terminal or command line, go to the directory where
+you want to keep the files, and do:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="p">.</span><span class="n">com</span><span class="o">/</span><span class="n">saarela</span><span class="o">/</span><span class="n">ShapeToolbox</span><span class="p">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>To keep the code up to date with latest bug fixes, do:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">git</span> <span class="n">pull</span>
+</pre></div>
+</div>
+<p>often.</p>
+</div>
+<div class="section" id="download-zip-file">
+<h3>Download zip file<a class="headerlink" href="#download-zip-file" title="Permalink to this headline">¶</a></h3>
+<p>Alternatively, download a zip archive.  Click the following link to
+download a zip-archive of the toolbox.  Unzip the file to the
+directory where you want to keep the files.</p>
+<p><a class="reference external" href="https://github.com/saarela/ShapeToolbox/archive/master.zip">https://github.com/saarela/ShapeToolbox/archive/master.zip</a></p>
+</div>
+</div>
+<div class="section" id="installing">
+<h2>Installing<a class="headerlink" href="#installing" title="Permalink to this headline">¶</a></h2>
+<p>All you need to do is add the toolbox directory that has the m-files
+to Octave or Matlab path.  Fire up Octave/Matlab and add the
+folder m in your path like so:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">addpath</span><span class="p">(</span><span class="s">&#39;path_to_shapetoolbox/m&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For example,</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">addpath</span><span class="p">(</span><span class="s">&#39;~/Documents/MATLAB/ShapeToolbox/m&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>on Unixy systems or</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">addpath</span><span class="p">(</span><span class="s">&#39;C:\MATLAB\ShapeToolbox\m&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>on Windozy ones.  Of course, edit the path above to where you actually
+have the files.</p>
+<p>That&#8217;s it.  Add that command to your startup-file, either
+<code class="docutils literal"><span class="pre">.octaverc</span></code> (for Octave) or <code class="docutils literal"><span class="pre">startup.m</span></code> (for Matlab) to
+automatically add ShapeToolbox to the path every time you start Octave
+or Matlab.</p>
+</div>
+<div class="section" id="structure-of-shapetoolbox">
+<h2>Structure of ShapeToolbox<a class="headerlink" href="#structure-of-shapetoolbox" title="Permalink to this headline">¶</a></h2>
+<p>Folder <code class="docutils literal"><span class="pre">ShapeToolbox/m</span></code> has the code.  It has a sub-folder <code class="docutils literal"><span class="pre">private</span></code>, which holds
+functions called by the main toolbox functions.</p>
+<p>Folder <code class="docutils literal"><span class="pre">ShapeToolbox/doc</span></code> has the documentation.  The folder <code class="docutils literal"><span class="pre">doc/build/html</span></code> has
+the html documentation.  Open the file <code class="docutils literal"><span class="pre">doc/build/html/index.html</span></code>
+to view the manual.</p>
+<p>Folder <code class="docutils literal"><span class="pre">ShapeToolbox/demos</span></code> has several subfolders with short demos illustrating
+the functionality of the toolbox.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
+<li><a class="reference internal" href="#platform">Platform</a></li>
+<li><a class="reference internal" href="#octave-or-matlab">Octave or Matlab</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#getting-the-code">Getting the code</a><ul>
+<li><a class="reference internal" href="#using-git">Using Git</a></li>
+<li><a class="reference internal" href="#download-zip-file">Download zip file</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installing">Installing</a></li>
+<li><a class="reference internal" href="#structure-of-shapetoolbox">Structure of ShapeToolbox</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">ShapeToolbox manual</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gettinghelp.html"
+                        title="next chapter">Getting help</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="gettinghelp.html" title="Getting help"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="ShapeToolbox manual"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Toni P. Saarela.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

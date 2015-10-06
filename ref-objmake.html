@@ -1,0 +1,285 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>objMake &mdash; ShapeToolbox 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
+    <link rel="up" title="Function reference" href="reference.html" />
+    <link rel="next" title="objMakeSine" href="ref-objmakesine.html" />
+    <link rel="prev" title="Function reference" href="reference.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ref-objmakesine.html" title="objMakeSine"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="reference.html" title="Function reference"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="reference.html" accesskey="U">Function reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="objmake">
+<span id="ref-objmake"></span><h1>objMake<a class="headerlink" href="#objmake" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% OBJMAKE</span>
+<span class="c">%</span>
+<span class="c">% Usage:  MODEL = OBJMAKE(SHAPE)</span>
+<span class="c">%         MODEL = OBJMAKE(SHAPE,[OPTIONS])</span>
+<span class="c">%                 OBJMAKE(SHAPE,[OPTIONS])</span>
+<span class="c">%</span>
+<span class="c">% Produce a 3D model mesh object of a given shape and optionally save</span>
+<span class="c">% it to a file in Wavefront obj-format and/or return a structure that</span>
+<span class="c">% holds the model information.</span>
+<span class="c">%</span>
+<span class="c">% SHAPE:</span>
+<span class="c">% ======</span>
+<span class="c">%</span>
+<span class="c">% One of &#39;sphere&#39;, &#39;plane&#39;, &#39;cylinder&#39;, &#39;torus&#39;, &#39;revolution&#39;, and</span>
+<span class="c">% &#39;extrusion&#39;.  Example: m = objMake(&#39;sphere&#39;)</span>
+<span class="c">%</span>
+<span class="c">% The shapes use a coordinate system where the y-direction is &quot;up&quot; and</span>
+<span class="c">% the x-z plane is the reference plane.</span>
+<span class="c">%</span>
+<span class="c">% Some notes and default values for the shapes (some can be changed</span>
+<span class="c">% with the optional input arguments, see below):</span>
+<span class="c">%</span>
+<span class="c">% SPHERE: A unit sphere (radius 1), default mesh size 128x256.</span>
+<span class="c">%</span>
+<span class="c">% PLANE: A plane with a width and height of 1, lying on the x-y plane,</span>
+<span class="c">% centered on the origin.  Default mesh size 256x256.  Obviously a</span>
+<span class="c">% size of 2x2 would be enough; the larger size is used so that fine</span>
+<span class="c">% modulations can later be added to the shape if needed.</span>
+<span class="c">%</span>
+<span class="c">% CYLINDER: A cylinder with radius 1 and height of 2*pi.  Default mesh</span>
+<span class="c">% size 256x256.</span>
+<span class="c">%</span>
+<span class="c">% TORUS: A torus with ring radius of 1 and tube radius of 0.4.</span>
+<span class="c">% Default mesh size 256x256.</span>
+<span class="c">%</span>
+<span class="c">% REVOLUTION: A surface of revolution based on a user-defined profile,</span>
+<span class="c">% height 2*pi.  See the option &#39;rcurve&#39; below on how to define the</span>
+<span class="c">% profile.  Default mesh size 256x256.</span>
+<span class="c">%</span>
+<span class="c">% EXTRUSION: An extrusion based on a user-defined cross-sectional</span>
+<span class="c">% profile, height 2*pi.  See option &#39;ecurve&#39; below on how to define the</span>
+<span class="c">% profile.  Default mesh size 256x256.</span>
+<span class="c">%</span>
+<span class="c">% NOTE: By default, the model IS NOT SAVED TO A FILE.  To save, you</span>
+<span class="c">% have to set the option &#39;FILENAME&#39; or &#39;SAVE&#39; (see below).</span>
+<span class="c">%</span>
+<span class="c">%</span>
+<span class="c">% OPTIONS:</span>
+<span class="c">% ========</span>
+<span class="c">%</span>
+<span class="c">% With the exception of the filename, all options are gives as</span>
+<span class="c">% name-value pairs.  All possible options are listed below.</span>
+<span class="c">%</span>
+<span class="c">% FILENAME</span>
+<span class="c">% A single string giving the name of the file in which to save the</span>
+<span class="c">% model.  Setting the filename forces the option &#39;save&#39; (see below) to</span>
+<span class="c">% true. Example:</span>
+<span class="c">%  objMake(...,&#39;mymodel.obj&#39;,...)</span>
+<span class="c">%</span>
+<span class="c">% SAVE</span>
+<span class="c">% Boolean, toggle saving the model to a file.  Default is false, the</span>
+<span class="c">% model is not saved.  Setting the filename (see above) sets this</span>
+<span class="c">% option to true.  If filename is not set and the option &#39;save&#39; is</span>
+<span class="c">% true, a default filename is used; the default filename is the name</span>
+<span class="c">% of the base shape appended with .obj: &#39;sphere.obj&#39;, &#39;plane.obj&#39;,</span>
+<span class="c">% &#39;torus.obj&#39;, &#39;cylinder.obj&#39;, &#39;revolution.obj&#39;, and &#39;extrusion.obj&#39;.</span>
+<span class="c">% Example:</span>
+<span class="c">%  objMake(&#39;cylinder&#39;,&#39;save&#39;,true);</span>
+<span class="c">%</span>
+<span class="c">% NPOINTS</span>
+<span class="c">% Resolution of the model mesh (number of vertices).  Given as a</span>
+<span class="c">% two-vector for the number of vertices in the &quot;vertical&quot; (elevation</span>
+<span class="c">% or y, depending on the shape) and &quot;horizontal&quot; (azimuth or x)</span>
+<span class="c">% directions.  Example:</span>
+<span class="c">%  objMake(...,&#39;npoints&#39;,[64 64],...)</span>
+<span class="c">%</span>
+<span class="c">% MATERIAL</span>
+<span class="c">% Name of the material library (.mtl) file and the name of the</span>
+<span class="c">% material for the model.  Given as a cell array of length two.  The</span>
+<span class="c">% elements of the cell array are two strings, the first one for the</span>
+<span class="c">% material library file and the second for the material name.  This</span>
+<span class="c">% option forces the option uvcoords (see below) to true.  Example:</span>
+<span class="c">%  objMake(...,&#39;material&#39;,{&#39;matfile.mtl&#39;,&#39;mymaterial&#39;},...)</span>
+<span class="c">%</span>
+<span class="c">% UVCOORDS</span>
+<span class="c">% Boolean, toggles the computation of texture (uv) coordinates</span>
+<span class="c">% (default is false).  Example:</span>
+<span class="c">%  objMake(...,&#39;uvcoords&#39;,true,...)</span>
+<span class="c">%</span>
+<span class="c">% NORMALS</span>
+<span class="c">% Boolean, toggle the computation of vertex normals (default false).</span>
+<span class="c">% Turning this on improves the quality of rendering, but note that</span>
+<span class="c">% some rendering programs might compute the normals for you, making</span>
+<span class="c">% it unnecessary to include them in the file.  Example:</span>
+<span class="c">%  objMake(...,&#39;normals&#39;,true,...)</span>
+<span class="c">%</span>
+<span class="c">% TUBE_RADIUS, MINOR_RADIUS</span>
+<span class="c">% Sets the radius of the &quot;tube&quot; of a torus.  Default 0.4 (the radius</span>
+<span class="c">% of the ring, or the distance from the origin to the center of the</span>
+<span class="c">% tube is 1).  Example:</span>
+<span class="c">%  objMake(...,&#39;tube_radius&#39;,0.2,...)</span>
+<span class="c">%</span>
+<span class="c">% RCURVE, ECURVE</span>
+<span class="c">% A vector giving the curve to use with shapes &#39;revolution&#39; (&#39;rcurve&#39;)</span>
+<span class="c">% and &#39;extrusion&#39; (&#39;ecurve&#39;).  When the shape is &#39;revolution&#39;, a</span>
+<span class="c">% surface of revolution is produced by revolving the curve about the</span>
+<span class="c">% y-axis.  When the shape is &#39;extrusion&#39;, the curve gives the</span>
+<span class="c">% cross-sectional profile of the object.  This profile is translated</span>
+<span class="c">% along the y-axis to produce a 3D shape.  Example:</span>
+<span class="c">%  profile = .1 + ((-64:63)/64).^2;</span>
+<span class="c">%  objMake(&#39;revolution&#39;,&#39;rcurve&#39;,profile)</span>
+<span class="c">%  objMake(&#39;extrusion&#39;,&#39;ecurve&#39;,profile)</span>
+<span class="c">%</span>
+<span class="c">% You can also combine the two curve types by giving both options.  In</span>
+<span class="c">% this case, the &#39;rcurve&#39; is revolved around the y-axis along a path</span>
+<span class="c">% (or radial profile) defined by &#39;ecurve&#39;.</span>
+<span class="c">%</span>
+<span class="c">% CAPS</span>
+<span class="c">% Boolean.  Set this to true to put &quot;caps&quot; at the end of cylinders,</span>
+<span class="c">% surfaces of revolution, and extrusions.  Default false.  Example:</span>
+<span class="c">%  objMake(&#39;cylinder&#39;,&#39;caps&#39;,true);</span>
+<span class="c">%</span>
+<span class="c">% WIDTH, HEIGHT</span>
+<span class="c">% Scalars, width and height of the model.  Option &#39;width&#39; can only be</span>
+<span class="c">% used with shape &#39;plane&#39; to set the plane width.  &#39;height&#39; can be</span>
+<span class="c">% used with &#39;plane&#39;, &#39;cylinder&#39;, &#39;revolution&#39;, and &#39;extrusion&#39;.</span>
+<span class="c">% Examples:</span>
+<span class="c">%  objMake(&#39;plane&#39;,&#39;width&#39;,2,&#39;height&#39;,0.5);</span>
+<span class="c">%  objMake(&#39;cylinder&#39;,&#39;height&#39;,1.35);</span>
+<span class="c">%</span>
+<span class="c">% RETURNS:</span>
+<span class="c">% ========</span>
+<span class="c">% A structure holding all the information about the model.  This</span>
+<span class="c">% structure can be given as input to another objMake*-function to</span>
+<span class="c">% perturb the shape, or it can be given as input to objSaveModel to</span>
+<span class="c">% save it to file (but the saving to file is a default behavior of</span>
+<span class="c">% objMake, so unless the option &#39;save&#39; is set to false, it is not</span>
+<span class="c">% necessary to save the model manually).</span>
+<span class="c">%</span>
+<span class="c">% BATCH PROCESSING:</span>
+<span class="c">% =================</span>
+<span class="c">% For creating several objects with a single function call, there is</span>
+<span class="c">% an option to provide all input arguments to objMake as a single cell</span>
+<span class="c">% array.  For example, the following two calls are equivalent:</span>
+<span class="c">%  objMake(&#39;cylinder&#39;,&#39;npoints&#39;,[64 64],&#39;uvcoords&#39;,true,&#39;cyl1.obj&#39;)</span>
+<span class="c">%  objMake({&#39;cylinder&#39;,&#39;npoints&#39;,[64 64],&#39;uvcoords&#39;,true,&#39;cyl1.obj&#39;})</span>
+<span class="c">%</span>
+<span class="c">% To create several objects with one call, define several sets of</span>
+<span class="c">% parameters in the cells of the only input argument.  In this case,</span>
+<span class="c">% then, the only input argument is a cell array of cell arrays:</span>
+<span class="c">%  prm = {</span>
+<span class="c">%         {&#39;cylinder&#39;,&#39;npoints&#39;,[64 64],&#39;uvcoords&#39;,true,&#39;cyl1.obj&#39;},</span>
+<span class="c">%         {&#39;plane&#39;,&#39;npoints&#39;,[64 64],&#39;uvcoords&#39;,true,&#39;pla1.obj&#39;}</span>
+<span class="c">%        };</span>
+<span class="c">%  objMake(prm);</span>
+<span class="c">%</span>
+<span class="c">% NOTE:</span>
+<span class="c">% =====</span>
+<span class="c">% Note that this function does not do anything that the any other</span>
+<span class="c">% objMake*-function would not do.  You can always call, say,</span>
+<span class="c">% objMakeSine and set the amplitude of modulation to zero to get the</span>
+<span class="c">% same unperturbed shape as this function would produce.  This</span>
+<span class="c">% function might be useful if you just want to produce a</span>
+<span class="c">% surface-of-revolution or an extrusion object.  The other, simple</span>
+<span class="c">% basic shapes (sphere, cylinder...) can be usually produced with a</span>
+<span class="c">% single command in a graphics/rendering program.</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="reference.html"
+                        title="previous chapter">Function reference</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ref-objmakesine.html"
+                        title="next chapter">objMakeSine</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ref-objmake.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ref-objmakesine.html" title="objMakeSine"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="reference.html" title="Function reference"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="reference.html" >Function reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Toni P. Saarela.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

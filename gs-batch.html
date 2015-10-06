@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Making a series of shapes — batch processing &mdash; ShapeToolbox 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
+    <link rel="up" title="Getting started with ShapeToolbox" href="gettingstarted.html" />
+    <link rel="next" title="Combining modulation types" href="gs-combining.html" />
+    <link rel="prev" title="Setting material and texture properties" href="gs-material-texture.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="gs-combining.html" title="Combining modulation types"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gs-material-texture.html" title="Setting material and texture properties"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gettingstarted.html" accesskey="U">Getting started with ShapeToolbox</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="making-a-series-of-shapes-batch-processing">
+<span id="gs-batch"></span><h1>Making a series of shapes &#8212; batch processing<a class="headerlink" href="#making-a-series-of-shapes-batch-processing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="making-a-series-of-stimuli">
+<span id="gs-series"></span><h2>Making a series of stimuli<a class="headerlink" href="#making-a-series-of-stimuli" title="Permalink to this headline">¶</a></h2>
+<p>One of the purposes of ShapeToolbox is to provide a tool for making
+sets of stimuli with parametric variations in shape.  This section
+illustrates the creation of some example series.  This section does
+not introduce any new functionality of the toolbox, it&#8217;s just calling
+the now-familiar function <a class="reference internal" href="ref-objmakesine.html#ref-objmakesine"><span>objMakeSine</span></a> inside a simple
+Octave/Matlab loop.</p>
+<p>The first example has a single component.  The frequency is varied
+from 2 to 16 cycles while the other properties stay constant.  An
+orthogonal envelope is used as in the previous examples.  The value of
+the variable feature, here frequency, is made part of the file name in
+which the model is saved.  The file names are <code class="docutils literal"><span class="pre">sphere_f02.obj</span></code>,
+<code class="docutils literal"><span class="pre">sphere_f04.obj</span></code>, ... , <code class="docutils literal"><span class="pre">sphere_f16.obj</span></code>.</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% Set a vector of frequencies</span>
+<span class="n">freq</span> <span class="p">=</span> <span class="p">[</span><span class="mi">2</span> <span class="mi">4</span> <span class="mi">8</span> <span class="mi">16</span><span class="p">];</span>
+
+<span class="c">% Set other parameters to constant values</span>
+<span class="n">a</span>  <span class="p">=</span> <span class="p">.</span><span class="mi">15</span><span class="p">;</span>  <span class="c">% amplitude</span>
+<span class="n">ph</span> <span class="p">=</span> <span class="mi">0</span><span class="p">;</span>   <span class="c">% phase</span>
+<span class="n">or</span> <span class="p">=</span> <span class="mi">0</span><span class="p">;</span>   <span class="c">% angle/orientation</span>
+
+<span class="c">% Loop through frequencies</span>
+<span class="k">for</span> <span class="n">f</span> <span class="p">=</span> <span class="n">freq</span>
+  <span class="c">% Set filename with frequency value</span>
+  <span class="n">filename</span> <span class="p">=</span> <span class="n">sprintf</span><span class="p">(</span><span class="s">&#39;sphere_f%02d.obj&#39;</span><span class="p">,</span><span class="n">f</span><span class="p">);</span>
+  <span class="c">% Make the model</span>
+  <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="n">f</span> <span class="n">a</span> <span class="n">ph</span> <span class="n">or</span><span class="p">],[</span><span class="mi">2</span> <span class="mi">1</span> <span class="mi">90</span> <span class="mi">90</span><span class="p">],</span><span class="n">filename</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>The code above produces a series of four objects which, rendered, will look like:</p>
+<img alt="_images/series001.png" src="_images/series001.png" />
+<p>The next example also has a single component.  The amplitude varies
+from 0 to 1 with other properties constant.  The amplitude is included
+in the file name:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% Set a vector of amplitude</span>
+<span class="n">a</span> <span class="p">=</span> <span class="mi">0</span><span class="p">:.</span><span class="mi">2</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+
+<span class="c">% Set other parameters to constant values</span>
+<span class="n">f</span>  <span class="p">=</span> <span class="mi">8</span><span class="p">;</span>   <span class="c">% frequency</span>
+<span class="n">ph</span> <span class="p">=</span> <span class="mi">0</span><span class="p">;</span>   <span class="c">% phase</span>
+<span class="n">or</span> <span class="p">=</span> <span class="mi">0</span><span class="p">;</span>   <span class="c">% angle/orientation</span>
+
+<span class="c">% Loop through frequencies</span>
+<span class="k">for</span> <span class="n">ii</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+  <span class="c">% Set filename with frequency value</span>
+  <span class="n">filename</span> <span class="p">=</span> <span class="n">sprintf</span><span class="p">(</span><span class="s">&#39;sphere_a%03d.obj&#39;</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">a</span><span class="p">(</span><span class="n">ii</span><span class="p">));</span>
+  <span class="c">% Make the model</span>
+  <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="n">f</span> <span class="n">a</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span> <span class="n">ph</span> <span class="n">or</span><span class="p">],[</span><span class="mi">2</span> <span class="mi">1</span> <span class="mi">90</span> <span class="mi">90</span><span class="p">],</span><span class="n">filename</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>The rendered objects are shown below.  With modulation amplitude 0 the
+object is a sphere.  With higher amplitudes it&#8217;s...  certainly not a
+sphere anymore:</p>
+<img alt="_images/series002.png" src="_images/series002.png" />
+<p>One more example: Here we have two components, and we vary their
+amplitudes in opposition to smoothly transition from component-1-only
+to little-bit-of-both-components to component-2-only:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% Set amplitudes of the two components.  These are between 0 and 0.1,</span>
+<span class="c">% in steps of 0.02, varied in opposition to each other.</span>
+<span class="n">a1</span> <span class="p">=</span> <span class="p">.</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mf">0.02</span><span class="p">:</span><span class="mi">0</span>  <span class="c">% goes from 0.1 to 0.0</span>
+<span class="n">a2</span> <span class="p">=</span> <span class="p">.</span><span class="mi">1</span> <span class="o">-</span> <span class="n">a1</span><span class="p">;</span>    <span class="c">% goes from 0.0 to 0.1</span>
+
+<span class="c">% Set other parameters to constant values</span>
+<span class="n">freq</span> <span class="p">=</span>  <span class="mi">20</span><span class="p">;</span>    <span class="c">% frequency</span>
+<span class="n">ph</span>   <span class="p">=</span>   <span class="mi">0</span><span class="p">;</span>    <span class="c">% phase</span>
+<span class="n">or1</span>  <span class="p">=</span> <span class="o">-</span><span class="mi">60</span><span class="p">;</span>    <span class="c">% angle/orientation of component 1</span>
+<span class="n">or2</span>  <span class="p">=</span>  <span class="mi">60</span><span class="p">;</span>    <span class="c">% angle/orientation of component 2</span>
+
+<span class="c">% Loop through frequencies</span>
+<span class="k">for</span> <span class="n">ii</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">a1</span><span class="p">)</span>
+  <span class="c">% Set filename with frequency value</span>
+  <span class="n">filename</span> <span class="p">=</span> <span class="n">sprintf</span><span class="p">(</span><span class="s">&#39;sphere_%03d_%03d.obj&#39;</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">a1</span><span class="p">(</span><span class="n">ii</span><span class="p">),</span><span class="mi">100</span><span class="o">*</span><span class="n">a2</span><span class="p">(</span><span class="n">ii</span><span class="p">));</span>
+  <span class="c">% Make the model</span>
+  <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="n">freq</span> <span class="n">a1</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span> <span class="n">ph</span> <span class="n">or1</span><span class="p">;</span> <span class="n">freq</span> <span class="n">a2</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span> <span class="n">ph</span> <span class="n">or2</span><span class="p">],[</span><span class="mi">2</span> <span class="mi">1</span> <span class="mi">90</span> <span class="mi">90</span><span class="p">],</span><span class="n">filename</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>And the series of objects rendered:</p>
+<img alt="_images/series003.png" src="_images/series003.png" />
+<p>Note that these are only examples of making and saving a series of
+stimuli.  The particular stimuli produced are not necessarily
+interesting or informative to use in a vision experiment.</p>
+</div>
+<div class="section" id="batch-option-in-objmake-functions">
+<h2>Batch option in objMake*-functions<a class="headerlink" href="#batch-option-in-objmake-functions" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="objmakebatch-function">
+<h2>objMakeBatch-function<a class="headerlink" href="#objmakebatch-function" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Making a series of shapes &#8212; batch processing</a><ul>
+<li><a class="reference internal" href="#making-a-series-of-stimuli">Making a series of stimuli</a></li>
+<li><a class="reference internal" href="#batch-option-in-objmake-functions">Batch option in objMake*-functions</a></li>
+<li><a class="reference internal" href="#objmakebatch-function">objMakeBatch-function</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gs-material-texture.html"
+                        title="previous chapter">Setting material and texture properties</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gs-combining.html"
+                        title="next chapter">Combining modulation types</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gs-batch.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="gs-combining.html" title="Combining modulation types"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gs-material-texture.html" title="Setting material and texture properties"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gettingstarted.html" >Getting started with ShapeToolbox</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Toni P. Saarela.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

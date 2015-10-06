@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Helper functions &mdash; ShapeToolbox 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
+    <link rel="next" title="Rendering" href="rendering.html" />
+    <link rel="prev" title="Extrusion" href="extrusion.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="rendering.html" title="Rendering"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="extrusion.html" title="Extrusion"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="helper-functions">
+<span id="helpers"></span><h1>Helper functions<a class="headerlink" href="#helper-functions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="objfindangles">
+<h2>objFindAngles<a class="headerlink" href="#objfindangles" title="Permalink to this headline">¶</a></h2>
+<p>When defining an orientation for modulation for spheres, cylinders,
+and tori that is not vertical or horizontal, there might be a
+discontinuity in the grating at the <img class="math" src="_images/math/f6ef64ef1e4bf5b2f7acd2946de9dbd39ebb362b.png" alt="0-2\pi"/> border in the azimuth
+direction.  That is, the peaks and troughs of the grating will not, in
+general, meet at this border.  TODO: An example figure with the
+discontinuity.</p>
+<p>The function <code class="docutils literal"><span class="pre">objFindAngles</span></code> finds the orientations that produce a
+continuous grating aroud the object, given a modulation frequency.</p>
+<p>For a sphere or cylinder:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">f</span> <span class="p">=</span> <span class="mi">8</span><span class="p">;</span>              <span class="c">% frequency, in cycles / 2*pi</span>
+<span class="n">a</span> <span class="p">=</span> <span class="n">objFindAngles</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="n">a</span> <span class="p">=</span>
+ <span class="mf">90.00000</span>
+ <span class="mf">82.81924</span>
+ <span class="mf">75.52249</span>
+ <span class="mf">67.97569</span>
+ <span class="mf">60.00000</span>
+ <span class="mf">51.31781</span>
+ <span class="mf">41.40962</span>
+ <span class="mf">28.95502</span>
+  <span class="mf">0.00000</span>
+
+ <span class="n">objMakeSphere</span><span class="p">([</span><span class="n">f</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">(</span><span class="mi">5</span><span class="p">)])</span>
+ <span class="n">objMakeCylinder</span><span class="p">([</span><span class="n">f</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">(</span><span class="mi">5</span><span class="p">)])</span>
+</pre></div>
+</div>
+<p>For a torus, one can also make the grating wrap smoothly around the
+&#8220;tube&#8221; of the torus.  To find the orienatation that produce a
+continuous grating in this direction, specify a second output
+argument:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">f</span> <span class="p">=</span> <span class="mi">8</span><span class="p">;</span>              <span class="c">% frequency, in cycles / 2*pi</span>
+<span class="p">[</span><span class="n">a1</span><span class="p">,</span><span class="n">a2</span><span class="p">]</span> <span class="p">=</span> <span class="n">objFindAngles</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="n">a1</span> <span class="p">=</span>
+ <span class="mf">90.00000</span>
+ <span class="mf">82.81924</span>
+ <span class="mf">75.52249</span>
+ <span class="mf">67.97569</span>
+ <span class="mf">60.00000</span>
+ <span class="mf">51.31781</span>
+ <span class="mf">41.40962</span>
+ <span class="mf">28.95502</span>
+  <span class="mf">0.00000</span>
+
+<span class="n">a2</span> <span class="p">=</span>
+  <span class="mf">0.00000</span>
+  <span class="mf">7.18076</span>
+ <span class="mf">14.47751</span>
+ <span class="mf">22.02431</span>
+ <span class="mf">30.00000</span>
+ <span class="mf">38.68219</span>
+ <span class="mf">48.59038</span>
+ <span class="mf">61.04498</span>
+ <span class="mf">90.00000</span>
+
+ <span class="n">objMakeTorus</span><span class="p">([</span><span class="n">f</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a2</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span><span class="s">&#39;torus1.obj&#39;</span><span class="p">)</span>
+ <span class="n">objMakeTorus</span><span class="p">([</span><span class="n">f</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a2</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span><span class="s">&#39;torus2.obj&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that for a given frequency, there might not be an orientation to
+produce a continuous grating in both directions.</p>
+</div>
+<div class="section" id="objfindfreqs">
+<h2>objFindFreqs<a class="headerlink" href="#objfindfreqs" title="Permalink to this headline">¶</a></h2>
+<p>Whereas <code class="docutils literal"><span class="pre">objFindAngles</span></code> finds an orientation given frequency,
+<code class="docutils literal"><span class="pre">objFindFreqs</span></code> does the opposite: Given an orientation, find the
+frequencies that will make the grating wrap around the object smoothly
+with no dis-continuities.</p>
+<p>For a sphere of a cylinder:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">a</span> <span class="p">=</span> <span class="mi">60</span>              <span class="c">% orientation, in degrees</span>
+<span class="n">f</span> <span class="p">=</span> <span class="n">objFindFreqs</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">f</span> <span class="p">=</span>
+  <span class="mf">0.00000</span>
+  <span class="mf">2.00000</span>
+  <span class="mf">4.00000</span>
+  <span class="mf">6.00000</span>
+  <span class="mf">8.00000</span>
+ <span class="mf">10.00000</span>
+ <span class="mf">12.00000</span>
+ <span class="mf">14.00000</span>
+ <span class="mf">16.00000</span>
+ <span class="mf">18.00000</span>
+ <span class="mf">20.00000</span>
+
+ <span class="n">objMakeSphere</span><span class="p">([</span><span class="n">f</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">])</span>
+ <span class="n">objMakeCylinder</span><span class="p">([</span><span class="n">f</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>As with <code class="docutils literal"><span class="pre">objFindAngles</span></code>, for a torus you can specify a second output
+argument to find the frequencies that make the grating wrap smoothly
+around the tube of the torus:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">a</span> <span class="p">=</span> <span class="mi">30</span>
+<span class="p">[</span><span class="n">f1</span><span class="p">,</span><span class="n">f2</span><span class="p">]</span> <span class="p">=</span> <span class="n">objFindFreqs</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">f1</span> <span class="p">=</span>
+  <span class="mf">0.00000</span>
+  <span class="mf">1.15470</span>
+  <span class="mf">2.30940</span>
+  <span class="mf">3.46410</span>
+  <span class="mf">4.61880</span>
+  <span class="mf">5.77350</span>
+  <span class="mf">6.92820</span>
+  <span class="mf">8.08290</span>
+  <span class="mf">9.23760</span>
+ <span class="mf">10.39230</span>
+ <span class="mf">11.54701</span>
+
+<span class="n">f2</span> <span class="p">=</span>
+  <span class="mf">0.00000</span>
+  <span class="mf">2.00000</span>
+  <span class="mf">4.00000</span>
+  <span class="mf">6.00000</span>
+  <span class="mf">8.00000</span>
+ <span class="mf">10.00000</span>
+ <span class="mf">12.00000</span>
+ <span class="mf">14.00000</span>
+ <span class="mf">16.00000</span>
+ <span class="mf">18.00000</span>
+ <span class="mf">20.00000</span>
+
+<span class="n">objMakeTorus</span><span class="p">([</span><span class="n">f1</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">],</span><span class="s">&#39;torus1.obj&#39;</span><span class="p">)</span>
+<span class="n">objMakeTorus</span><span class="p">([</span><span class="n">f2</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">],</span><span class="s">&#39;torus2.obj&#39;</span><span class="p">)</span>
+
+<span class="c">%----------------------------------------</span>
+
+<span class="n">a</span> <span class="p">=</span> <span class="mi">45</span>
+<span class="p">[</span><span class="n">f1</span><span class="p">,</span><span class="n">f2</span><span class="p">]</span> <span class="p">=</span> <span class="n">objFindFreqs</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">f1</span> <span class="p">=</span>
+   <span class="mf">0.00000</span>
+   <span class="mf">1.41421</span>
+   <span class="mf">2.82843</span>
+   <span class="mf">4.24264</span>
+   <span class="mf">5.65685</span>
+   <span class="mf">7.07107</span>
+   <span class="mf">8.48528</span>
+   <span class="mf">9.89949</span>
+  <span class="mf">11.31371</span>
+  <span class="mf">12.72792</span>
+  <span class="mf">14.14214</span>
+
+<span class="n">f2</span> <span class="p">=</span>
+   <span class="mf">0.00000</span>
+   <span class="mf">1.41421</span>
+   <span class="mf">2.82843</span>
+   <span class="mf">4.24264</span>
+   <span class="mf">5.65685</span>
+   <span class="mf">7.07107</span>
+   <span class="mf">8.48528</span>
+   <span class="mf">9.89949</span>
+  <span class="mf">11.31371</span>
+  <span class="mf">12.72792</span>
+  <span class="mf">14.14214</span>
+
+<span class="n">objMakeTorus</span><span class="p">([</span><span class="n">f1</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="objsavemodel">
+<h2>objSaveModel<a class="headerlink" href="#objsavemodel" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="objshow">
+<h2>objShow<a class="headerlink" href="#objshow" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Helper functions</a><ul>
+<li><a class="reference internal" href="#objfindangles">objFindAngles</a></li>
+<li><a class="reference internal" href="#objfindfreqs">objFindFreqs</a></li>
+<li><a class="reference internal" href="#objsavemodel">objSaveModel</a></li>
+<li><a class="reference internal" href="#objshow">objShow</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="extrusion.html"
+                        title="previous chapter">Extrusion</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="rendering.html"
+                        title="next chapter">Rendering</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/helperfuncs.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="rendering.html" title="Rendering"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="extrusion.html" title="Extrusion"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Toni P. Saarela.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
