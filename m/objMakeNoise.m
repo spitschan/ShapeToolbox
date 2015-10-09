@@ -224,6 +224,7 @@ function model = objMakeNoise(shape,nprm,varargin)
 % 2015-09-29 - ts - fixed the usage-part of help
 % 2015-10-02 - ts - minor fixes to help (rcurve, ecurve params)
 %                   added option for batch processing
+% 2015-10-08 - ts - added the 'spinex' and 'spinez' options
 
 %------------------------------------------------------------
 
@@ -276,6 +277,7 @@ switch model.shape
     defprm = [8 1 0 45 .1 0];
   case 'cylinder'
     defprm = [8 1 0 45 .1 0];
+    model = objInterpCurves(model);
   case 'torus'
     defprm = [8 1 0 45 .1 0];
   case 'revolution'
@@ -369,6 +371,9 @@ switch model.shape
 
     model.X =  model.R .* cos(model.Theta);
     model.Z = -model.R .* sin(model.Theta);
+    model.X = model.X + model.spine.X;
+    model.Z = model.Z + model.spine.Z;
+
     if model.flags.caps
       model = objAddCaps(model);
     end

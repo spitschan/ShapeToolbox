@@ -11,6 +11,7 @@ function model = objSetCoords(model)
 % 2015-06-08 - ts - separate arguments for revolution and extrusion
 %                    profiles, can be combined
 % 2015-06-10 - ts - radius, width, height not set here anymore
+% 2015-10-08 - ts - added handling of the 'spinex' and 'spinez' options
 
 switch model.shape
   case 'sphere'
@@ -29,14 +30,35 @@ switch model.shape
     model.X = X(:);
     model.Y = Y(:);
     model.Z = zeros(model.m*model.n,1);
-  case 'cylinder'
+  case {'cylinder','revolution','extrusion'}
     model.theta = linspace(-pi,pi-2*pi/model.n,model.n); % azimuth
     model.y = linspace(-model.height/2,model.height/2,model.m)'; %  
     [Theta,Y] = meshgrid(model.theta,model.y);
     Theta = Theta'; Y = Y'; 
     model.Theta = Theta(:);
     model.Y = Y(:);
-    model.R = model.radius * ones(model.m*model.n,1);
+    switch model.shape
+      case 'cylinder'
+        model.R = model.radius * ones(model.m*model.n,1);
+      case 'revolution'
+        if isfield(model,'ecurve')
+          R = model.radius * model.ecurve' * model.rcurve;
+        else
+          R = model.radius * repmat(model.rcurve,[model.n 1]);
+        end
+        model.R = R(:);
+      case 'extrusion'
+        if isfield(model,'rcurve')
+          R = model.radius * model.ecurve' * model.rcurve;
+        else
+          R = model.radius * repmat(model.ecurve',[1 model.m]);
+        end
+        model.R = R(:);
+    end
+    model.spine.X = ones(model.n,1) * model.spine.x;
+    model.spine.X = model.spine.X(:);
+    model.spine.Z = ones(model.n,1) * model.spine.z;
+    model.spine.Z = model.spine.Z(:);
   case 'torus'
     model.theta = linspace(-pi,pi-2*pi/model.n,model.n);
     model.phi = linspace(-pi,pi-2*pi/model.m,model.m); 
@@ -46,35 +68,5 @@ switch model.shape
     model.Phi   = Phi(:);
     model.R = model.radius*ones(model.m*model.n,1);
     model.r = model.tube_radius*ones(model.m*model.n,1);
-  case 'revolution'
-    model.theta = linspace(-pi,pi-2*pi/model.n,model.n); % azimuth
-    model.y = linspace(-model.height/2,model.height/2,model.m)'; %  
-    [Theta,Y] = meshgrid(model.theta,model.y);
-    Theta = Theta'; Y = Y'; 
-    model.Theta = Theta(:);
-    model.Y = Y(:);
-
-    if isfield(model,'ecurve')
-      R = model.radius * model.ecurve' * model.rcurve;
-    else
-      R = model.radius * repmat(model.rcurve,[model.n 1]);
-    end
-
-    model.R = R(:);
-  case 'extrusion'
-    model.theta = linspace(-pi,pi-2*pi/model.n,model.n); % azimuth
-    model.y = linspace(-model.height/2,model.height/2,model.m)'; %  
-    [Theta,Y] = meshgrid(model.theta,model.y);
-    Theta = Theta'; Y = Y'; 
-    model.Theta = Theta(:);
-    model.Y = Y(:);
-
-    if isfield(model,'rcurve')
-      R = model.radius * model.ecurve' * model.rcurve;
-    else
-      R = model.radius * repmat(model.ecurve',[1 model.m]);
-    end
-
-    model.R = R(:);
 end
 

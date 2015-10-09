@@ -5,6 +5,13 @@
 Cylinder
 ========
 
+.. image:: ../images/cylinder_coords.png
+
+
+Coordinate system
+=================
+
+
 
 .. _objmake-cylinder:
 

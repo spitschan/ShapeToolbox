@@ -175,6 +175,21 @@ function model = objMakeSine(shape,cprm,varargin)
 % this case, the 'rcurve' is revolved around the y-axis along a path
 % (or radial profile) defined by 'ecurve'.
 % 
+% SPINEX, SPINEZ
+% For use with shapes 'cylinder', 'revolution', and 'extrusion' only.
+% A vector giving the coordinates of the midline, or "spine", of the
+% shape as a function of the y-coordinate.  The following example
+% produces a sinusoidal curve in the x-direction:
+%  y = linspace(0,4*pi,256);
+%  x = sin(y);
+%  objMake('cylinder','spinex',x,'save',true);
+% And adding a cosinusoid to the z-coordinate produces a corkscrew:
+%  z = cos(y);
+%  objMake('cylinder','spinex',x,'spinez',z,'save',true);
+%
+% If the length of the vector 'spinex' or 'spinez' does not match the
+% size of the model mesh y-direction, the curve is interpolated.
+%
 % RPAR
 % When the shape is 'torus', the parameters CPAR and MPAR define the
 % modulation of the radius of the 'tube' of the torus (the minor
@@ -222,6 +237,7 @@ function model = objMakeSine(shape,cprm,varargin)
 % 2015-06-16 - ts - removed setting of default file name
 % 2015-10-02 - ts - minor fixes to help (rcurve, ecurve params)
 %                   added option for batch processing
+% 2015-10-08 - ts - added the 'spinex' and 'spinez' options
 
 %------------------------------------------------------------
 
@@ -276,6 +292,7 @@ switch model.shape
     defprm = [8 .05 0 0 0];
   case 'cylinder'
     defprm = [8 .1 0 0 0];
+    model = objInterpCurves(model);
   case 'torus'
     defprm = [8 .05 0 0 0];
   case 'revolution'
@@ -352,6 +369,8 @@ switch model.shape
     end
     model.X =  model.R .* cos(model.Theta);
     model.Z = -model.R .* sin(model.Theta);
+    model.X = model.X + model.spine.X;
+    model.Z = model.Z + model.spine.Z;
     model.vertices = [model.X model.Y model.Z];
   case 'torus'
     if ~isempty(model.opts.rprm)

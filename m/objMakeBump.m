@@ -195,6 +195,7 @@ function model = objMakeBump(shape,prm,varargin)
 % 2015-09-29 - ts - minor update to help
 % 2015-10-02 - ts - minor fixes to help (rcurve, ecurve params)
 %                   added option for batch processing
+% 2015-10-08 - ts - added support for the 'spinex' and 'spinez' options
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
@@ -251,6 +252,7 @@ switch model.shape
     defprm = [20 .05 .05];
   case 'cylinder'
     defprm = [20 .1 pi/12];
+    model = objInterpCurves(model);
   case 'torus'
     defprm = [];
     clear model

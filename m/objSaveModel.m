@@ -28,6 +28,9 @@ function s = objSaveModel(s)
 % 2015-06-06 - ts - explicitly open file in text mode (for windows)
 % 2015-06-10 - ts - changed freq conversion for plane
 % 2015-06-10 - ts - added mesh reso to obj comments
+% 2015-10-07 - ts - checks for material library and material name
+%                    separately; fixed a bug in setting texture
+%                    coordinate faces for planes
 
 m = s.m;
 n = s.n;
@@ -100,7 +103,7 @@ if s.flags.comp_uv
       V = (s.Y-min(s.Y))/(max(s.Y)-min(s.Y));
       s.uvcoords = [U V];
 
-      s.facestxt = faces;
+      s.facestxt = s.faces;
 
     case 'torus'
       u = linspace(0,1,n+1);
@@ -236,6 +239,8 @@ fprintf(fid,'#\n# Phase and angle (if present) are in radians above.\n');
 
 if ~isempty(s.mtlfilename)
   fprintf(fid,'\n# Materials:\nmtllib %s\nusemtl %s\n',s.mtlfilename,s.mtlname);
+elseif ~isempty(s.mtlname)
+  fprintf(fid,'\n# Materials:\nusemtl %s\n',s.mtlname);
 end
 
 fprintf(fid,'\n# Vertices:\n');

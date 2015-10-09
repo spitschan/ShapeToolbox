@@ -20,6 +20,8 @@ function model = objParseArgs(model,par)
 % 2015-06-08 - ts - fixed a bug in objParseArgs in setting file name
 % 2015-06-10 - ts - added options to change width, height
 % 2015-06-16 - ts - setting a filename sets dosave to true
+% 2015-10-07 - ts - possible to define material name without material library
+% 2015-10-08 - ts - added the 'spinex' and 'spinez' options
 
 % Flag to indicate whether uv-coordinate computation was set to false
 % explicitly.  This is used so that the option 'uvcoords' can be used
@@ -57,7 +59,11 @@ if ~isempty(par)
              error('No value or a bad value given for option ''npoints''.');
            end
          case 'material'
-           if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
+           if ii<length(par) && ischar(par{ii+1})
+             ii = ii + 1;
+             model.mtlname = par{ii};
+             model.flags.comp_uv = true;
+           elseif ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
              ii = ii + 1;
              model.mtlfilename = par{ii}{1};
              model.mtlname = par{ii}{2};
@@ -184,6 +190,22 @@ if ~isempty(par)
           else
              error('No value or a bad value given for option ''height''.');
           end
+         case 'spinex'
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii+1;
+             model.spine.x = par{ii};
+             model.spine.x = model.spine.x(:)';
+           else
+             error('No value or a bad value given for option ''spinex''.');
+           end
+         case 'spinez'
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii+1;
+             model.spine.z = par{ii};
+             model.spine.z = model.spine.z(:)';
+           else
+             error('No value or a bad value given for option ''spinez''.');
+           end
         otherwise
           model.filename = par{ii};
           model.flags.dosave = true;

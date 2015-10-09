@@ -5,17 +5,36 @@
 Helper functions
 ****************
 
+This section described the small handful of helper functions in
+|toolbox| --- functions that do not produce or manipulate the model
+structures themselves but that can help in model design.  The first
+two functions are useful in choosing parameters for the sinusoidal
+modulation (made using :ref:`ref-objmakesine`).  Other functions can be
+used to view the model without saving it to a file, to save the model
+to a file, and reading a model from a file.  Note that the last two
+functions are not usually called by the user directly; they are only
+included here for emergencies, funky custom applications, and general
+playing around.
 
+* `objFindAngles`_
+* `objFindFreqs`_
+* `objShow`_
+* `objSaveModel`_
+* `objRead`_
+
+
+
+.. _helper-objfindangles:
 
 objFindAngles
 ===============
 
-When defining an orientation for modulation for spheres, cylinders,
-and tori that is not vertical or horizontal, there might be a
-discontinuity in the grating at the :math:`0-2\pi` border in the azimuth
-direction.  That is, the peaks and troughs of the grating will not, in
-general, meet at this border.  TODO: An example figure with the
-discontinuity.
+When defining an orientation for modulation for spheres, cylinders (or
+surfaces of revolution or extrusions), and tori that is not vertical
+or horizontal, there might be a discontinuity in the grating at the
+:math:`0-2\pi` border in the azimuth direction.  That is, the peaks
+and troughs of the grating will not, in general, meet at this border.
+TODO: An example figure with the discontinuity.
 
 
 
@@ -37,11 +56,11 @@ For a sphere or cylinder::
    28.95502
     0.00000
 
-   objMakeSphere([f .1 0 a(5)])
-   objMakeCylinder([f .1 0 a(5)])
+   objMakeSine('sphere',[f .1 0 a(5)],'save',true)
+   objMakeSine('cylinder',[f .1 0 a(5)],'save',true)
 
 For a torus, one can also make the grating wrap smoothly around the
-"tube" of the torus.  To find the orienatation that produce a
+"tube" of the torus.  To find the orientation that produce a
 continuous grating in this direction, specify a second output
 argument::
 
@@ -69,12 +88,14 @@ argument::
    61.04498
    90.00000
 
-   objMakeTorus([f .1 0 a2(5)],'torus1.obj')
-   objMakeTorus([f .1 0 a2(5)],'torus2.obj')
+   objMakeSine('torus',[f .1 0 a2(5)],'torus1.obj')
+   objMakeSine('torus',[f .1 0 a2(5)],'torus2.obj')
 
 Note that for a given frequency, there might not be an orientation to
 produce a continuous grating in both directions.
 
+
+.. _helper-objfindfreqs:
 
 objFindFreqs
 ==============
@@ -101,8 +122,8 @@ For a sphere of a cylinder::
    18.00000
    20.00000
 
-   objMakeSphere([f(3) .1 0 a])
-   objMakeCylinder([f(5) .1 0 a])
+   objMakeSine('sphere',[f(3) .1 0 a],'save',true)
+   objMakeSine('cylinder',[f(5) .1 0 a],'save',true)
 
 As with ``objFindAngles``, for a torus you can specify a second output
 argument to find the frequencies that make the grating wrap smoothly
@@ -136,8 +157,8 @@ around the tube of the torus::
    18.00000
    20.00000
 
-  objMakeTorus([f1(8) .1 0 a],'torus1.obj')
-  objMakeTorus([f2(3) .1 0 a],'torus2.obj')
+  objMakeSine('torus',[f1(8) .1 0 a],'torus1.obj')
+  objMakeSine('torus',[f2(3) .1 0 a],'torus2.obj')
 
   %----------------------------------------
 
@@ -169,13 +190,27 @@ around the tube of the torus::
     12.72792
     14.14214
 
-  objMakeTorus([f1(6) .1 0 a])
+  objMakeSine('torus',[f1(6) .1 0 a])
 
+
+
+.. _helper-objshow:
+
+objShow
+=========
+
+
+
+.. _helper-objsavemodel:
 
 objSaveModel
 ============
 
 
-objShow
+
+
+.. _helper-objread:
+
+objRead
 =========
 

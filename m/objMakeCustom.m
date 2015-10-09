@@ -221,6 +221,8 @@ function model = objMakeCustom(shape,f,prm,varargin)
 % 2015-09-29 - ts - minor update to help
 % 2015-10-02 - ts - minor fixes to help (rcurve, ecurve params)
 %                   added option for batch processing
+% 2015-10-08 - ts - added support for the 'spinex' and 'spinez' options
+%                   bug fixes and improvements
 
 % TODO
 
@@ -272,11 +274,8 @@ model = objParseCustomParams(model,f,prm);
 model = objParseArgs(model,par);
 
 switch model.shape
-  case {'sphere','plane','cylinder','torus'}
-  case 'revolution'
-    model = objInterpCurves(model);
-    %model.curve = model.curve/max(model.curve);
-  case 'extrusion'
+  case {'sphere','plane','torus'}
+  case {'cylinder','revolution','extrusion'}
     model = objInterpCurves(model);
     %model.curve = model.curve/max(model.curve);
   otherwise
@@ -291,8 +290,10 @@ else
   ii = length(model.prm)+1;
 end
 model.prm(ii).prm = model.opts.prm;
-model.prm(ii).nbumptypes = model.opts.nbumptypes;
-model.prm(ii).nbumps = model.opts.nbumps;
+if ~model.flags.use_map
+  model.prm(ii).nbumptypes = model.opts.nbumptypes;
+  model.prm(ii).nbumps = model.opts.nbumps;
+end
 
 %------------------------------------------------------------
 % Vertices
@@ -308,6 +309,7 @@ if ~model.flags.use_map
   model = objPlaceBumps(model);
 else
   model = objMakeBumpMap(model);
+  model.vertices = objSph2XYZ(model.Theta,model.Phi,model.R);
 end
 
 if ~isempty(strmatch(model.shape,{'cylinder','revolution','extrusion'}))
@@ -321,7 +323,7 @@ end
 % passed to another objMakeModel*-function, that function will add
 % its parameters to that array.
 ii = length(model.prm);
-model.prm(ii).perturbation = 'bump';
+model.prm(ii).perturbation = 'custom';
 model.prm(ii).mindist = model.opts.mindist;
 model.prm(ii).mfilename = mfilename;
 model.prm(ii).locations = model.opts.locations;

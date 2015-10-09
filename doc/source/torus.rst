@@ -5,6 +5,17 @@
 Torus
 =====
 
+.. image:: ../images/torus_coords.png
+
+
+Coordinate system
+=================
+
+
+The torus also has the option for the modulation of the major radius.
+This happens as a function of the angle theta.
+
+
 .. _objmake-torus:
 
 objMake

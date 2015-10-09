@@ -18,5 +18,8 @@ rendering.
 
 .. toctree::
    :maxdepth: 1
-
+              
    tut-series
+   tut-cloud
+   tut-chain
+   tut-blend

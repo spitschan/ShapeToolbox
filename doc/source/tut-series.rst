@@ -1,10 +1,11 @@
 
 .. _tut-series:
 
-===================
-A series of stimuli
-===================
+=======================================
+Series of parametrically varying shapes
+=======================================
 
 TODO.
 
-This is just a place holder for the first tutorial.
+This is just a place holder for the first tutorial.  A series of
+stimuli with parametrically varying components.

@@ -9,6 +9,7 @@ function model = objPlaceBumps(model)
 % Copyright (C) 2015 Toni Saarela
 % 2015-06-01 - ts - first version
 % 2015-06-03 - ts - fixed a bug in checking for user-defined locations
+% 2015-10-08 - ts - added support for the 'spinex' and 'spinez' options
 
 ii = length(model.prm);
 prm = model.prm(ii).prm;
@@ -270,6 +271,8 @@ switch model.shape
 
     model.X =  model.R .* cos(model.Theta);
     model.Z = -model.R .* sin(model.Theta);
+    model.X = model.X + model.spine.X;
+    model.Z = model.Z + model.spine.Z;
     model.vertices = [model.X model.Y model.Z];
 
   case 'torus'

@@ -14,6 +14,7 @@ function model = objDefaultStruct(shape,reset)
 % 2015-06-10 - ts - set default radius, width, height here
 % 2015-06-16 - ts - changed default value for dosave to false
 %                   added setting default file name
+% 2015-10-08 - ts - added the 'spinex' and 'spinez' variables
 
 if nargin<2 || isempty(reset)
   reset = false;
@@ -35,6 +36,8 @@ if ~reset
       model.n = 256;
       model.radius = 1;
       model.height = 2*pi*model.radius;
+      model.spine.x = zeros(1,model.m);
+      model.spine.z = zeros(1,model.m);
     case 'torus'
       model.m = 256;
       model.n = 256;
