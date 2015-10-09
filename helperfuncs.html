@@ -53,14 +53,31 @@
 <div></div></blockquote>
 <div class="section" id="helper-functions">
 <span id="helpers"></span><h1>Helper functions<a class="headerlink" href="#helper-functions" title="Permalink to this headline">¶</a></h1>
+<p>This section described the small handful of helper functions in
+ShapeToolbox &#8212; functions that do not produce or manipulate the model
+structures themselves but that can help in model design.  The first
+two functions are useful in choosing parameters for the sinusoidal
+modulation (made using <a class="reference internal" href="ref-objmakesine.html#ref-objmakesine"><span>objMakeSine</span></a>).  Other functions can be
+used to view the model without saving it to a file, to save the model
+to a file, and reading a model from a file.  Note that the last two
+functions are not usually called by the user directly; they are only
+included here for emergencies, funky custom applications, and general
+playing around.</p>
+<ul class="simple">
+<li><a class="reference internal" href="#objfindangles">objFindAngles</a></li>
+<li><a class="reference internal" href="#objfindfreqs">objFindFreqs</a></li>
+<li><a class="reference internal" href="#objshow">objShow</a></li>
+<li><a class="reference internal" href="#objsavemodel">objSaveModel</a></li>
+<li><a class="reference internal" href="#objread">objRead</a></li>
+</ul>
 <div class="section" id="objfindangles">
-<h2>objFindAngles<a class="headerlink" href="#objfindangles" title="Permalink to this headline">¶</a></h2>
-<p>When defining an orientation for modulation for spheres, cylinders,
-and tori that is not vertical or horizontal, there might be a
-discontinuity in the grating at the <img class="math" src="_images/math/f6ef64ef1e4bf5b2f7acd2946de9dbd39ebb362b.png" alt="0-2\pi"/> border in the azimuth
-direction.  That is, the peaks and troughs of the grating will not, in
-general, meet at this border.  TODO: An example figure with the
-discontinuity.</p>
+<span id="helper-objfindangles"></span><h2>objFindAngles<a class="headerlink" href="#objfindangles" title="Permalink to this headline">¶</a></h2>
+<p>When defining an orientation for modulation for spheres, cylinders (or
+surfaces of revolution or extrusions), and tori that is not vertical
+or horizontal, there might be a discontinuity in the grating at the
+<img class="math" src="_images/math/f6ef64ef1e4bf5b2f7acd2946de9dbd39ebb362b.png" alt="0-2\pi"/> border in the azimuth direction.  That is, the peaks
+and troughs of the grating will not, in general, meet at this border.
+TODO: An example figure with the discontinuity.</p>
 <p>The function <code class="docutils literal"><span class="pre">objFindAngles</span></code> finds the orientations that produce a
 continuous grating aroud the object, given a modulation frequency.</p>
 <p>For a sphere or cylinder:</p>
@@ -77,12 +94,12 @@ continuous grating aroud the object, given a modulation frequency.</p>
  <span class="mf">28.95502</span>
   <span class="mf">0.00000</span>
 
- <span class="n">objMakeSphere</span><span class="p">([</span><span class="n">f</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">(</span><span class="mi">5</span><span class="p">)])</span>
- <span class="n">objMakeCylinder</span><span class="p">([</span><span class="n">f</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">(</span><span class="mi">5</span><span class="p">)])</span>
+ <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="n">f</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">)</span>
+ <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="n">f</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For a torus, one can also make the grating wrap smoothly around the
-&#8220;tube&#8221; of the torus.  To find the orienatation that produce a
+&#8220;tube&#8221; of the torus.  To find the orientation that produce a
 continuous grating in this direction, specify a second output
 argument:</p>
 <div class="highlight-matlab"><div class="highlight"><pre><span class="n">f</span> <span class="p">=</span> <span class="mi">8</span><span class="p">;</span>              <span class="c">% frequency, in cycles / 2*pi</span>
@@ -109,15 +126,15 @@ argument:</p>
  <span class="mf">61.04498</span>
  <span class="mf">90.00000</span>
 
- <span class="n">objMakeTorus</span><span class="p">([</span><span class="n">f</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a2</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span><span class="s">&#39;torus1.obj&#39;</span><span class="p">)</span>
- <span class="n">objMakeTorus</span><span class="p">([</span><span class="n">f</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a2</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span><span class="s">&#39;torus2.obj&#39;</span><span class="p">)</span>
+ <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;torus&#39;</span><span class="p">,[</span><span class="n">f</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a2</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span><span class="s">&#39;torus1.obj&#39;</span><span class="p">)</span>
+ <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;torus&#39;</span><span class="p">,[</span><span class="n">f</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a2</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span><span class="s">&#39;torus2.obj&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Note that for a given frequency, there might not be an orientation to
 produce a continuous grating in both directions.</p>
 </div>
 <div class="section" id="objfindfreqs">
-<h2>objFindFreqs<a class="headerlink" href="#objfindfreqs" title="Permalink to this headline">¶</a></h2>
+<span id="helper-objfindfreqs"></span><h2>objFindFreqs<a class="headerlink" href="#objfindfreqs" title="Permalink to this headline">¶</a></h2>
 <p>Whereas <code class="docutils literal"><span class="pre">objFindAngles</span></code> finds an orientation given frequency,
 <code class="docutils literal"><span class="pre">objFindFreqs</span></code> does the opposite: Given an orientation, find the
 frequencies that will make the grating wrap around the object smoothly
@@ -138,8 +155,8 @@ with no dis-continuities.</p>
  <span class="mf">18.00000</span>
  <span class="mf">20.00000</span>
 
- <span class="n">objMakeSphere</span><span class="p">([</span><span class="n">f</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">])</span>
- <span class="n">objMakeCylinder</span><span class="p">([</span><span class="n">f</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">])</span>
+ <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="n">f</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">],</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">)</span>
+ <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="n">f</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">],</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>As with <code class="docutils literal"><span class="pre">objFindAngles</span></code>, for a torus you can specify a second output
@@ -173,8 +190,8 @@ around the tube of the torus:</p>
  <span class="mf">18.00000</span>
  <span class="mf">20.00000</span>
 
-<span class="n">objMakeTorus</span><span class="p">([</span><span class="n">f1</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">],</span><span class="s">&#39;torus1.obj&#39;</span><span class="p">)</span>
-<span class="n">objMakeTorus</span><span class="p">([</span><span class="n">f2</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">],</span><span class="s">&#39;torus2.obj&#39;</span><span class="p">)</span>
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;torus&#39;</span><span class="p">,[</span><span class="n">f1</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">],</span><span class="s">&#39;torus1.obj&#39;</span><span class="p">)</span>
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;torus&#39;</span><span class="p">,[</span><span class="n">f2</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">],</span><span class="s">&#39;torus2.obj&#39;</span><span class="p">)</span>
 
 <span class="c">%----------------------------------------</span>
 
@@ -206,15 +223,18 @@ around the tube of the torus:</p>
   <span class="mf">12.72792</span>
   <span class="mf">14.14214</span>
 
-<span class="n">objMakeTorus</span><span class="p">([</span><span class="n">f1</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">])</span>
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;torus&#39;</span><span class="p">,[</span><span class="n">f1</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="n">a</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="objsavemodel">
-<h2>objSaveModel<a class="headerlink" href="#objsavemodel" title="Permalink to this headline">¶</a></h2>
-</div>
 <div class="section" id="objshow">
-<h2>objShow<a class="headerlink" href="#objshow" title="Permalink to this headline">¶</a></h2>
+<span id="helper-objshow"></span><h2>objShow<a class="headerlink" href="#objshow" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="objsavemodel">
+<span id="helper-objsavemodel"></span><h2>objSaveModel<a class="headerlink" href="#objsavemodel" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="objread">
+<span id="helper-objread"></span><h2>objRead<a class="headerlink" href="#objread" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -229,8 +249,9 @@ around the tube of the torus:</p>
 <li><a class="reference internal" href="#">Helper functions</a><ul>
 <li><a class="reference internal" href="#objfindangles">objFindAngles</a></li>
 <li><a class="reference internal" href="#objfindfreqs">objFindFreqs</a></li>
-<li><a class="reference internal" href="#objsavemodel">objSaveModel</a></li>
 <li><a class="reference internal" href="#objshow">objShow</a></li>
+<li><a class="reference internal" href="#objsavemodel">objSaveModel</a></li>
+<li><a class="reference internal" href="#objread">objRead</a></li>
 </ul>
 </li>
 </ul>

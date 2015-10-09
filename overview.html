@@ -61,7 +61,7 @@ defines a set of points (<em>vertices</em>) in three dimensions, and a set of
 <em>faces</em>, or groups of vertices.  Together the faces approximate the
 surface to be modeled.  More information about vertex normals (the
 normal vector of the surface-to-be-approximated at that point) and
-texture coordinates can be defined to improve the rendering of the
+texture coordinates can be added to improve the rendering of the
 model.  The model is often saved in a text file.  <strong>This first step is
 the one ShapeToolbox can be used for.</strong></p>
 <p>The next step is to define material properties for the model.  These
@@ -76,9 +76,30 @@ are Mitsuba and Radiance, and ShapeToolbox manual contains some examples
 of their use.  Other rendering engines, of course, exist.</p>
 </div>
 <div class="section" id="what-toolbox-does">
-<h2>What ShapeToolbox does<a class="headerlink" href="#what-toolbox-does" title="Permalink to this headline">¶</a></h2>
+<h2>What ShapeToolbox does...<a class="headerlink" href="#what-toolbox-does" title="Permalink to this headline">¶</a></h2>
 <p>...and by corollary, what it does not.</p>
-<p>TODO.</p>
+<p>The functions in ShapeToolbox can be used to create 3D wireframe models
+of simple objects.  The shapes of the objects available include
+spheres, planes, cylinders, and tori.  In addition to these, ShapeToolbox
+can create surfaces of revolution and extrusion shapes based on a
+shape profile provided by the user.  These shapes can be further
+perturbed by different kinds of modulation.  The modulations include
+sinusoidal components, filtered noise, Gaussian bumps and dents, and
+other, user-defined perturbations.  User-defined perturbations include
+using matrices and images as bump maps, as well as perturbations
+defined by user-provided functions.  All parameters for the different
+perturbations are provided by the user, so one can easily produce
+parametrically varying shapes for experiment purposes.</p>
+<p>ShapeToolbox also includes functions for viewing the models and writing
+them to a file.  The models are saved in in plain text in Wavefront
+obj-format.  These obj-files can be imported to most modeling and
+rendering software.</p>
+<p>ShapeToolbox has options for batch processing&#8212;producing a series of
+models with a single function call.  Two models can be blended
+(morphed) in different proportions to produce a range of intermediate
+shapes between them.  Texture coordinates can be defined for texture
+mapping, and there is an option for computing vertex normals for
+improved rendering quality.</p>
 </div>
 <div class="section" id="workflow">
 <h2>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h2>
@@ -96,7 +117,7 @@ of their use.  Other rendering engines, of course, exist.</p>
   <ul>
 <li><a class="reference internal" href="#">Overview of ShapeToolbox</a><ul>
 <li><a class="reference internal" href="#d-models-materials-and-rendering">3D models, materials, and rendering</a></li>
-<li><a class="reference internal" href="#what-toolbox-does">What ShapeToolbox does</a></li>
+<li><a class="reference internal" href="#what-toolbox-does">What ShapeToolbox does...</a></li>
 <li><a class="reference internal" href="#workflow">Workflow</a></li>
 </ul>
 </li>

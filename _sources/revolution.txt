@@ -4,6 +4,14 @@
 Revolution
 ==========
 
+.. image:: ../images/cylinder_coords.png
+
+
+Coordinate system
+=================
+
+
+
 .. _objmake-revolution:
 
 objMake

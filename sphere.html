@@ -55,8 +55,23 @@
 <div></div></blockquote>
 <div class="section" id="sphere">
 <span id="id1"></span><h1>Sphere<a class="headerlink" href="#sphere" title="Permalink to this headline">¶</a></h1>
-<img alt="_images/sphere_coords_3d_400.png" src="_images/sphere_coords_3d_400.png" />
+<a class="reference internal image-reference" href="_images/sphere_coords_3d_400.png"><img alt="_images/sphere_coords_3d_400.png" src="_images/sphere_coords_3d_400.png" style="width: 300px;" /></a>
 <img alt="_images/sphere_coords.png" src="_images/sphere_coords.png" />
+<div class="section" id="coordinate-system">
+<h2>Coordinate system<a class="headerlink" href="#coordinate-system" title="Permalink to this headline">¶</a></h2>
+<p>TODO: There might be zero-area faces, and Radiance at least will
+complain about them.  The sampling is in many cases highly redundant
+near the poles where the lines of longitude meet.  This could be
+down-sampled when writing to a file to reduce the files size, but it
+is not done in ShapeToolbox.  There are a couple of reasons for this.
+The models produced by ShapeToolbox functions can be given as input to
+other functions to add perturbations, and two models can also be
+blended.  In these cases, the coordinates systems and the sampling
+points have to match.  Also, in some cases you might want a
+high-frequency modulation near the poles.  These models are meant for
+experiments, not for efficient computer graphics applications, so
+ShapeToolbox does not throw away the vertex data.</p>
+</div>
 <div class="section" id="objmake">
 <span id="objmake-sphere"></span><h2>objMake<a class="headerlink" href="#objmake" title="Permalink to this headline">¶</a></h2>
 </div>
@@ -154,6 +169,7 @@ the custom function.  Define the bump function in-line.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Sphere</a><ul>
+<li><a class="reference internal" href="#coordinate-system">Coordinate system</a></li>
 <li><a class="reference internal" href="#objmake">objMake</a></li>
 <li><a class="reference internal" href="#objmakesine">objMakeSine</a></li>
 <li><a class="reference internal" href="#objmakenoise">objMakeNoise</a></li>

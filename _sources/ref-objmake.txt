@@ -91,6 +91,10 @@ objMake
    % option forces the option uvcoords (see below) to true.  Example:
    %  objMake(...,'material',{'matfile.mtl','mymaterial'},...)
    %
+   % Alternatively, you can give the material name only, without the
+   % material library name:
+   %  objMake(...,'material','mymaterial',...)
+   %
    % UVCOORDS
    % Boolean, toggles the computation of texture (uv) coordinates
    % (default is false).  Example: 

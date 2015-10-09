@@ -6,7 +6,14 @@ Plane
 ======
 
 .. image:: ../images/plane_coords_3d_400.png
+   :width: 300px
 .. image:: ../images/plane_coords.png
+
+
+
+Coordinate system
+=================
+
 
 .. _objmake-plane:
 

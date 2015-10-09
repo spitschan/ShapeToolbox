@@ -8,9 +8,6 @@
 |toolbox| manual
 ================
 
-**NOTE: This manual is a work in progress.  Several sections are still
-to be written.  More content is added as often as possible.**
-
 |toolbox| is a collection of Octave/Matlab functions for generating 3D
 models of various shapes and saving them in the Wavefront .obj-file
 format.  The shapes available include spheres, planes, cylinders,
@@ -31,13 +28,21 @@ find the tools useful is welcome to use and build on them.
 
 The range of base shapes is limited to a handful of simple shapes, but
 the options for modulation can result in very complex shapes.
-However, |toolbox| is *not* a general-purpose 3D-modeling software with
-which you can create arbitrary or real-world stimuli such as houses
-and faces.  Nor is it a rendering tool: after creating the models with
-|toolbox|, you have to render them using some other program to create images.
+However, |toolbox| is *not* a general-purpose 3D-modeling software
+with which you can create arbitrary or real-world stimuli such as
+houses and faces.  Nor is it a rendering tool: after creating the
+models with |toolbox|, you have to render them using a rendering
+engine to create 2D images.
 
-For examples of the shapes you can produce with |toolbox|, have a look
-at the :ref:`gallery`.
+For examples of the shapes you can produce with |toolbox|, along with
+the code to produce them, have a look at the :ref:`gallery`.  For the
+impatient, this might be the best way to get started---look at the
+examples and start modifying them.
+
+For more complete projects and step-by-step instructions, there is the
+:ref:`tutorials` section.  For anyone who read this far, just start
+from the beginning, or maybe in the :ref:`getstart` section.
+You would have probably done that anyway.
 
 
 .. toctree::

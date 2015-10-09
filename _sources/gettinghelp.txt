@@ -35,7 +35,7 @@ HTML-manual, online
 ===================
 
 The latest version of this HTML manual can be found in 
-http://saarela.github.io/shapetoolbox/index.html.
+http://saarela.github.io/ShapeToolbox/.
 
 
 Email

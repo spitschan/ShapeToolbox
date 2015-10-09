@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Revolution &mdash; ShapeToolbox 0.1 documentation</title>
+    <title>Chaining perturbations &mdash; ShapeToolbox 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,9 +24,9 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
-    <link rel="up" title="Object types" href="object_types.html" />
-    <link rel="next" title="Extrusion" href="extrusion.html" />
-    <link rel="prev" title="Torus" href="torus.html" /> 
+    <link rel="up" title="Tutorials" href="tutorials.html" />
+    <link rel="next" title="Object types" href="object_types.html" />
+    <link rel="prev" title="Shape clouds" href="tut-cloud.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -36,13 +36,13 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="extrusion.html" title="Extrusion"
+          <a href="object_types.html" title="Object types"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="torus.html" title="Torus"
+          <a href="tut-cloud.html" title="Shape clouds"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="object_types.html" accesskey="U">Object types</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="tutorials.html" accesskey="U">Tutorials</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -53,27 +53,13 @@
             
   <blockquote>
 <div></div></blockquote>
-<div class="section" id="revolution">
-<h1>Revolution<a class="headerlink" href="#revolution" title="Permalink to this headline">¶</a></h1>
-<img alt="_images/cylinder_coords.png" src="_images/cylinder_coords.png" />
-<div class="section" id="coordinate-system">
-<h2>Coordinate system<a class="headerlink" href="#coordinate-system" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmake">
-<span id="objmake-revolution"></span><h2>objMake<a class="headerlink" href="#objmake" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakesine">
-<span id="objmakesine-revolution"></span><h2>objMakeSine<a class="headerlink" href="#objmakesine" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakenoise">
-<span id="objmakenoise-revolution"></span><h2>objMakeNoise<a class="headerlink" href="#objmakenoise" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakebump">
-<span id="objmakebump-revolution"></span><h2>objMakeBump<a class="headerlink" href="#objmakebump" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakecustom">
-<span id="objmakecustom-revolution"></span><h2>objMakeCustom<a class="headerlink" href="#objmakecustom" title="Permalink to this headline">¶</a></h2>
-</div>
+<div class="section" id="chaining-perturbations">
+<span id="tut-chain"></span><h1>Chaining perturbations<a class="headerlink" href="#chaining-perturbations" title="Permalink to this headline">¶</a></h1>
+<p>TODO.</p>
+<p>Choose a base shape.  First create a non-modulated model.  Then give
+that structure as input to another function, say objMakeSine, to add
+modulation.  Return the model structure, then give that as an input to
+another function, say, objMakeNoise.  And so forth.</p>
 </div>
 
 
@@ -82,29 +68,16 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Revolution</a><ul>
-<li><a class="reference internal" href="#coordinate-system">Coordinate system</a></li>
-<li><a class="reference internal" href="#objmake">objMake</a></li>
-<li><a class="reference internal" href="#objmakesine">objMakeSine</a></li>
-<li><a class="reference internal" href="#objmakenoise">objMakeNoise</a></li>
-<li><a class="reference internal" href="#objmakebump">objMakeBump</a></li>
-<li><a class="reference internal" href="#objmakecustom">objMakeCustom</a></li>
-</ul>
-</li>
-</ul>
-
   <h4>Previous topic</h4>
-  <p class="topless"><a href="torus.html"
-                        title="previous chapter">Torus</a></p>
+  <p class="topless"><a href="tut-cloud.html"
+                        title="previous chapter">Shape clouds</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="extrusion.html"
-                        title="next chapter">Extrusion</a></p>
+  <p class="topless"><a href="object_types.html"
+                        title="next chapter">Object types</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/revolution.txt"
+      <li><a href="_sources/tut-chain.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -132,13 +105,13 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="extrusion.html" title="Extrusion"
+          <a href="object_types.html" title="Object types"
              >next</a> |</li>
         <li class="right" >
-          <a href="torus.html" title="Torus"
+          <a href="tut-cloud.html" title="Shape clouds"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="object_types.html" >Object types</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="tutorials.html" >Tutorials</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

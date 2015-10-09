@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Revolution &mdash; ShapeToolbox 0.1 documentation</title>
+    <title>Transparent blob with noisy, textured background &mdash; ShapeToolbox 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,9 +24,9 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
-    <link rel="up" title="Object types" href="object_types.html" />
-    <link rel="next" title="Extrusion" href="extrusion.html" />
-    <link rel="prev" title="Torus" href="torus.html" /> 
+    <link rel="up" title="Gallery" href="gallery.html" />
+    <link rel="next" title="Corkscrew" href="gallery-corkscrew.html" />
+    <link rel="prev" title="Gallery" href="gallery.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -36,13 +36,13 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="extrusion.html" title="Extrusion"
+          <a href="gallery-corkscrew.html" title="Corkscrew"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="torus.html" title="Torus"
+          <a href="gallery.html" title="Gallery"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="object_types.html" accesskey="U">Object types</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="gallery.html" accesskey="U">Gallery</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -53,27 +53,24 @@
             
   <blockquote>
 <div></div></blockquote>
-<div class="section" id="revolution">
-<h1>Revolution<a class="headerlink" href="#revolution" title="Permalink to this headline">¶</a></h1>
-<img alt="_images/cylinder_coords.png" src="_images/cylinder_coords.png" />
-<div class="section" id="coordinate-system">
-<h2>Coordinate system<a class="headerlink" href="#coordinate-system" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="transparent-blob-with-noisy-textured-background">
+<span id="gallerytransparentblob"></span><h1>Transparent blob with noisy, textured background<a class="headerlink" href="#transparent-blob-with-noisy-textured-background" title="Permalink to this headline">¶</a></h1>
+<a class="reference internal image-reference" href="_images/blob.png"><img alt="_images/blob.png" src="_images/blob.png" style="width: 400px;" /></a>
+<p>TODO: Render better quality image.</p>
+<p>Code for producing the model:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">25</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">8</span><span class="p">],..</span>
+            <span class="s">&#39;material&#39;</span><span class="p">,</span><span class="s">&#39;blobmat&#39;</span><span class="p">,</span><span class="c">...</span>
+            <span class="s">&#39;blob.obj&#39;</span><span class="p">);</span>
+
+<span class="n">noiseprm</span> <span class="p">=</span> <span class="p">[</span><span class="mi">32</span> <span class="mi">1</span> <span class="mi">45</span> <span class="mi">45</span> <span class="p">.</span><span class="mi">02</span><span class="p">];</span>
+<span class="k">for</span> <span class="n">ii</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">3</span>
+  <span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,</span><span class="n">noiseprm</span><span class="p">,</span><span class="c">...</span>
+               <span class="s">&#39;material&#39;</span><span class="p">,</span><span class="s">&#39;bkgrmat&#39;</span><span class="p">,</span>
+               <span class="n">sprintf</span><span class="p">(</span><span class="s">&#39;background%0d.obj&#39;</span><span class="p">,</span><span class="n">ii</span><span class="p">));</span>
+<span class="k">end</span>
+</pre></div>
 </div>
-<div class="section" id="objmake">
-<span id="objmake-revolution"></span><h2>objMake<a class="headerlink" href="#objmake" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakesine">
-<span id="objmakesine-revolution"></span><h2>objMakeSine<a class="headerlink" href="#objmakesine" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakenoise">
-<span id="objmakenoise-revolution"></span><h2>objMakeNoise<a class="headerlink" href="#objmakenoise" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakebump">
-<span id="objmakebump-revolution"></span><h2>objMakeBump<a class="headerlink" href="#objmakebump" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakecustom">
-<span id="objmakecustom-revolution"></span><h2>objMakeCustom<a class="headerlink" href="#objmakecustom" title="Permalink to this headline">¶</a></h2>
-</div>
+<p>TODO: Radiance code for rendering.</p>
 </div>
 
 
@@ -82,29 +79,16 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Revolution</a><ul>
-<li><a class="reference internal" href="#coordinate-system">Coordinate system</a></li>
-<li><a class="reference internal" href="#objmake">objMake</a></li>
-<li><a class="reference internal" href="#objmakesine">objMakeSine</a></li>
-<li><a class="reference internal" href="#objmakenoise">objMakeNoise</a></li>
-<li><a class="reference internal" href="#objmakebump">objMakeBump</a></li>
-<li><a class="reference internal" href="#objmakecustom">objMakeCustom</a></li>
-</ul>
-</li>
-</ul>
-
   <h4>Previous topic</h4>
-  <p class="topless"><a href="torus.html"
-                        title="previous chapter">Torus</a></p>
+  <p class="topless"><a href="gallery.html"
+                        title="previous chapter">Gallery</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="extrusion.html"
-                        title="next chapter">Extrusion</a></p>
+  <p class="topless"><a href="gallery-corkscrew.html"
+                        title="next chapter">Corkscrew</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/revolution.txt"
+      <li><a href="_sources/gallery-transparent-blob.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -132,13 +116,13 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="extrusion.html" title="Extrusion"
+          <a href="gallery-corkscrew.html" title="Corkscrew"
              >next</a> |</li>
         <li class="right" >
-          <a href="torus.html" title="Torus"
+          <a href="gallery.html" title="Gallery"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="object_types.html" >Object types</a> &raquo;</li> 
+          <li class="nav-item nav-item-1"><a href="gallery.html" >Gallery</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

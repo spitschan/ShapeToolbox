@@ -7,7 +7,27 @@ Sphere
 
 
 .. image:: ../images/sphere_coords_3d_400.png
+   :width: 300px
 .. image:: ../images/sphere_coords.png
+
+
+Coordinate system
+=================
+
+TODO: There might be zero-area faces, and Radiance at least will
+complain about them.  The sampling is in many cases highly redundant
+near the poles where the lines of longitude meet.  This could be
+down-sampled when writing to a file to reduce the files size, but it
+is not done in |toolbox|.  There are a couple of reasons for this.
+The models produced by |toolbox| functions can be given as input to
+other functions to add perturbations, and two models can also be
+blended.  In these cases, the coordinates systems and the sampling
+points have to match.  Also, in some cases you might want a
+high-frequency modulation near the poles.  These models are meant for
+experiments, not for efficient computer graphics applications, so
+|toolbox| does not throw away the vertex data.
+
+
 
 .. _objmake-sphere:
 
