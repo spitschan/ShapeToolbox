@@ -5,7 +5,6 @@
 Gallery
 *******
 
-
 .. image:: ../images/gallery/corkscrew.png
    :width: 150px
    :target: gallery-corkscrew.html
@@ -18,11 +17,6 @@ Gallery
 .. image:: ../images/gallery/bubbles.png
    :width: 150px
    :target: gallery-bubbles.html
-
-
-Radial frequency patterns with the torus.  No other shape modulation,
-just the major radius.
-
 
 .. toctree::
    :maxdepth: 1
