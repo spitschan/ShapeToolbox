@@ -58,22 +58,40 @@
 <div class="section" id="simplest-of-the-simple">
 <h2>Simplest of the simple<a class="headerlink" href="#simplest-of-the-simple" title="Permalink to this headline">¶</a></h2>
 <p>Let&#8217;s start simple.  The command:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">);</span>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">model</span> <span class="p">=</span> <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>makes a model sphere, with the default sinusoidal modulation: vertical
 components, eight cycles around the sphere, with an amplitude of 0.1.
 (Other functions in the toolbox add other kinds of perturbation, but
 for now we&#8217;ll stick to sinusoids.)  The sphere has a base radius of
-one, so this amplitude is 10% of the sphere radius.  The model is
-saved in the file <code class="docutils literal"><span class="pre">sphere.obj</span></code>.  You can view the saved model object
-with one of the programs suggested in the section <a class="reference internal" href="gs-viewing.html#gs-viewing"><span>A note on viewing 3D-models</span></a>.
-Rendered, it would look something like this:</p>
-<img alt="_images/sphere0011.png" src="_images/sphere0011.png" />
+one, so this amplitude is 10% of the sphere radius.  You can view the
+model with the command:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objShow</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which will display this:</p>
+<img alt="_images/sphere_objview.png" src="_images/sphere_objview.png" />
+<p>To save the model to a file, set the option &#8220;save&#8221; to true:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[],</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The second input argument defines the modulation parameters.  We pass
+an empty array (&#8220;[]&#8221;) to use the default parameters.  Model on those
+parameter below.  The model is saved in the file <code class="docutils literal"><span class="pre">sphere.obj</span></code>.  You
+can view the saved model object with one of the programs suggested in
+the section <a class="reference internal" href="gs-viewing.html#gs-viewing"><span>A note on viewing 3D-models</span></a>.  Rendered, with gray plastic as
+material, it would look something like this:</p>
+<img alt="_images/sphere001.png" src="_images/sphere001.png" />
 <img alt="_images/sphere001profile.png" src="_images/sphere001profile.png" />
 <p><strong>Above:</strong> A sphere with the default modulation parameters.  The
 right-hand panel shows the modulation of the radius as a function of
 the angle (azimuth) from <img class="math" src="_images/math/3723ed53ca6fd37b4ba725f84af223bb8a0c3966.png" alt="-\pi"/> to <img class="math" src="_images/math/c1bd4cb4e3647c6b2356b7ccf2f52aeffedd1b61.png" alt="\pi"/>.</p>
+<p>From now on, the pictures in this manual will show either the
+high-quality, rendered image of the object (such as above), or an
+image of the object viewed with <code class="docutils literal"><span class="pre">objShow</span></code>.  Even when a rendered
+image is shown, you can always view the same model quickly using
+<code class="docutils literal"><span class="pre">objShow</span></code> as in the first example.</p>
 <p>Next, we&#8217;ll start changing some of the parameters of the modulation.
 The parameters are given as the first input argument to
 <a class="reference internal" href="ref-objmakesine.html#ref-objmakesine"><span>objMakeSine</span></a>.  The parameter vector defining the
@@ -87,21 +105,16 @@ and saving the model in the file <code class="docutils literal"><span class="pre
 </pre></div>
 </div>
 <img alt="_images/sphere002.png" src="_images/sphere002.png" />
-<p>In the above example, the vertex and face information of the object
-are also returned in the fields of the structure <code class="docutils literal"><span class="pre">sphere</span></code>.  Usually
-you don&#8217;t need to do this&#8212;most often you just want to have the model
-saved in a file.  But sometimes you might want to get the structure
-for quick viewing with the function <a class="reference internal" href="ref-helperfuncs.html#ref-objshow"><span>objShow</span></a>.  So after
-running the above command you might do:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objShow</span><span class="p">(</span><span class="n">sphere</span><span class="p">)</span>
-</pre></div>
-</div>
+<p>In the above example, passing a string (&#8220;sphere_10cycles.obj&#8221;) saves
+the model in a file of that name.  The vertex and face information of
+the model are also returned in the fields of the structure
+<code class="docutils literal"><span class="pre">sphere</span></code>.  As above, you can view it using <code class="docutils literal"><span class="pre">objShow</span></code>.</p>
 <p>You can also go lower in frequency, such as in the example below.
 Note that the frequency is given in cycles per <img class="math" src="_images/math/9871bd64995368def3d10c85692a233e4cb5e3f9.png" alt="2\pi"/> (that is,
 in number of cycles around the sphere).  If frequency is not an
 integer, the modulation will not wrap around the object smoothly and
 you will have a discontinuity at <img class="math" src="_images/math/3723ed53ca6fd37b4ba725f84af223bb8a0c3966.png" alt="-\pi"/> and <img class="math" src="_images/math/c1bd4cb4e3647c6b2356b7ccf2f52aeffedd1b61.png" alt="\pi"/>:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mf">3.5</span> <span class="p">.</span><span class="mi">2</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">]);</span>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mf">3.5</span> <span class="p">.</span><span class="mi">2</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">);</span>
 </pre></div>
 </div>
 <img alt="_images/sphere003.png" src="_images/sphere003.png" />
@@ -113,21 +126,21 @@ modulation; x-axis is the angle from <img class="math" src="_images/math/3723ed5
 azimuth direction, change the angle parameter.  The angle of the
 modulation is given in degrees, so value 90 gives a &#8220;horizontal&#8221;
 modulation:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">90</span><span class="p">]);</span>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">90</span><span class="p">],</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">);</span>
 </pre></div>
 </div>
 <img alt="_images/sphere004.png" src="_images/sphere004.png" />
 <p>By default, the modulations are in sine phase.  In the above example,
 the top and bottom parts of the objects are not symmetrical (i.e., the
-object is not symmetrical with respect to the x-y plane).  To have that
+object is not symmetrical with respect to the xz-plane).  To have that
 symmetry, change the phase of the modulation by 90 degrees:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">90</span> <span class="mi">90</span><span class="p">]);</span>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">90</span> <span class="mi">90</span><span class="p">],</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">);</span>
 </pre></div>
 </div>
 <img alt="_images/sphere005.png" src="_images/sphere005.png" />
 <p>The angle of the modulation does not have to be 0 or 90 degrees;
 intermediate angles are possible:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">])</span>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">],</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">)</span>
 </pre></div>
 </div>
 <img alt="_images/sphere006.png" src="_images/sphere006.png" />
@@ -147,19 +160,19 @@ argument.  The following example has two components, both with the
 same angle but with different frequencies:</p>
 <div class="highlight-matlab"><div class="highlight"><pre><span class="n">par</span> <span class="p">=</span> <span class="p">[</span><span class="mi">4</span>  <span class="p">.</span><span class="mi">2</span>  <span class="mi">0</span> <span class="mi">0</span><span class="p">;</span>
        <span class="mi">16</span> <span class="p">.</span><span class="mi">05</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">]</span>
-<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="n">par</span><span class="p">);</span>
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="n">par</span><span class="p">,</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">);</span>
 </pre></div>
 </div>
 <img alt="_images/sphere007.png" src="_images/sphere007.png" />
 <a class="reference internal image-reference" href="_images/sphere007profile.png"><img alt="_images/sphere007profile.png" src="_images/sphere007profile.png" style="width: 300px;" /></a>
 <p>The schematic on the right shows the individual and compound profiles.</p>
 <p>Or you can have two components at different angles:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">;</span> <span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">90</span> <span class="mi">90</span><span class="p">]);</span>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">;</span> <span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">90</span> <span class="mi">90</span><span class="p">],</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">);</span>
 </pre></div>
 </div>
 <img alt="_images/sphere008.png" src="_images/sphere008.png" />
 <p>The same but with non-cardinal angles:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">;</span> <span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="o">-</span><span class="mi">60</span><span class="p">]);</span>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">;</span> <span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="o">-</span><span class="mi">60</span><span class="p">],</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">);</span>
 </pre></div>
 </div>
 <img alt="_images/sphere009.png" src="_images/sphere009.png" />

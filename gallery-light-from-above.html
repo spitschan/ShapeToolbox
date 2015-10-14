@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Corkscrew &mdash; ShapeToolbox 0.1 documentation</title>
+    <title>Light from above &mdash; ShapeToolbox 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
     <link rel="up" title="Gallery" href="gallery.html" />
-    <link rel="next" title="Transparent blob with noisy, textured background" href="gallery-transparent-blob.html" />
-    <link rel="prev" title="Gallery" href="gallery.html" /> 
+    <link rel="next" title="Bubbles" href="gallery-bubbles.html" />
+    <link rel="prev" title="Transparent blob with noisy, textured background" href="gallery-transparent-blob.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -36,10 +36,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="gallery-transparent-blob.html" title="Transparent blob with noisy, textured background"
+          <a href="gallery-bubbles.html" title="Bubbles"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="gallery.html" title="Gallery"
+          <a href="gallery-transparent-blob.html" title="Transparent blob with noisy, textured background"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="gallery.html" accesskey="U">Gallery</a> &raquo;</li> 
@@ -53,31 +53,40 @@
             
   <blockquote>
 <div></div></blockquote>
-<div class="section" id="corkscrew">
-<span id="gallerycorkscrew"></span><h1>Corkscrew<a class="headerlink" href="#corkscrew" title="Permalink to this headline">¶</a></h1>
-<a class="reference internal image-reference" href="_images/corkscrew.png"><img alt="_images/corkscrew.png" src="_images/corkscrew.png" style="width: 400px;" /></a>
-<p>Code for producing the model:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% The profile and the midline (spine) of the object vary as a</span>
-<span class="c">% function of the y-coordinate:</span>
-<span class="n">y</span> <span class="p">=</span> <span class="nb">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">256</span><span class="p">);</span>
+<div class="section" id="light-from-above">
+<span id="gallerylightabove"></span><h1>Light from above<a class="headerlink" href="#light-from-above" title="Permalink to this headline">¶</a></h1>
+<a class="reference internal image-reference" href="_images/bumps.png"><img alt="_images/bumps.png" src="_images/bumps.png" style="width: 400px;" /></a>
+<p>This piece of code makes a model for the light-from-above assumption
+demo (the scene actually has a light that&#8217;s above).  It demonstrates
+how to use custom (not random) locations for user-defined
+perturbations.  There are two bumps in the place (the ones on top),
+and two dents (bottom).  Code for producing the model:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% A function that makes a &quot;dome&quot; shape, a half-sphere.  The first</span>
+<span class="c">% input argument is distance, the second is the radius of the</span>
+<span class="c">% half-sphere.  Negative radius makes a dent, positive a bump.</span>
+<span class="n">f</span> <span class="p">=</span> <span class="p">@(</span><span class="n">d</span><span class="p">,</span><span class="n">r</span><span class="p">)</span> <span class="nb">sign</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d</span><span class="o">&lt;</span><span class="p">=</span><span class="n">r</span><span class="p">)</span><span class="o">.*</span><span class="nb">sqrt</span><span class="p">(</span><span class="n">r</span>^<span class="mi">2</span> <span class="o">-</span> <span class="n">d</span><span class="o">.^</span><span class="mi">2</span><span class="p">);</span>
 
-<span class="c">% The x- and z-coordinates of the midline (spine) of the object.</span>
-<span class="c">% This produces a spiral narrowing towards the end</span>
-<span class="n">x</span> <span class="p">=</span> <span class="mi">2</span><span class="o">*</span><span class="nb">sin</span><span class="p">(</span><span class="mi">8</span><span class="o">*</span><span class="nb">pi</span><span class="o">*</span><span class="n">y</span><span class="p">)</span><span class="o">.*</span><span class="n">y</span><span class="p">;</span>
-<span class="n">z</span> <span class="p">=</span> <span class="mi">2</span><span class="o">*</span><span class="nb">cos</span><span class="p">(</span><span class="mi">8</span><span class="o">*</span><span class="nb">pi</span><span class="o">*</span><span class="n">y</span><span class="p">)</span><span class="o">.*</span><span class="n">y</span><span class="p">;</span>
+<span class="c">% Locations on the plane for the bumps</span>
+<span class="n">loc_x_bump</span> <span class="p">=</span> <span class="p">[</span><span class="o">-</span><span class="p">.</span><span class="mi">25</span> <span class="p">.</span><span class="mi">25</span><span class="p">];</span>
+<span class="n">loc_y_bump</span> <span class="p">=</span> <span class="p">[.</span><span class="mi">25</span> <span class="p">.</span><span class="mi">25</span><span class="p">];</span>
 
-<span class="c">% The object type will be a surface of revolution. This is the</span>
-<span class="c">% profile to produce that surface (ie this curve is revolved around</span>
-<span class="c">% the y-axis):</span>
-<span class="n">profile</span> <span class="p">=</span> <span class="n">y</span><span class="o">.^</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+<span class="c">% Locations for the dents</span>
+<span class="n">loc_x_dent</span> <span class="p">=</span> <span class="p">[</span><span class="o">-</span><span class="p">.</span><span class="mi">25</span> <span class="p">.</span><span class="mi">25</span><span class="p">];</span>
+<span class="n">loc_y_dent</span> <span class="p">=</span> <span class="p">[</span><span class="o">-</span><span class="p">.</span><span class="mi">25</span> <span class="o">-</span><span class="p">.</span><span class="mi">25</span><span class="p">];</span>
 
-<span class="c">% Call the noise function to add slight corrugation to the surface:</span>
-<span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;revolution&#39;</span><span class="p">,</span>            <span class="c">% base shape</span>
-             <span class="p">[</span><span class="mi">8</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">30</span> <span class="p">.</span><span class="mi">03</span><span class="p">],</span>          <span class="c">% noise parameters</span>
-             <span class="s">&#39;rcurve&#39;</span><span class="p">,</span><span class="n">profile</span><span class="p">,</span>        <span class="c">% curve to produce the surface of revolution</span>
-             <span class="s">&#39;spinex&#39;</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="s">&#39;spinez&#39;</span><span class="p">,</span><span class="n">z</span><span class="p">,</span>   <span class="c">% midline/spine coordinates of the object</span>
-             <span class="s">&#39;caps&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">,</span>             <span class="c">% add caps to the ends</span>
-             <span class="s">&#39;corkscrew.obj&#39;</span><span class="p">);</span>        <span class="c">% save the model in this file</span>
+<span class="c">% Put all bump locations in a cell array</span>
+<span class="n">loc</span> <span class="p">=</span> <span class="p">{{</span><span class="n">loc_x_bump</span><span class="p">,</span><span class="n">loc_x_dent</span><span class="p">},{</span><span class="n">loc_y_bump</span><span class="p">,</span><span class="n">loc_y_dent</span><span class="p">}};</span>
+
+<span class="c">% Make the model.  The third input argument gives the parameters with</span>
+<span class="c">% which the above-defined function is called.  The first row gives the</span>
+<span class="c">% parameters for bumps, the second for dents.  The three parameters</span>
+<span class="c">% are: number of bumps/dents, a cut-off value, and the radius.</span>
+<span class="n">objMakeCustom</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,</span>
+              <span class="n">f</span><span class="p">,</span>
+              <span class="p">[</span><span class="mi">2</span> <span class="p">.</span><span class="mi">15</span> <span class="p">.</span><span class="mi">15</span><span class="p">;</span> <span class="mi">2</span> <span class="p">.</span><span class="mi">15</span> <span class="o">-</span><span class="p">.</span><span class="mi">15</span><span class="p">],</span>
+              <span class="s">&#39;locations&#39;</span><span class="p">,</span><span class="n">loc</span><span class="p">,</span>
+              <span class="s">&#39;normals&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">,</span>
+              <span class="s">&#39;bumps.obj&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>XML for rendering with Mitsuba.  This example uses an environment
@@ -91,13 +100,13 @@ have to use another light source.</p>
 
   <span class="nt">&lt;sensor</span> <span class="na">type=</span><span class="s">&quot;perspective&quot;</span><span class="nt">&gt;</span>
     <span class="nt">&lt;transform</span> <span class="na">name=</span><span class="s">&quot;toWorld&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;lookAt</span> <span class="na">origin=</span><span class="s">&quot;0, 6, 12&quot;</span> <span class="na">target=</span><span class="s">&quot;0, 0.5, 0&quot;</span> <span class="na">up=</span><span class="s">&quot;0, 1, 0&quot;</span><span class="nt">/&gt;</span>
+      <span class="nt">&lt;lookAt</span> <span class="na">origin=</span><span class="s">&quot;0, 0, 2&quot;</span> <span class="na">target=</span><span class="s">&quot;0, 0, 0&quot;</span> <span class="na">up=</span><span class="s">&quot;0, 1, 0&quot;</span><span class="nt">/&gt;</span>
     <span class="nt">&lt;/transform&gt;</span>
 
     <span class="nt">&lt;float</span> <span class="na">name=</span><span class="s">&quot;farClip&quot;</span> <span class="na">value=</span><span class="s">&quot;30&quot;</span><span class="nt">/&gt;</span>
 
     <span class="nt">&lt;sampler</span> <span class="na">type=</span><span class="s">&quot;ldsampler&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;integer</span> <span class="na">name=</span><span class="s">&quot;sampleCount&quot;</span> <span class="na">value=</span><span class="s">&quot;32&quot;</span><span class="nt">/&gt;</span>
+      <span class="nt">&lt;integer</span> <span class="na">name=</span><span class="s">&quot;sampleCount&quot;</span> <span class="na">value=</span><span class="s">&quot;200&quot;</span><span class="nt">/&gt;</span>
     <span class="nt">&lt;/sampler&gt;</span>
 
     <span class="nt">&lt;film</span> <span class="na">type=</span><span class="s">&quot;hdrfilm&quot;</span><span class="nt">&gt;</span>
@@ -108,23 +117,20 @@ have to use another light source.</p>
   <span class="nt">&lt;/sensor&gt;</span>
 
   <span class="nt">&lt;shape</span>  <span class="na">type=</span><span class="s">&quot;obj&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;string</span>  <span class="na">name=</span><span class="s">&quot;filename&quot;</span>  <span class="na">value=</span><span class="s">&quot;corkscrew.obj&quot;</span><span class="nt">/&gt;</span>
-    <span class="nt">&lt;bsdf</span>  <span class="na">type=</span><span class="s">&quot;conductor&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;string</span> <span class="na">name=</span><span class="s">&quot;material&quot;</span> <span class="na">value=</span><span class="s">&quot;Cr&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;string</span>  <span class="na">name=</span><span class="s">&quot;filename&quot;</span>  <span class="na">value=</span><span class="s">&quot;bumps.obj&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;bsdf</span>  <span class="na">type=</span><span class="s">&quot;diffuse&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;srgb</span>  <span class="na">name=</span><span class="s">&quot;reflectance&quot;</span>  <span class="na">value=</span><span class="s">&quot;#6d7185&quot;</span><span class="nt">/&gt;</span>
     <span class="nt">&lt;/bsdf&gt;</span>
-    <span class="nt">&lt;transform</span> <span class="na">name=</span><span class="s">&quot;toWorld&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;rotate</span> <span class="na">z=</span><span class="s">&quot;1&quot;</span> <span class="na">angle=</span><span class="s">&quot;10&quot;</span> <span class="nt">/&gt;</span>
-      <span class="nt">&lt;rotate</span> <span class="na">x=</span><span class="s">&quot;1&quot;</span> <span class="na">angle=</span><span class="s">&quot;0&quot;</span> <span class="nt">/&gt;</span>
-    <span class="nt">&lt;/transform&gt;</span>
   <span class="nt">&lt;/shape&gt;</span>
 
   <span class="nt">&lt;emitter</span>  <span class="na">type=</span><span class="s">&quot;envmap&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;string</span> <span class="na">name=</span><span class="s">&quot;filename&quot;</span> <span class="na">value=</span><span class="s">&quot;20060807_wells6_lp.hdr&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;string</span> <span class="na">name=</span><span class="s">&quot;filename&quot;</span> <span class="na">value=</span><span class="s">&quot;../corkscrew/20060807_wells6_lp.hdr&quot;</span><span class="nt">/&gt;</span>
     <span class="nt">&lt;float</span> <span class="na">name=</span><span class="s">&quot;scale&quot;</span>  <span class="na">value=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
     <span class="nt">&lt;transform</span> <span class="na">name=</span><span class="s">&quot;toWorld&quot;</span><span class="nt">&gt;</span>
       <span class="nt">&lt;rotate</span> <span class="na">y=</span><span class="s">&quot;1&quot;</span> <span class="na">angle=</span><span class="s">&quot;90&quot;</span> <span class="nt">/&gt;</span>
     <span class="nt">&lt;/transform&gt;</span>
   <span class="nt">&lt;/emitter&gt;</span>
+
 <span class="nt">&lt;/scene&gt;</span>
 </pre></div>
 </div>
@@ -137,15 +143,15 @@ have to use another light source.</p>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="gallery.html"
-                        title="previous chapter">Gallery</a></p>
-  <h4>Next topic</h4>
   <p class="topless"><a href="gallery-transparent-blob.html"
-                        title="next chapter">Transparent blob with noisy, textured background</a></p>
+                        title="previous chapter">Transparent blob with noisy, textured background</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gallery-bubbles.html"
+                        title="next chapter">Bubbles</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/gallery-corkscrew.txt"
+      <li><a href="_sources/gallery-light-from-above.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -173,10 +179,10 @@ have to use another light source.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="gallery-transparent-blob.html" title="Transparent blob with noisy, textured background"
+          <a href="gallery-bubbles.html" title="Bubbles"
              >next</a> |</li>
         <li class="right" >
-          <a href="gallery.html" title="Gallery"
+          <a href="gallery-transparent-blob.html" title="Transparent blob with noisy, textured background"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="gallery.html" >Gallery</a> &raquo;</li> 

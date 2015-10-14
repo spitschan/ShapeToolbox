@@ -63,12 +63,12 @@ modulations by using separate carrier waves and envelopes.  In the
 examples so far, we have been using only the &#8220;carrier&#8221; components.
 The envelope multiplies the carrier amplitude as illustrated below:</p>
 <img alt="_images/modsphere001profile.png" src="_images/modsphere001profile.png" />
-<p>The envelope (or &#8220;modulator&#8221;) parameters are given as the second input
+<p>The envelope (or &#8220;modulator&#8221;) parameters are given as the third input
 argument to <a class="reference internal" href="ref-objmakesine.html#ref-objmakesine"><span>objMakeSine</span></a>.  The format of the parameter
 vector is the same as that for the carrier components.  The example
 below has a single carrier component and a single envelope, or
 modulator, with the same parameters the illustration above uses:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">16</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],[</span><span class="mi">4</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">]);</span>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">16</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],[</span><span class="mi">4</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">);</span>
 </pre></div>
 </div>
 <img alt="_images/modsphere001.png" src="_images/modsphere001.png" />
@@ -85,7 +85,7 @@ In the earlier examples, when using vertical carriers, the ridges in
 the sphere object become very sharp near the poles of the sphere (as
 this is where the meridians, or lines of longitude, meet).  To smooth
 these out, we could add a low-frequency, orthogonal envelope:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">12</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],[</span><span class="mi">2</span> <span class="mi">1</span> <span class="mi">90</span> <span class="mi">90</span><span class="p">]);</span>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">12</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],[</span><span class="mi">2</span> <span class="mi">1</span> <span class="mi">90</span> <span class="mi">90</span><span class="p">],</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">);</span>
 </pre></div>
 </div>
 <img alt="_images/modsphere002.png" src="_images/modsphere002.png" />
@@ -111,7 +111,7 @@ component.</p>
 <span class="n">prm_env</span>  <span class="p">=</span> <span class="p">[</span><span class="mi">4</span> <span class="mi">1</span>   <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span>
             <span class="mi">4</span> <span class="mi">1</span> <span class="mi">180</span> <span class="mi">0</span> <span class="mi">2</span><span class="p">];</span>
 
-<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="n">prm_carr</span><span class="p">,</span><span class="n">prm_env</span><span class="p">)</span>
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="n">prm_carr</span><span class="p">,</span><span class="n">prm_env</span><span class="p">,</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Below is the rendered object.  The schematic on the right shows the
@@ -127,7 +127,7 @@ opposite angle but that are otherwise identical:</p>
 <span class="n">prm_env</span>  <span class="p">=</span> <span class="p">[</span><span class="mi">4</span> <span class="mi">1</span>   <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span>
             <span class="mi">4</span> <span class="mi">1</span> <span class="mi">180</span> <span class="mi">0</span> <span class="mi">2</span><span class="p">];</span>
 
-<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="n">prm_carr</span><span class="p">,</span><span class="n">prm_env</span><span class="p">);</span>
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="n">prm_carr</span><span class="p">,</span><span class="n">prm_env</span><span class="p">,</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">);</span>
 </pre></div>
 </div>
 <img alt="_images/modsphere003.png" src="_images/modsphere003.png" />
@@ -151,7 +151,7 @@ defined.</p>
             <span class="mi">4</span> <span class="mi">1</span> <span class="mi">180</span>  <span class="mi">0</span> <span class="mi">2</span>
             <span class="mi">2</span> <span class="mi">1</span>  <span class="mi">90</span> <span class="mi">90</span> <span class="mi">0</span><span class="p">];</span>
 
-<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="n">prm_carr</span><span class="p">,</span><span class="n">prm_env</span><span class="p">);</span>
+<span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="n">prm_carr</span><span class="p">,</span><span class="n">prm_env</span><span class="p">,</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">);</span>
 </pre></div>
 </div>
 <img alt="_images/modsphere004.png" src="_images/modsphere004.png" />

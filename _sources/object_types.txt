@@ -10,8 +10,9 @@ Object types
 
    sphere
    plane
-   cylinder
    torus
+   cylinder
    revolution
    extrusion
+   worm
 

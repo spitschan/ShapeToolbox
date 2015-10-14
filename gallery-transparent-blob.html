@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
     <link rel="up" title="Gallery" href="gallery.html" />
-    <link rel="next" title="Corkscrew" href="gallery-corkscrew.html" />
-    <link rel="prev" title="Gallery" href="gallery.html" /> 
+    <link rel="next" title="Light from above" href="gallery-light-from-above.html" />
+    <link rel="prev" title="Corkscrew" href="gallery-corkscrew.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -36,10 +36,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="gallery-corkscrew.html" title="Corkscrew"
+          <a href="gallery-light-from-above.html" title="Light from above"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="gallery.html" title="Gallery"
+          <a href="gallery-corkscrew.html" title="Corkscrew"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="gallery.html" accesskey="U">Gallery</a> &raquo;</li> 
@@ -59,12 +59,12 @@
 <p>TODO: Render better quality image.</p>
 <p>Code for producing the model:</p>
 <div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">25</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">8</span><span class="p">],..</span>
-            <span class="s">&#39;material&#39;</span><span class="p">,</span><span class="s">&#39;blobmat&#39;</span><span class="p">,</span><span class="c">...</span>
+            <span class="s">&#39;material&#39;</span><span class="p">,</span><span class="s">&#39;blobmat&#39;</span><span class="p">,</span>
             <span class="s">&#39;blob.obj&#39;</span><span class="p">);</span>
 
 <span class="n">noiseprm</span> <span class="p">=</span> <span class="p">[</span><span class="mi">32</span> <span class="mi">1</span> <span class="mi">45</span> <span class="mi">45</span> <span class="p">.</span><span class="mi">02</span><span class="p">];</span>
 <span class="k">for</span> <span class="n">ii</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">3</span>
-  <span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,</span><span class="n">noiseprm</span><span class="p">,</span><span class="c">...</span>
+  <span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,</span><span class="n">noiseprm</span><span class="p">,</span>
                <span class="s">&#39;material&#39;</span><span class="p">,</span><span class="s">&#39;bkgrmat&#39;</span><span class="p">,</span>
                <span class="n">sprintf</span><span class="p">(</span><span class="s">&#39;background%0d.obj&#39;</span><span class="p">,</span><span class="n">ii</span><span class="p">));</span>
 <span class="k">end</span>
@@ -80,11 +80,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="gallery.html"
-                        title="previous chapter">Gallery</a></p>
-  <h4>Next topic</h4>
   <p class="topless"><a href="gallery-corkscrew.html"
-                        title="next chapter">Corkscrew</a></p>
+                        title="previous chapter">Corkscrew</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gallery-light-from-above.html"
+                        title="next chapter">Light from above</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -116,10 +116,10 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="gallery-corkscrew.html" title="Corkscrew"
+          <a href="gallery-light-from-above.html" title="Light from above"
              >next</a> |</li>
         <li class="right" >
-          <a href="gallery.html" title="Gallery"
+          <a href="gallery-corkscrew.html" title="Corkscrew"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="gallery.html" >Gallery</a> &raquo;</li> 
