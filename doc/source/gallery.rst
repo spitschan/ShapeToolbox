@@ -12,6 +12,12 @@ Gallery
 .. image:: ../images/gallery/blob.png
    :width: 150px
    :target: gallery-transparent-blob.html
+.. image:: ../images/gallery/bumps.png
+   :width: 150px
+   :target: gallery-light-from-above.html
+.. image:: ../images/gallery/bubbles.png
+   :width: 150px
+   :target: gallery-bubbles.html
 
 
 Radial frequency patterns with the torus.  No other shape modulation,
@@ -23,3 +29,7 @@ just the major radius.
    
    gallery-corkscrew
    gallery-transparent-blob
+   gallery-light-from-above
+   gallery-bubbles
+
+

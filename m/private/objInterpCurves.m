@@ -35,3 +35,8 @@ end
     model.spine.z = interp1(linspace(0,1,nz),model.spine.z,linspace(0,1,model.m));
   end
 %end
+
+  ny = length(model.spine.y);
+  if ny~=model.m
+    model.spine.y = interp1(linspace(0,1,ny),model.spine.y,linspace(0,1,model.m));
+  end

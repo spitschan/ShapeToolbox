@@ -138,6 +138,8 @@ function model = objMake(shape,varargin)
 % If the length of the vector 'spinex' or 'spinez' does not match the
 % size of the model mesh y-direction, the curve is interpolated.
 %
+% TODO: SPINEY
+% 
 % CAPS
 % Boolean.  Set this to true to put "caps" at the end of cylinders, 
 % surfaces of revolution, and extrusions.  Default false.  Example:
@@ -199,6 +201,7 @@ function model = objMake(shape,varargin)
 %                   added option for batch processing
 % 2015-10-04 - ts - updated documentation
 % 2015-10-08 - ts - added the 'spinex' and 'spinez' options
+% 2015-10-10 - ts - added support for worm shape
 
 %------------------------------------------------------------
 
@@ -244,7 +247,7 @@ model = objParseArgs(model,par);
 
 switch model.shape
   case {'sphere','plane','torus'}
-  case {'cylinder','revolution','extrusion'}
+  case {'cylinder','revolution','extrusion','worm'}
     model = objInterpCurves(model);
     %model.curve = model.curve/max(model.curve);
   otherwise
@@ -273,6 +276,9 @@ switch model.shape
     model.vertices = [model.X model.Y model.Z];
   case 'torus'
     model.vertices = objSph2XYZ(model.Theta,model.Phi,model.r,model.R);
+  case 'worm'
+    % TODO: objAddCaps
+    model = objMakeWorm(model);
   otherwise
     error('Unknown shape.');
 end
@@ -298,4 +304,7 @@ end
 if ~nargout
    clear model
 end
+
+
+
 

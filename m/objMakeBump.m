@@ -35,27 +35,27 @@ function model = objMakeBump(shape,prm,varargin)
 % with the optional input arguments, see below):
 %
 % SPHERE: A unit sphere (radius 1), default mesh size 128x256.  Saved
-% to 'spherebumpy.obj'.
+% to 'sphere.obj'.
 %
 % PLANE: A plane with a width and height of 1, lying on the x-y plane,
 % centered on the origin.  Default mesh size 256x256.  Obviously a
 % size of 2x2 would be enough; the larger size is used so that fine
 % modulations can later be added to the shape if needed.  Saved in
-% 'planebumpy.obj'.
+% 'plane.obj'.
 %
 % CYLINDER: A cylinder with radius 1 and height of 2*pi.  Default mesh
-% size 256x256.  Saved in 'cylinderbumpy.obj'.
+% size 256x256.  Saved in 'cylinder.obj'.
 %
 % TORUS: A torus with ring radius of 1 and tube radius of 0.4.
-% Default mesh size 256x256, saved in 'torusbumpy.obj'.
+% Default mesh size 256x256, saved in 'torus.obj'.
 %
 % REVOLUTION: A surface of revolution based on a user-defined profile,
 % height 2*pi.  See the option 'rcurve' below on how to define the
-% profile.  Default mesh size 256x256, saved in 'revolutionbumpy.obj'.
+% profile.  Default mesh size 256x256, saved in 'revolution.obj'.
 %
 % EXTRUSION: An extrusion based on a user-defined cross-sectional
 % profile, height 2*pi.  See option 'ecurve' below on how to define the
-% profile.  Default mesh size 256x256, saved in 'extrusionbumpy.obj'.
+% profile.  Default mesh size 256x256, saved in 'extrusion.obj'.
 %
 % PAR:
 % ====
@@ -196,6 +196,8 @@ function model = objMakeBump(shape,prm,varargin)
 % 2015-10-02 - ts - minor fixes to help (rcurve, ecurve params)
 %                   added option for batch processing
 % 2015-10-08 - ts - added support for the 'spinex' and 'spinez' options
+% 2015-10-10 - ts - added support for worm shape
+% 2015-10-11 - ts - fixes in documentation; added support for torus again
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
@@ -250,14 +252,15 @@ switch model.shape
     defprm = [20 .1 pi/12];
   case 'plane'
     defprm = [20 .05 .05];
-  case 'cylinder'
+  case {'cylinder','worm'}
     defprm = [20 .1 pi/12];
     model = objInterpCurves(model);
   case 'torus'
-    defprm = [];
-    clear model
-    fprintf('Gaussian bumps not yet implemented for torus.\n');
-    return
+    defprm = [20 .1 pi/12];
+    % defprm = [];
+    % clear model
+    % fprintf('Gaussian bumps not yet implemented for torus.\n');
+    % return
   case 'revolution'
     defprm = [20 .1 pi/12];
     model = objInterpCurves(model);

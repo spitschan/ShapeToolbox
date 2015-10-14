@@ -31,137 +31,25 @@ function s = objSaveModel(s)
 % 2015-10-07 - ts - checks for material library and material name
 %                    separately; fixed a bug in setting texture
 %                    coordinate faces for planes
+% 2015-10-10 - ts - added support for worm shape
+% 2015-10-12 - ts - computation of faces, uv-coordinates, and normals
+%                    separated into their own functions
 
 m = s.m;
 n = s.n;
 
 %--------------------------------------------
 % Faces, vertex indices
-
-switch s.shape
-  case {'sphere','cylinder','revolution','extrusion'}
-    s.faces = zeros((m-1)*n*2,3);
-    F = ([1 1]'*[1:n]);
-    F = F(:) * [1 1 1];
-    F(:,2) = F(:,2) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
-    F(:,3) = F(:,3) + [repmat([n n+1]',[n-1 1]); [n 1]'];
-    for ii = 1:m-1
-      s.faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
-    end
-  case 'plane'
-    s.faces = zeros((m-1)*(n-1)*2,3);
-    ftmp = [[1 1]'*[1:n-1]];
-    F(:,1) = ftmp(:);
-    % OR:
-    %F(:,1) = ceil([1:(2*n-2)]'/2);
-    ftmp = [n+2:2*n; 2:n];
-    F(:,2) = ftmp(:);
-    ftmp = [[1 1]' * [n+1:2*n]];
-    ftmp = ftmp(:);
-    F(:,3) = ftmp(2:end-1);    
-    for ii = 1:m-1
-      s.faces((ii-1)*(n-1)*2+1:ii*(n-1)*2,:) = (ii-1)*n + F;
-    end
-  case 'torus'
-    s.faces = zeros(m*n*2,3);
-    % The first part is the same as with the sphere:
-    F = ([1 1]'*[1:n]);
-    F = F(:) * [1 1 1];
-    F(:,2) = F(:,2) + [repmat([n+1 1]',[n-1 1]); [1 1-n]'];
-    F(:,3) = F(:,3) + [repmat([n n+1]',[n-1 1]); [n 1]'];
-    % But loop until m, not m-1 as phi goes -pi to pi here (not -pi/2 to
-    % pi/2) and faces wrap around the "tube".
-    for ii = 1:m
-      s.faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
-    end
-    % Finally, to wrap around properly in the phi-direction:
-    s.faces = 1 + mod(s.faces-1,m*n);
-end
+s = objCompFaces(s);
 
 % Texture coordinates if material is defined
 if s.flags.comp_uv
-  switch s.shape
-    case {'sphere','cylinder','revolution','extrusion'}
-      u = linspace(0,1,n+1);
-      v = linspace(0,1,m);
-      [U,V] = meshgrid(u,v);
-      U = U'; V = V';
-      s.uvcoords = [U(:) V(:)];
-
-      % Faces, uv coordinate indices
-      s.facestxt = zeros((m-1)*n*2,3);
-      n2 = n + 1;
-      F = ([1 1]'*[1:n]);
-      F = F(:) * [1 1 1];
-      F(:,2) = reshape([1 1]'*[2:n2]+[1 0]'*n2*ones(1,n),[2*n 1]);
-      F(:,3) = n2 + [1; reshape([1 1]'*[2:n],[2*(n-1) 1]); n2];
-      for ii = 1:m-1
-        s.facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n2 + F;
-      end
-    case 'plane'
-      U = (s.X-min(s.X))/(max(s.X)-min(s.X));
-      V = (s.Y-min(s.Y))/(max(s.Y)-min(s.Y));
-      s.uvcoords = [U V];
-
-      s.facestxt = s.faces;
-
-    case 'torus'
-      u = linspace(0,1,n+1);
-      v = linspace(0,1,m+1);
-      [U,V] = meshgrid(u,v);
-      U = U'; V = V';
-      s.uvcoords = [U(:) V(:)];
-
-      s.facestxt = zeros(m*n*2,3);
-      F1 = [1 1]' * [1:n];
-      F1 = F1(:);
-      F2 = [(n+3):2*(n+1);2:(n+1)];
-      F2 = F2(:);
-      F3 = [1 1]' * [(n+2):2*(n+1)];
-      F3 = F3(:);
-      F3 = F3(2:end-1);
-      F = [F1 F2 F3];
-      for ii = 1:m
-        s.facestxt((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*(n+1) + F;
-      end
-  end
-  clear u v U V
-
-
+  s = objCompUV(s);
 end
 
-%--------------------------------------------
 % Vertex normals
 if s.flags.comp_normals
-  % Surface normals for the faces
-  fn = cross([s.vertices(s.faces(:,2),:)-s.vertices(s.faces(:,1),:)],...
-             [s.vertices(s.faces(:,3),:)-s.vertices(s.faces(:,1),:)]);
-
-  % Vertex normals
-  s.normals = zeros(m*n,3);
-  
-  % Loop through vertices, slow
-  % for ii = 1:m*n
-  %  idx = any(faces==ii,2);
-  %  vn = sum(fn(idx,:),1);
-  %  normals(ii,:) = vn / sqrt(vn*vn');
-  % end
-
-  % Loop through faces, somewhat faster but still slow
-  switch s.shape
-    case {'sphere','cylinder','revolution','extrusion'}
-      nfaces = (m-1)*n*2;
-    case 'plane'
-      nfaces = (m-1)*(n-1)*2;
-    case 'torus'
-      nfaces = m*n*2;
-  end
-  for ii = 1:nfaces
-    s.normals(s.faces(ii,:),:) = s.normals(s.faces(ii,:),:) + [1 1 1]'*fn(ii,:);
-  end
-  s.normals = s.normals./sqrt(sum(s.normals.^2,2)*[1 1 1]);
-
-  clear fn
+  s = objCompNormals(s);
 end
 
 %--------------------------------------------

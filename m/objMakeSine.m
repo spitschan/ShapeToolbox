@@ -238,6 +238,7 @@ function model = objMakeSine(shape,cprm,varargin)
 % 2015-10-02 - ts - minor fixes to help (rcurve, ecurve params)
 %                   added option for batch processing
 % 2015-10-08 - ts - added the 'spinex' and 'spinez' options
+% 2015-10-10 - ts - added support for worm shape
 
 %------------------------------------------------------------
 
@@ -290,7 +291,7 @@ switch model.shape
     defprm = [8 .1 0 0 0];
   case 'plane'
     defprm = [8 .05 0 0 0];
-  case 'cylinder'
+  case {'cylinder','worm'}
     defprm = [8 .1 0 0 0];
     model = objInterpCurves(model);
   case 'torus'
@@ -372,6 +373,11 @@ switch model.shape
     model.X = model.X + model.spine.X;
     model.Z = model.Z + model.spine.Z;
     model.vertices = [model.X model.Y model.Z];
+  case 'worm'
+    % TODO: objRemCaps
+    model.R = model.R + objMakeSineComponents(cprm,mprm,model.Theta,model.Y);
+    % TODO: objAddCaps
+    model = objMakeWorm(model);
   case 'torus'
     if ~isempty(model.opts.rprm)
       rprm = model.opts.rprm;

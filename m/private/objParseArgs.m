@@ -22,6 +22,8 @@ function model = objParseArgs(model,par)
 % 2015-06-16 - ts - setting a filename sets dosave to true
 % 2015-10-07 - ts - possible to define material name without material library
 % 2015-10-08 - ts - added the 'spinex' and 'spinez' options
+% 2015-10-12 - ts - added the 'y' option
+% 2015-10-14 - ts - added the 'max' option
 
 % Flag to indicate whether uv-coordinate computation was set to false
 % explicitly.  This is used so that the option 'uvcoords' can be used
@@ -116,6 +118,16 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''tube_radius''.');
            end              
+         case {'radius','major_radius'}
+           if ~model.flags.new_model
+              error('You cannot change the radius of an existing model.');
+           end
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii + 1;
+             model.radius = par{ii};
+           else
+             error('No value or a bad value given for option ''radius''.');
+           end              
          case 'rpar'
            if ~model.flags.new_model
               error('You cannot change the radius of an existing model.');
@@ -205,6 +217,37 @@ if ~isempty(par)
              model.spine.z = model.spine.z(:)';
            else
              error('No value or a bad value given for option ''spinez''.');
+           end
+         case 'spiney'
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii+1;
+             model.spine.y = par{ii};
+             model.spine.y = model.spine.y(:)';
+             model.flags.scaley = false;
+           else
+             error('No value or a bad value given for option ''spiney''.');
+           end
+         case 'scaley'
+           if ii<length(par) && isscalar(par{ii+1})
+             ii = ii+1;
+             model.flags.scaley = par{ii};
+           else
+             error('No value or a bad value given for option ''scaley''.');
+           end
+         case 'y'
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii+1;
+             model.y = par{ii};
+             model.y = model.y(:)';
+           else
+             error('No value or a bad value given for option ''y''.');
+           end
+         case 'max'
+           if ii<length(par) && isscalar(par{ii+1})
+             ii = ii+1;
+             model.flags.max = par{ii};
+           else
+             error('No value or a bad value given for option ''max''.');
            end
         otherwise
           model.filename = par{ii};

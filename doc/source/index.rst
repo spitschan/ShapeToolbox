@@ -54,6 +54,7 @@ You would have probably done that anyway.
    gettingstarted
    tutorials
    object_types
+   bending
    helperfuncs
    rendering
    gallery

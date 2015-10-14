@@ -10,6 +10,9 @@ function model = objPlaceBumps(model)
 % 2015-06-01 - ts - first version
 % 2015-06-03 - ts - fixed a bug in checking for user-defined locations
 % 2015-10-08 - ts - added support for the 'spinex' and 'spinez' options
+% 2015-10-10 - ts - added support for worm shape
+% 2015-10-11 - ts - added support for torus (again)
+% 2015-10-14 - ts - added option to sum/take max
 
 ii = length(model.prm);
 prm = model.prm(ii).prm;
@@ -103,7 +106,11 @@ switch model.shape
         %idx = find(d<3.5*prm(jj,3));
         %model.R(idx) = model.R(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));
         idx = find(d<prm(jj,2));
-        model.R(idx) = model.R(idx) + model.opts.f(d(idx),prm(jj,3:end));
+        if model.flags.max
+          model.R(idx) = max(model.R(idx), model.opts.f(d(idx),prm(jj,3:end)));
+        else
+          model.R(idx) = model.R(idx) + model.opts.f(d(idx),prm(jj,3:end));
+        end
       end
 
     end
@@ -183,14 +190,18 @@ switch model.shape
         %idx = find(d<3.5*prm(jj,3));
         %model.Z(idx) = model.Z(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));
         idx = find(d<prm(jj,2));
-        model.Z(idx) = model.Z(idx) + model.opts.f(d(idx),prm(jj,3:end));
+        if model.flags.max
+          model.Z(idx) = max(model.Z(idx), model.opts.f(d(idx),prm(jj,3:end)));
+        else
+          model.Z(idx) = model.Z(idx) + model.opts.f(d(idx),prm(jj,3:end));
+        end
       end
 
     end
 
     model.vertices = [model.X model.Y model.Z];
 
-  case {'cylinder','revolution','extrusion'}
+  case {'cylinder','revolution','extrusion','worm'}
     for jj = 1:nbumptypes
         
       if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
@@ -263,20 +274,108 @@ switch model.shape
         %idx = find(d<3.5*prm(jj,3));
         %model.R(idx) = model.R(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));      
         idx = find(d<prm(jj,2));
-        model.R(idx) = model.R(idx) + model.opts.f(d(idx),prm(jj,3:end));
-
+        if model.flags.max
+          model.R(idx) = max(model.R(idx), model.opts.f(d(idx),prm(jj,3:end)));
+        else
+          model.R(idx) = model.R(idx) + model.opts.f(d(idx),prm(jj,3:end));
+        end
       end
       
     end
 
-    model.X =  model.R .* cos(model.Theta);
-    model.Z = -model.R .* sin(model.Theta);
-    model.X = model.X + model.spine.X;
-    model.Z = model.Z + model.spine.Z;
-    model.vertices = [model.X model.Y model.Z];
+    if strcmp(model.shape,'worm')
+      model = objMakeWorm(model);
+    else
+      model.X =  model.R .* cos(model.Theta);
+      model.Z = -model.R .* sin(model.Theta);
+      model.X = model.X + model.spine.X;
+      model.Z = model.Z + model.spine.Z;
+      model.vertices = [model.X model.Y model.Z];
+    end
 
   case 'torus'
-    fprintf('Gaussian bumps not yet implemented for torus.');
+    for jj = 1:nbumptypes
+
+      if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
+
+        theta0 = model.opts.locations{1}{jj};
+        phi0 = model.opts.locations{2}{jj};
+
+      elseif model.opts.mindist(jj)
+        % Pick candidate locations (more than needed):
+        nvec = 30*prm(jj,1);
+        thetatmp = min(model.theta) + rand([nvec 1])*(max(model.theta)-min(model.theta));
+        phitmp = min(model.phi) + rand([nvec 1])*(max(model.phi)-min(model.phi));
+        
+        d = sqrt(wrapAnglePi(thetatmp*ones([1 nvec])-ones([nvec 1])*thetatmp').^2 + ...
+                 wrapAnglePi(phitmp*ones([1 nvec])-ones([nvec 1])*phitmp').^2);
+
+        % Always accept the first vector
+        idx_accepted = [1];
+        n_accepted = 1;
+        % Loop over the remaining candidate vectors and keep the ones that
+        % are at least the minimum distance away from those already
+        % accepted.
+        idx = 2;
+        while idx <= size(thetatmp,1)
+          if all(d(idx_accepted,idx)>=model.opts.mindist(jj))
+            idx_accepted = [idx_accepted idx];
+            n_accepted = n_accepted + 1;
+          end
+          if n_accepted==prm(jj,1)
+            break
+          end
+          idx = idx + 1;
+        end
+
+        if n_accepted<prm(jj,1)
+          error(sprintf('Could not find enough vectors to satisfy the minumum distance criterion.\nConsider reducing the value of ''mindist''.'));
+        end
+
+        theta0 = thetatmp(idx_accepted,:);
+        phi0 = phitmp(idx_accepted,:);
+
+        clear thetatmp phitmp
+
+        % For saving the locations in the model structure
+        opts.locations{1}{jj} = theta0;
+        opts.locations{2}{jj} = phi0;
+
+
+      else % No predefined locations, no minimum distance, just random
+        %- pick n random locations
+        theta0 = min(model.theta) + rand([prm(jj,1) 1])*(max(model.theta)-min(model.theta));
+        phi0 = min(model.phi) + rand([prm(jj,1) 1])*(max(model.phi)-min(model.phi));
+
+        % For saving the locations in the model structure
+        opts.locations{1}{jj} = theta0;
+        opts.locations{2}{jj} = phi0;
+
+      end
+
+      %-------------------
+      
+      for ii = 1:prm(jj,1)
+        deltatheta = abs(wrapAnglePi(model.Theta - theta0(ii)));
+        deltaphi = abs(wrapAnglePi(model.Phi - phi0(ii)));
+        d = sqrt(deltatheta.^2+deltaphi.^2);
+              
+        idx = find(d<prm(jj,2));
+        if model.flags.max
+          model.r(idx) = max(model.r(idx), model.opts.f(d(idx),prm(jj,3:end)));
+        else
+          model.r(idx) = model.r(idx) + model.opts.f(d(idx),prm(jj,3:end));
+        end
+      end
+    end
+
+    if ~isempty(model.opts.rprm)
+      rprm = model.opts.rprm;
+      for ii = 1:size(rprm,1)
+        model.R = model.R + rprm(ii,2) * sin(rprm(ii,1)*model.Theta + rprm(ii,3));
+      end
+    end
+    model.vertices = objSph2XYZ(model.Theta,model.Phi,model.r,model.R);
 
 end
 

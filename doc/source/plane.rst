@@ -10,7 +10,6 @@ Plane
 .. image:: ../images/plane_coords.png
 
 
-
 Coordinate system
 =================
 

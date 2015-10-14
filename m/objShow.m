@@ -13,17 +13,9 @@ function h = objShow(obj,func)
 % Returns a handle h to the rendered graphics object.
 %
 % The optional input argument 'viewfunc' specifies the Octave/Matlab
-% function for showing the object.  Possible values are 'surf',
-% 'surfl' (default), and 'mesh'.
-%
-% Note: This function is just for quick and convenient viewing of
-% the shape, without texture mapping or material properties. Only
-% the shape is shown.  The shape is rendered using the vertex data
-% only (the face definitions are used), so in some shapes there
-% might be a discontinuity (in spheres, cylinders, tori...), as if a
-% piece or a wedge of the object was missing.  That discontinuity
-% will not be there when the shape is properly rendered with a 3D
-% modeling software.
+% function for showing the object.  Possible values are 'surfl'
+% (default), 'surf',  and 'mesh'.  A further option 'wireframe' is
+% similar to 'mesh' but shows a see-through wireframe model.
 %
 % Examples:
 % > sphere = objMakeSine('sphere');
@@ -31,6 +23,16 @@ function h = objShow(obj,func)
 % 
 % > tor = objMakeNoise('torus');
 % > objShow(tor,'surf')
+
+% Note: This function is just for quick and convenient viewing of
+% the shape, without texture mapping or material properties. Only
+% the shape is shown.  The shape is rendered using the vertex data
+% only (the face definitions are not used), so in some shapes there
+% might be a discontinuity (in spheres, cylinders, tori...), as if a
+% piece or a wedge of the object was missing.  That discontinuity
+% will not be there when the shape is properly rendered with a 3D
+% modeling software.
+%
 
 % Copyright (C) 2014,2015 Toni Saarela
 % 2014-07-28 - ts - first version
@@ -42,6 +44,10 @@ function h = objShow(obj,func)
 %                    given as input
 % 2015-06-10 - ts - repeat the first row/column of vertices to avoid
 %                    the missing 'wedge' in the rendered model
+% 2015-10-14 - ts - 'mesh' shows only the vertex mesh, white faces
+%                   'surf' does not use interpolation
+%                   added 'wireframe' option for see-through wireframe model
+%                   added 'worm' as a shape option
 
 if ischar(obj)
   obj = objRead(obj);
@@ -57,7 +63,7 @@ Z = reshape(obj.vertices(:,3),[obj.n obj.m])';
 
 if isfield(obj,'shape')
   switch obj.shape
-    case {'sphere','cylinder','revolution','extrusion'}
+    case {'sphere','cylinder','revolution','extrusion','worm'}
       X = reshape(obj.vertices(:,1),[obj.n obj.m])';
       Y = reshape(obj.vertices(:,2),[obj.n obj.m])';
       Z = reshape(obj.vertices(:,3),[obj.n obj.m])';
@@ -79,15 +85,22 @@ end
 
 %figure;
 switch lower(func)
-  case 'surf'
-    h = surf(X,Y,Z);
   case 'surfl'
     h = surfl(X,Y,Z,[4 10 4]);
+    shading interp;
+    colormap gray;
+  case 'surf'
+    h = surf(X,Y,Z);
+    colormap gray;
   case 'mesh'
     h = mesh(X,Y,Z);
+    set(h,'EdgeColor',[0 0 0],'FaceColor',[1 1 1]);
+  case 'wireframe'
+    h = mesh(X,Y,Z);
+    set(h,'EdgeColor',[0 0 0],'FaceColor','none');
+  otherwise
+    error('Unknown viewing function.  Use ''surfl'', ''surf'', ''mesh'', or ''wireframe''.')
 end
-shading interp;
-colormap gray;
 axis equal
 set(gca,'Visible','Off');
 % 

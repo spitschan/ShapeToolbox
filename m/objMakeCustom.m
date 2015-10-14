@@ -38,27 +38,27 @@ function model = objMakeCustom(shape,f,prm,varargin)
 % with the optional input arguments, see below):
 %
 % SPHERE: A unit sphere (radius 1), default mesh size 128x256.  Saved
-% to 'spherecustom.obj'.
+% to 'sphere.obj'.
 %
 % PLANE: A plane with a width and height of 1, lying on the x-y plane,
 % centered on the origin.  Default mesh size 256x256.  Obviously a
 % size of 2x2 would be enough; the larger size is used so that fine
 % modulations can later be added to the shape if needed.  Saved in
-% 'planecustom.obj'.
+% 'plane.obj'.
 %
 % CYLINDER: A cylinder with radius 1 and height of 2*pi.  Default mesh
-% size 256x256.  Saved in 'cylindercustom.obj'.
+% size 256x256.  Saved in 'cylinder.obj'.
 %
 % TORUS: A torus with ring radius of 1 and tube radius of 0.4.
-% Default mesh size 256x256, saved in 'toruscustom.obj'.
+% Default mesh size 256x256, saved in 'torus.obj'.
 %
 % REVOLUTION: A surface of revolution based on a user-defined profile,
 % height 2*pi.  See the option 'rcurve' below on how to define the
-% profile.  Default mesh size 256x256, saved in 'revolutioncustom.obj'.
+% profile.  Default mesh size 256x256, saved in 'revolution.obj'.
 %
 % EXTRUSION: An extrusion based on a user-defined cross-sectional
 % profile, height 2*pi.  See option 'ecurve' below on how to define the
-% profile.  Default mesh size 256x256, saved in 'extrusioncustom.obj'.
+% profile.  Default mesh size 256x256, saved in 'extrusion.obj'.
 %
 % PERTURBATION BY USER-DEFINED FUNCTION
 % =====================================
@@ -223,6 +223,10 @@ function model = objMakeCustom(shape,f,prm,varargin)
 %                   added option for batch processing
 % 2015-10-08 - ts - added support for the 'spinex' and 'spinez' options
 %                   bug fixes and improvements
+% 2015-10-09 - ts - added/fixed bump map support for planes,
+%                    cylinders, tori
+% 2015-10-10 - ts - added support for worm shape
+% 2015-10-11 - ts - fixes in help
 
 % TODO
 
@@ -275,7 +279,7 @@ model = objParseArgs(model,par);
 
 switch model.shape
   case {'sphere','plane','torus'}
-  case {'cylinder','revolution','extrusion'}
+  case {'cylinder','revolution','extrusion','worm'}
     model = objInterpCurves(model);
     %model.curve = model.curve/max(model.curve);
   otherwise
@@ -309,7 +313,22 @@ if ~model.flags.use_map
   model = objPlaceBumps(model);
 else
   model = objMakeBumpMap(model);
-  model.vertices = objSph2XYZ(model.Theta,model.Phi,model.R);
+  switch model.shape
+    case 'sphere'
+      model.vertices = objSph2XYZ(model.Theta,model.Phi,model.R);
+    case 'plane'
+      model.vertices = [model.X model.Y model.Z];
+    case 'torus'
+      model.vertices = objSph2XYZ(model.Theta,model.Phi,model.r,model.R);
+    case {'cylinder','revolution','extrusion'}
+      model.X =  model.R .* cos(model.Theta);
+      model.Z = -model.R .* sin(model.Theta);
+      model.X = model.X + model.spine.X;
+      model.Z = model.Z + model.spine.Z;
+      model.vertices = [model.X model.Y model.Z];
+    case 'worm'
+      model = objMakeWorm(model);
+  end
 end
 
 if ~isempty(strmatch(model.shape,{'cylinder','revolution','extrusion'}))
@@ -327,6 +346,7 @@ model.prm(ii).perturbation = 'custom';
 model.prm(ii).mindist = model.opts.mindist;
 model.prm(ii).mfilename = mfilename;
 model.prm(ii).locations = model.opts.locations;
+model.prm(ii).use_map = model.flags.use_map;
 %if strcmp(model.shape,'torus')
 %  model.prm(ii).rprm = model.opts.rprm;
 %end
