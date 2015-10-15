@@ -14,9 +14,10 @@ function model = objDefaultStruct(shape,reset)
 % 2015-06-10 - ts - set default radius, width, height here
 % 2015-06-16 - ts - changed default value for dosave to false
 %                   added setting default file name
-% 2015-10-08 - ts - added the 'spinex' and 'spinez' variables
+% 2015-10-08 - ts - added 'spinex' and 'spinez' variables
 % 2015-10-10 - ts - added support for worm shape
-% 2015-10-14 - ts - added the max -flag
+% 2015-10-14 - ts - added max -flag
+% 2015-10-15 - ts - changed default sizes
 
 if nargin<2 || isempty(reset)
   reset = false;

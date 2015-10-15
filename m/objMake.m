@@ -22,26 +22,28 @@ function model = objMake(shape,varargin)
 % Some notes and default values for the shapes (some can be changed
 % with the optional input arguments, see below):
 %
-% SPHERE: A unit sphere (radius 1), default mesh size 128x256.
+% SPHERE: A unit sphere (radius 1), default mesh size 64x128.
 %
 % PLANE: A plane with a width and height of 1, lying on the x-y plane,
-% centered on the origin.  Default mesh size 256x256.  Obviously a
+% centered on the origin.  Default mesh size 128x128.  Obviously a
 % size of 2x2 would be enough; the larger size is used so that fine
 % modulations can later be added to the shape if needed.
 %
 % CYLINDER: A cylinder with radius 1 and height of 2*pi.  Default mesh
-% size 256x256.
+% size 128x128.
 %
 % TORUS: A torus with ring radius of 1 and tube radius of 0.4.
-% Default mesh size 256x256.
+% Default mesh size 128x128.
 %
 % REVOLUTION: A surface of revolution based on a user-defined profile,
 % height 2*pi.  See the option 'rcurve' below on how to define the
-% profile.  Default mesh size 256x256.
+% profile.  Default mesh size 128x128.
 %
 % EXTRUSION: An extrusion based on a user-defined cross-sectional
 % profile, height 2*pi.  See option 'ecurve' below on how to define the
-% profile.  Default mesh size 256x256.
+% profile.  Default mesh size 128x128.
+%
+% WORM: TODO.
 %
 % NOTE: By default, the model IS NOT SAVED TO A FILE.  To save, you
 % have to set the option 'FILENAME' or 'SAVE' (see below).
@@ -128,7 +130,7 @@ function model = objMake(shape,varargin)
 % A vector giving the coordinates of the midline, or "spine", of the
 % shape as a function of the y-coordinate.  The following example
 % produces a sinusoidal curve in the x-direction:
-%  y = linspace(0,4*pi,256);
+%  y = linspace(0,4*pi,128);
 %  x = sin(y);
 %  objMake('cylinder','spinex',x,'save',true);
 % And adding a cosinusoid to the z-coordinate produces a corkscrew:
@@ -140,6 +142,17 @@ function model = objMake(shape,varargin)
 %
 % TODO: SPINEY
 % 
+% TODO: Y
+%
+% TODO: MAX
+%
+% RPAR
+% When the shape is 'torus', the optional parameter vector RPAR
+% defines the modulation for the major radius---the distance from the
+% center of the tube to the center of the torus.  The parameter vector
+% is [freq amplitude phase].  Example:
+%  objMake('torus','rpar',[4 .1 0])
+%
 % CAPS
 % Boolean.  Set this to true to put "caps" at the end of cylinders, 
 % surfaces of revolution, and extrusions.  Default false.  Example:
@@ -203,6 +216,10 @@ function model = objMake(shape,varargin)
 % 2015-10-08 - ts - added the 'spinex' and 'spinez' options
 % 2015-10-10 - ts - added support for worm shape
 % 2015-10-15 - ts - fixed the updating of the nargin/narg var to work with matlab
+% 2015-10-15 - ts - added option to modulate torus radius (rpar)
+%                    previously only possible with objMakeSine etc
+%                   updated help
+
 
 %------------------------------------------------------------
 
@@ -278,6 +295,12 @@ switch model.shape
     model.Z = model.Z + model.spine.Z;
     model.vertices = [model.X model.Y model.Z];
   case 'torus'
+    if ~isempty(model.opts.rprm)
+      rprm = model.opts.rprm;
+      for ii = 1:size(rprm,1)
+        model.R = model.R + rprm(ii,2) * sin(rprm(ii,1)*model.Theta + rprm(ii,3));
+      end
+    end
     model.vertices = objSph2XYZ(model.Theta,model.Phi,model.r,model.R);
   case 'worm'
     % TODO: objAddCaps

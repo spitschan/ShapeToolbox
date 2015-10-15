@@ -6,6 +6,7 @@ function model = objParseCustomParams(model,f,prm)
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-05-30 - ts - first version
+% 2015-10-15 - ts - fixed a bug (use_map was not set with matrix input)
 
 if ischar(f)
   model.opts.imgname = f;
@@ -41,6 +42,8 @@ elseif isnumeric(f)
   [model.opts.mmap,model.opts.nmap] = size(model.opts.map);
   model.m = model.opts.mmap;
   model.n = model.opts.nmap;
+
+  model.flags.use_map = true;
 
   clear f
 

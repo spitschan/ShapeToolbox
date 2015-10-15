@@ -20,42 +20,9 @@ function model = objMakeBump(shape,prm,varargin)
 %
 % Either an existing model returned by one of the objMake*-functions,
 % or a string defining a new shape.  If a string, has to be one of
-% 'sphere', 'plane', 'cylinder', 'torus', 'revolution', and
-% 'extrusion'.  Example: objMakeBump('sphere')
-%
-% If an existing model structure is given as input, new modulation is
-% added to the existing model.  Example:
-%   m = objMakeSine('cylinder');
-%   objMakeBump(m);
-%
-% The shapes use a coordinate system where the y-direction is "up" and
-% the x-z plane is the reference plane.
-% 
-% Some notes and default values for the shapes (some can be changed
-% with the optional input arguments, see below):
-%
-% SPHERE: A unit sphere (radius 1), default mesh size 128x256.  Saved
-% to 'sphere.obj'.
-%
-% PLANE: A plane with a width and height of 1, lying on the x-y plane,
-% centered on the origin.  Default mesh size 256x256.  Obviously a
-% size of 2x2 would be enough; the larger size is used so that fine
-% modulations can later be added to the shape if needed.  Saved in
-% 'plane.obj'.
-%
-% CYLINDER: A cylinder with radius 1 and height of 2*pi.  Default mesh
-% size 256x256.  Saved in 'cylinder.obj'.
-%
-% TORUS: A torus with ring radius of 1 and tube radius of 0.4.
-% Default mesh size 256x256, saved in 'torus.obj'.
-%
-% REVOLUTION: A surface of revolution based on a user-defined profile,
-% height 2*pi.  See the option 'rcurve' below on how to define the
-% profile.  Default mesh size 256x256, saved in 'revolution.obj'.
-%
-% EXTRUSION: An extrusion based on a user-defined cross-sectional
-% profile, height 2*pi.  See option 'ecurve' below on how to define the
-% profile.  Default mesh size 256x256, saved in 'extrusion.obj'.
+% 'sphere', 'plane', 'cylinder', 'torus', 'revolution', 'extrusion' or
+% 'worm'.  See details in the help for objSave.  Example: 
+%   objMakeBump('sphere')
 %
 % PAR:
 % ====
@@ -78,77 +45,9 @@ function model = objMakeBump(shape,prm,varargin)
 % OPTIONS:
 % ========
 %
-% With the exception of the filename, all options are gives as
-% name-value pairs.  All possible options are listed below.
-%
-% FILENAME
-% A single string giving the name of the file in which to
-% save the model.  Example: objMakeBump(...,'mymodel.obj',...)
-%
-% NPOINTS
-% Resolution of the model mesh (number of vertices).  Given as a
-% two-vector for the number of vertices in the "vertical" (elevation
-% or y, depending on the shape) and "horizontal" (azimuth or x)
-% directions.  Example: objMakeBump(...,'npoints',[64 64],...)
-% 
-% MATERIAL
-% Name of the material library (.mtl) file and the name of the
-% material for the model.  Given as a cell array of length two.  The
-% elements of the cell array are two strings, the first one for the
-% material library file and the second for the material name.  This
-% option forces the option uvcoords (see below) to true.  Example:
-% objMakeBump(...,'material',{'matfile.mtl','mymaterial'},...)
-%
-% UVCOORDS
-% Boolean, toggles the computation of texture (uv) coordinates
-% (default is false).  Example: objMakeBump(...,'uvcoords',true,...)
-%
-% NORMALS
-% Boolean, toggle the computation of vertex normals (default false).
-% Turning this on improves the quality of rendering, but note that
-% some rendering programs might compute the normals for you, making
-% it unnecessary to include them in the file.  Example:
-% objMakeBump(...,'normals',true,...)
-%
-% SAVE
-% Boolean, toggle saving the model to a file.  Default is true, the
-% model is saved.  You might want to set this to false if you just
-% want to make the model structure and modify it with another
-% objMake*-function or with objBlend.  Example: 
-% m = objMakeBump(...,'save',false,...)
-%
-% TUBE_RADIUS, MINOR_RADIUS
-% Sets the radius of the "tube" of a torus.  Default 0.4 (the radius
-% of the ring, or the distance from the origin to the center of the
-% tube is 1).  Example: objMakeBump(...,'tube_radius',0.2,...)
-%
-% RCURVE, ECURVE
-% A vector giving the curve to use with shapes 'revolution' ('rcurve')
-% and 'extrusion' ('ecurve').  When the shape is 'revolution', a
-% surface of revolution is produced by revolving the curve about the
-% y-axis.  When the shape is 'extrusion', the curve gives the
-% cross-sectional profile of the object.  This profile is translated
-% along the y-axis to produce a 3D shape.  Example: 
-%  profile = .1 + ((-64:63)/64).^2;
-%  objMakeBump('revolution',...,'rcurve',profile)
-%  objMakeBump('extrusion',...,'ecurve',profile)
-%
-% You can also combine the two curve types by giving both options.  In
-% this case, the 'rcurve' is revolved around the y-axis along a path
-% (or radial profile) defined by 'ecurve'.
-%
-% CAPS
-% Boolean.  Set this to true to put "caps" at the end of cylinders, 
-% surfaces of revolution, and extrusions.  Default false.  Example:
-%  objMakeSine('cylinder',[],'caps',true);
-%
-% WIDTH, HEIGHT
-% Scalars, width and height of the model.  Option 'width' can only be
-% used with shape 'plane' to set the plane width.  'height' can be
-% used with 'plane', 'cylinder', 'revolution', and 'extrusion'.
-% Examples:
-%  objMakeBump('plane',...,'width',2,'height',0.5);
-%  objMakeBump('cylinder',...,'height',1.35);
+% All the same options as in objMake plus the ones listed below.  
+% See objMake documentation:
+%  help objMake;
 %
 % MINDIST
 % Minimum distance between bumps.  A scalar of a vector the length of
@@ -327,9 +226,9 @@ model.prm(ii).perturbation = 'bump';
 model.prm(ii).mindist = model.opts.mindist;
 model.prm(ii).mfilename = mfilename;
 model.prm(ii).locations = model.opts.locations;
-%if strcmp(model.shape,'torus')
-%  model.prm(ii).rprm = model.opts.rprm;
-%end
+if strcmp(model.shape,'torus')
+  model.prm(ii).rprm = model.opts.rprm;
+end
 
 if model.flags.dosave
   model = objSaveModel(model);

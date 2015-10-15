@@ -22,42 +22,9 @@ function model = objMakeSine(shape,cprm,varargin)
 %
 % Either an existing model returned by one of the objMake*-functions,
 % or a string defining a new shape.  If a string, has to be one of
-% 'sphere', 'plane', 'cylinder', 'torus', 'revolution', and
-% 'extrusion'.  Example: objMakeSine('sphere')
-%
-% If an existing model structure is given as input, new modulation is
-% added to the existing model.  Example:
-%   m = objMakeNoise('cylinder');
-%   objMakeSine(m);
-%
-% The shapes use a coordinate system where the y-direction is "up" and
-% the x-z plane is the reference plane.
-% 
-% Some notes and default values for the shapes (some can be changed
-% with the optional input arguments, see below):
-%
-% SPHERE: A unit sphere (radius 1), default mesh size 128x256.  Saved
-% to 'sphere.obj'.
-%
-% PLANE: A plane with a width and height of 1, lying on the x-y plane,
-% centered on the origin.  Default mesh size 256x256.  Obviously a
-% size of 2x2 would be enough; the larger size is used so that fine
-% modulations can later be added to the shape if needed.  Saved in
-% 'plane.obj'.
-%
-% CYLINDER: A cylinder with radius 1 and height of 2*pi.  Default mesh
-% size 256x256.  Saved in 'cylinder.obj'.
-%
-% TORUS: A torus with ring radius of 1 and tube radius of 0.4.
-% Default mesh size 256x256, saved in 'torus.obj'.
-%
-% REVOLUTION: A surface of revolution based on a user-defined profile,
-% height 2*pi.  See the option 'rcurve' below on how to define the
-% profile.  Default mesh size 256x256, saved in 'revolution.obj'.
-%
-% EXTRUSION: An extrusion based on a user-defined cross-sectional
-% profile, height 2*pi.  See option 'ecurve' below on how to define the
-% profile.  Default mesh size 256x256, saved in 'extrusion.obj'.
+% 'sphere', 'plane', 'cylinder', 'torus', 'revolution', 'extrusion' or
+% 'worm'.  See details in the help for objSave.  Example: 
+%   objMakeSine('sphere')
 %
 % CPAR:
 % =====
@@ -116,101 +83,8 @@ function model = objMakeSine(shape,cprm,varargin)
 % OPTIONS:
 % ========
 %
-% With the exception of the filename, all options are gives as
-% name-value pairs.  All possible options are listed below.
-%
-% FILENAME
-% A single string giving the name of the file in which to
-% save the model.  Example: objMakeSine(...,'mymodel.obj',...)
-%
-% NPOINTS
-% Resolution of the model mesh (number of vertices).  Given as a
-% two-vector for the number of vertices in the "vertical" (elevation
-% or y, depending on the shape) and "horizontal" (azimuth or x)
-% directions.  Example: objMakeSine(...,'npoints',[64 64],...)
-% 
-% MATERIAL
-% Name of the material library (.mtl) file and the name of the
-% material for the model.  Given as a cell array of length two.  The
-% elements of the cell array are two strings, the first one for the
-% material library file and the second for the material name.  This
-% option forces the option uvcoords (see below) to true.  Example:
-% objMakeSine(...,'material',{'matfile.mtl','mymaterial'},...)
-%
-% UVCOORDS
-% Boolean, toggles the computation of texture (uv) coordinates
-% (default is false).  Example: objMakeSine(...,'uvcoords',true,...)
-%
-% NORMALS
-% Boolean, toggle the computation of vertex normals (default false).
-% Turning this on improves the quality of rendering, but note that
-% some rendering programs might compute the normals for you, making
-% it unnecessary to include them in the file.  Example:
-% objMakeSine(...,'normals',true,...)
-%
-% SAVE
-% Boolean, toggle saving the model to a file.  Default is true, the
-% model is saved.  You might want to set this to false if you just
-% want to make the model structure and modify it with another
-% objMake*-function or with objBlend.  Example: 
-% m = objMakeSine(...,'save',false,...)
-%
-% TUBE_RADIUS, MINOR_RADIUS
-% Sets the radius of the "tube" of a torus.  Default 0.4 (the radius
-% of the ring, or the distance from the origin to the center of the
-% tube is 1).  Example: objMakeSine(...,'tube_radius',0.2,...)
-%
-% RCURVE, ECURVE
-% A vector giving the curve to use with shapes 'revolution' ('rcurve')
-% and 'extrusion' ('ecurve').  When the shape is 'revolution', a
-% surface of revolution is produced by revolving the curve about the
-% y-axis.  When the shape is 'extrusion', the curve gives the
-% cross-sectional profile of the object.  This profile is translated
-% along the y-axis to produce a 3D shape.  Example: 
-%  profile = .1 + ((-64:63)/64).^2;
-%  objMakeSine('revolution',...,'rcurve',profile)
-%  objMakeSine('extrusion',...,'ecurve',profile)
-%
-% You can also combine the two curve types by giving both options.  In
-% this case, the 'rcurve' is revolved around the y-axis along a path
-% (or radial profile) defined by 'ecurve'.
-% 
-% SPINEX, SPINEZ
-% For use with shapes 'cylinder', 'revolution', and 'extrusion' only.
-% A vector giving the coordinates of the midline, or "spine", of the
-% shape as a function of the y-coordinate.  The following example
-% produces a sinusoidal curve in the x-direction:
-%  y = linspace(0,4*pi,256);
-%  x = sin(y);
-%  objMake('cylinder','spinex',x,'save',true);
-% And adding a cosinusoid to the z-coordinate produces a corkscrew:
-%  z = cos(y);
-%  objMake('cylinder','spinex',x,'spinez',z,'save',true);
-%
-% If the length of the vector 'spinex' or 'spinez' does not match the
-% size of the model mesh y-direction, the curve is interpolated.
-%
-% RPAR
-% When the shape is 'torus', the parameters CPAR and MPAR define the
-% modulation of the radius of the 'tube' of the torus (the minor
-% radius).  The optional parameter vector RPAR defines the modulation
-% for the major radius; the distance from the center of the tube to
-% the center of the torus.  The parameter vector is [freq amplitude phase]. 
-% Example:
-%  objMakeSine('torus',[0 0 0 0],'rpar',[4 .1 0])
-%
-% CAPS
-% Boolean.  Set this to true to put "caps" at the end of cylinders, 
-% surfaces of revolution, and extrusions.  Default false.  Example:
-%  objMakeSine('cylinder',[],'caps',true);
-%
-% WIDTH, HEIGHT
-% Scalars, width and height of the model.  Option 'width' can only be
-% used with shape 'plane' to set the plane width.  'height' can be
-% used with 'plane', 'cylinder', 'revolution', and 'extrusion'.
-% Examples:
-%  objMakeSine('plane',[],'width',2,'height',0.5);
-%  objMakeSine('cylinder',[],'height',1.35);
+% All the same options as in objMake.  See objMake documentation:
+%  help objMake;
 % 
 % RETURNS:
 % ========
@@ -240,6 +114,7 @@ function model = objMakeSine(shape,cprm,varargin)
 % 2015-10-08 - ts - added the 'spinex' and 'spinez' options
 % 2015-10-10 - ts - added support for worm shape
 % 2015-10-15 - ts - fixed the updating of the nargin/narg var to work with matlab
+%                   help refers to objMake instead of repeating
 
 %------------------------------------------------------------
 
