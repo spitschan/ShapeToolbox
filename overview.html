@@ -100,6 +100,22 @@ models with a single function call.  Two models can be blended
 shapes between them.  Texture coordinates can be defined for texture
 mapping, and there is an option for computing vertex normals for
 improved rendering quality.</p>
+<p>TODO TODO TODO:</p>
+<p>TODO: What it does not do.  It doesn&#8217;t model surface using NURBS, it
+only does polygonal modeling.  I cannot do arbitrary shapes, although
+the available shapes and modulations do provide reasonable flexibility
+for research purposes.  In many cases, the models are large and
+redundant&#8212;there can be many vertex points in an area where a few
+would suffice, and there is no smart checking and removal of those.
+Actually, there is no smart or fancy anything!  The models are mainly
+intended for experiments on vision.  TODO: mesh size stays constant so
+that two models can be blended.  The idea is that the user knows
+exactly what kind of model s/he is creating&#8212;efficiency is
+secondary.  On the other hand, there is minimal error checking on the
+parameters.  It is the user&#8217;s responsibility to make sure the
+modulation parameters make sense.  This is because, again, this is a
+tool for making models for research.  We don&#8217;t want to start guessing
+what kind of weird shapes you have in mind.</p>
 </div>
 <div class="section" id="workflow">
 <h2>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h2>

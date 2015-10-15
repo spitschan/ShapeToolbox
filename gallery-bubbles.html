@@ -55,17 +55,17 @@
 <div></div></blockquote>
 <div class="section" id="bubbles">
 <span id="gallerybubbles"></span><h1>Bubbles<a class="headerlink" href="#bubbles" title="Permalink to this headline">¶</a></h1>
-<a class="reference internal image-reference" href="_images/bubbles.png"><img alt="_images/bubbles.png" src="_images/bubbles.png" style="width: 400px;" /></a>
+<a class="reference internal image-reference" href="_images/bubbles_400.png"><img alt="_images/bubbles_400.png" src="_images/bubbles_400.png" style="width: 400px;" /></a>
 <p>This example illustrates a few different things.  First, how to use a
 custom, user-defined function to determine the perturbation type.
 Second, how to provide several sets of parameters to that function.
 Third, the effect of using the &#8220;max&#8221; instead of the usual &#8220;add&#8221; mode
 when combining perturbations.</p>
 <p>Code for producing the model:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% A function that makes a &quot;dome&quot; shape, a half-sphere, that are used</span>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% A function that makes a &quot;dome&quot; shape, a hemisphere, that are used</span>
 <span class="c">% to give the appearance of bubbles.  The first</span>
 <span class="c">% input argument is distance, the second is the radius of the</span>
-<span class="c">% half-sphere.  Negative radius makes a dent, positive a bump.</span>
+<span class="c">% half-sphere.</span>
 <span class="n">f</span> <span class="p">=</span> <span class="p">@(</span><span class="n">d</span><span class="p">,</span><span class="n">r</span><span class="p">)</span> <span class="p">(</span><span class="n">d</span><span class="o">&lt;</span><span class="p">=</span><span class="n">r</span><span class="p">)</span><span class="o">.*</span><span class="nb">sqrt</span><span class="p">(</span><span class="n">r</span>^<span class="mi">2</span> <span class="o">-</span> <span class="n">d</span><span class="o">.^</span><span class="mi">2</span><span class="p">);</span>
 
 <span class="c">% Make the model.  The three rows of the parameter matrix define three</span>
@@ -85,10 +85,7 @@ when combining perturbations.</p>
               <span class="s">&#39;bubbles.obj&#39;</span><span class="p">);</span>        <span class="c">% save in bubbles.obj</span>
 </pre></div>
 </div>
-<p>XML for rendering with Mitsuba.  This example uses an environment
-light map by Bernhard Vogl (downloaded from
-<a class="reference external" href="http://dativ.at/lightprobes/">http://dativ.at/lightprobes/</a>).  If you don&#8217;t have that map, you will
-have to use another light source.</p>
+<p>XML for rendering with Mitsuba.</p>
 <div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;scene</span>  <span class="na">version=</span><span class="s">&quot;0.5.0&quot;</span><span class="nt">&gt;</span>
   <span class="nt">&lt;integrator</span> <span class="na">type=</span><span class="s">&quot;path&quot;</span><span class="nt">&gt;</span>
     <span class="nt">&lt;boolean</span> <span class="na">name=</span><span class="s">&quot;hideEmitters&quot;</span> <span class="na">value=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>

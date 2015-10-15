@@ -55,13 +55,13 @@
 <div></div></blockquote>
 <div class="section" id="light-from-above">
 <span id="gallerylightabove"></span><h1>Light from above<a class="headerlink" href="#light-from-above" title="Permalink to this headline">¶</a></h1>
-<a class="reference internal image-reference" href="_images/bumps.png"><img alt="_images/bumps.png" src="_images/bumps.png" style="width: 400px;" /></a>
+<a class="reference internal image-reference" href="_images/bumps_400.png"><img alt="_images/bumps_400.png" src="_images/bumps_400.png" style="width: 400px;" /></a>
 <p>This piece of code makes a model for the light-from-above assumption
 demo (the scene actually has a light that&#8217;s above).  It demonstrates
 how to use custom (not random) locations for user-defined
 perturbations.  There are two bumps in the place (the ones on top),
 and two dents (bottom).  Code for producing the model:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% A function that makes a &quot;dome&quot; shape, a half-sphere.  The first</span>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% A function that makes a &quot;dome&quot; shape, a hemisphere.  The first</span>
 <span class="c">% input argument is distance, the second is the radius of the</span>
 <span class="c">% half-sphere.  Negative radius makes a dent, positive a bump.</span>
 <span class="n">f</span> <span class="p">=</span> <span class="p">@(</span><span class="n">d</span><span class="p">,</span><span class="n">r</span><span class="p">)</span> <span class="nb">sign</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">d</span><span class="o">&lt;</span><span class="p">=</span><span class="n">r</span><span class="p">)</span><span class="o">.*</span><span class="nb">sqrt</span><span class="p">(</span><span class="n">r</span>^<span class="mi">2</span> <span class="o">-</span> <span class="n">d</span><span class="o">.^</span><span class="mi">2</span><span class="p">);</span>

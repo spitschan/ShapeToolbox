@@ -6,7 +6,7 @@
 Bubbles
 ================
 
-.. image:: ../images/gallery/bubbles.png
+.. image:: ../images/gallery/bubbles_400.png
    :width: 400px
 
 This example illustrates a few different things.  First, how to use a
@@ -17,10 +17,10 @@ when combining perturbations.
 
 Code for producing the model::
 
-  % A function that makes a "dome" shape, a half-sphere, that are used
+  % A function that makes a "dome" shape, a hemisphere, that are used
   % to give the appearance of bubbles.  The first
   % input argument is distance, the second is the radius of the
-  % half-sphere.  Negative radius makes a dent, positive a bump.
+  % half-sphere.
   f = @(d,r) (d<=r).*sqrt(r^2 - d.^2);
 
   % Make the model.  The three rows of the parameter matrix define three
@@ -42,10 +42,7 @@ Code for producing the model::
 
 .. highlight:: xml
 
-XML for rendering with Mitsuba.  This example uses an environment
-light map by Bernhard Vogl (downloaded from
-http://dativ.at/lightprobes/).  If you don't have that map, you will
-have to use another light source. ::
+XML for rendering with Mitsuba.   ::
 
   <scene  version="0.5.0">
     <integrator type="path">
