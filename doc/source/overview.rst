@@ -58,6 +58,24 @@ shapes between them.  Texture coordinates can be defined for texture
 mapping, and there is an option for computing vertex normals for
 improved rendering quality.
 
+TODO TODO TODO: 
+
+TODO: What it does not do.  It doesn't model surface using NURBS, it
+only does polygonal modeling.  I cannot do arbitrary shapes, although
+the available shapes and modulations do provide reasonable flexibility
+for research purposes.  In many cases, the models are large and
+redundant---there can be many vertex points in an area where a few
+would suffice, and there is no smart checking and removal of those.
+Actually, there is no smart or fancy anything!  The models are mainly
+intended for experiments on vision.  TODO: mesh size stays constant so
+that two models can be blended.  The idea is that the user knows
+exactly what kind of model s/he is creating---efficiency is
+secondary.  On the other hand, there is minimal error checking on the
+parameters.  It is the user's responsibility to make sure the
+modulation parameters make sense.  This is because, again, this is a
+tool for making models for research.  We don't want to start guessing
+what kind of weird shapes you have in mind.
+
 Workflow
 ========
 

@@ -25,25 +25,25 @@ end
 if ~reset
   switch shape
     case 'sphere'
-      model.m = 128;
-      model.n = 256;
+      model.m = 64;
+      model.n = 128;
       model.radius = 1;
     case 'plane'
-      model.m = 256;
-      model.n = 256;
+      model.m = 128;
+      model.n = 128;
       model.width = 1;
       model.height = 1;
     case {'cylinder','revolution','extrusion','worm'}
-      model.m = 256;
-      model.n = 256;
+      model.m = 128;
+      model.n = 128;
       model.radius = 1;
       model.height = 2*pi*model.radius;
       model.spine.x = zeros(1,model.m);
       model.spine.y = linspace(-model.height/2,model.height/2,model.m);
       model.spine.z = zeros(1,model.m);
     case 'torus'
-      model.m = 256;
-      model.n = 256;
+      model.m = 128;
+      model.n = 128;
       model.tube_radius = 0.4;
       model.radius = 1;
       model.opts.rprm = [];

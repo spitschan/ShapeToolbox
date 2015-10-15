@@ -28,7 +28,7 @@ create a simple model, then view it::
   objShow(sphere);
 
   tor = objMakeNoise('torus')
-  objShow(tor,'surf');
+  objShow(tor);
 
 The latter command, for example, should open a figure window (if one
 does not exist) and show something like the following:

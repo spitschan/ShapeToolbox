@@ -5,24 +5,18 @@
 Gallery
 *******
 
-
-.. image:: ../images/gallery/corkscrew.png
+.. image:: ../images/gallery/corkscrew_150.png
    :width: 150px
    :target: gallery-corkscrew.html
-.. image:: ../images/gallery/blob.png
+.. image:: ../images/gallery/blob_150.png
    :width: 150px
    :target: gallery-transparent-blob.html
-.. image:: ../images/gallery/bumps.png
+.. image:: ../images/gallery/bumps_150.png
    :width: 150px
    :target: gallery-light-from-above.html
-.. image:: ../images/gallery/bubbles.png
+.. image:: ../images/gallery/bubbles_150.png
    :width: 150px
    :target: gallery-bubbles.html
-
-
-Radial frequency patterns with the torus.  No other shape modulation,
-just the major radius.
-
 
 .. toctree::
    :maxdepth: 1

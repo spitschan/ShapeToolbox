@@ -239,12 +239,15 @@ function model = objMakeSine(shape,cprm,varargin)
 %                   added option for batch processing
 % 2015-10-08 - ts - added the 'spinex' and 'spinez' options
 % 2015-10-10 - ts - added support for worm shape
+% 2015-10-15 - ts - fixed the updating of the nargin/narg var to work with matlab
 
 %------------------------------------------------------------
 
+narg = nargin;
+
 % For batch processing.  If there's only one input arg and it's a cell
 % array, it has all the parameters.
-if iscell(shape) && nargin==1
+if iscell(shape) && narg==1
   % If the only input argument is a cell array of cell arrays, recurse
   % through the cells. Each cell holds parameters for one shape.
   if all(cellfun('iscell',shape))
@@ -256,11 +259,11 @@ if iscell(shape) && nargin==1
   end
   % Otherwise, unpack the mandatory input arguments from the beginning
   % of the array and assign the rest to varargin:
-  nargin = length(shape);
-  if nargin>2
+  narg = length(shape);
+  if narg>2
     varargin = shape(3:end);
   end
-  if nargin>1
+  if narg>1
     cprm = shape{2};
   end
   shape = shape{1};
@@ -308,7 +311,7 @@ switch model.shape
     error('Unknown shape');
 end
 
-if nargin<2 || isempty(cprm)
+if narg<2 || isempty(cprm)
   cprm = defprm;
 end
 [nccomp,ncol] = size(cprm);

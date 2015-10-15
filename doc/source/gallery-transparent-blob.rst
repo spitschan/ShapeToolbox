@@ -5,7 +5,7 @@
 Transparent blob with noisy, textured background
 ================================================
 
-.. image:: ../images/gallery/blob.png
+.. image:: ../images/gallery/blob_400.png
    :width: 400px
 
 TODO: Render better quality image.

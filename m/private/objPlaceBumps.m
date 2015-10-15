@@ -13,6 +13,8 @@ function model = objPlaceBumps(model)
 % 2015-10-10 - ts - added support for worm shape
 % 2015-10-11 - ts - added support for torus (again)
 % 2015-10-14 - ts - added option to sum/take max
+% 2015-10-15 - ts - fixed the max/sum functionality for sphere,
+%                    cylinder, torus
 
 ii = length(model.prm);
 prm = model.prm(ii).prm;
@@ -27,6 +29,7 @@ end
 
 switch model.shape
   case 'sphere'
+    Rtmp = zeros(size(model.R));
     for jj = 1:nbumptypes
 
       if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
@@ -107,14 +110,16 @@ switch model.shape
         %model.R(idx) = model.R(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));
         idx = find(d<prm(jj,2));
         if model.flags.max
-          model.R(idx) = max(model.R(idx), model.opts.f(d(idx),prm(jj,3:end)));
+          % model.R(idx) = max(model.R(idx), model.opts.f(d(idx),prm(jj,3:end)));
+          Rtmp(idx) = max(Rtmp(idx), model.opts.f(d(idx),prm(jj,3:end)));
         else
-          model.R(idx) = model.R(idx) + model.opts.f(d(idx),prm(jj,3:end));
+          % model.R(idx) = model.R(idx) + model.opts.f(d(idx),prm(jj,3:end));
+          Rtmp(idx) = Rtmp(idx) + model.opts.f(d(idx),prm(jj,3:end));
         end
-      end
+      end % loop over bumps of this type
+    end % over bump types
 
-    end
-
+    model.R = model.R + Rtmp;
     model.vertices = objSph2XYZ(model.Theta,model.Phi,model.R);
 
 
@@ -202,6 +207,9 @@ switch model.shape
     model.vertices = [model.X model.Y model.Z];
 
   case {'cylinder','revolution','extrusion','worm'}
+
+    Rtmp = zeros(size(model.R));
+
     for jj = 1:nbumptypes
         
       if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
@@ -275,13 +283,17 @@ switch model.shape
         %model.R(idx) = model.R(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));      
         idx = find(d<prm(jj,2));
         if model.flags.max
-          model.R(idx) = max(model.R(idx), model.opts.f(d(idx),prm(jj,3:end)));
+          % model.R(idx) = max(model.R(idx), model.opts.f(d(idx),prm(jj,3:end)));
+          Rtmp(idx) = max(Rtmp(idx), model.opts.f(d(idx),prm(jj,3:end)));
         else
-          model.R(idx) = model.R(idx) + model.opts.f(d(idx),prm(jj,3:end));
+          % model.R(idx) = model.R(idx) + model.opts.f(d(idx),prm(jj,3:end));
+          Rtmp(idx) = Rtmp(idx) + model.opts.f(d(idx),prm(jj,3:end));
         end
-      end
+      end % loop over bumps of this type
       
-    end
+    end % loop over bump types
+
+    model.R = model.R + Rtmp;
 
     if strcmp(model.shape,'worm')
       model = objMakeWorm(model);
@@ -295,7 +307,7 @@ switch model.shape
 
   case 'torus'
     for jj = 1:nbumptypes
-
+      rtmp = zeros(size(model.r));
       if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
 
         theta0 = model.opts.locations{1}{jj};
@@ -362,12 +374,16 @@ switch model.shape
               
         idx = find(d<prm(jj,2));
         if model.flags.max
-          model.r(idx) = max(model.r(idx), model.opts.f(d(idx),prm(jj,3:end)));
+          % model.r(idx) = max(model.r(idx), model.opts.f(d(idx),prm(jj,3:end)));
+          rtmp(idx) = max(rtmp(idx), model.opts.f(d(idx),prm(jj,3:end)));
         else
-          model.r(idx) = model.r(idx) + model.opts.f(d(idx),prm(jj,3:end));
+          % model.r(idx) = model.r(idx) + model.opts.f(d(idx),prm(jj,3:end));
+          rtmp(idx) = rtmp(idx) + model.opts.f(d(idx),prm(jj,3:end));
         end
       end
     end
+
+    model.r = model.r + rtmp;
 
     if ~isempty(model.opts.rprm)
       rprm = model.opts.rprm;

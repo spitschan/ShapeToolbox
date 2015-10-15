@@ -6,7 +6,7 @@
 Light from above
 ================
 
-.. image:: ../images/gallery/bumps.png
+.. image:: ../images/gallery/bumps_400.png
    :width: 400px
 
 
@@ -16,7 +16,7 @@ how to use custom (not random) locations for user-defined
 perturbations.  There are two bumps in the place (the ones on top),
 and two dents (bottom).  Code for producing the model::
 
-  % A function that makes a "dome" shape, a half-sphere.  The first
+  % A function that makes a "dome" shape, a hemisphere.  The first
   % input argument is distance, the second is the radius of the
   % half-sphere.  Negative radius makes a dent, positive a bump.
   f = @(d,r) sign(r)*(d<=r).*sqrt(r^2 - d.^2);

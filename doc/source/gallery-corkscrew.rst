@@ -6,7 +6,7 @@
 Corkscrew
 =========
 
-.. image:: ../images/gallery/corkscrew.png
+.. image:: ../images/gallery/corkscrew_400.png
    :width: 400px
 
 

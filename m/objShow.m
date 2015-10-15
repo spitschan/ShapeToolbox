@@ -48,6 +48,8 @@ function h = objShow(obj,func)
 %                   'surf' does not use interpolation
 %                   added 'wireframe' option for see-through wireframe model
 %                   added 'worm' as a shape option
+% 2015-10-15 - ts - different commands for matlab and octave to set
+%                    viewing options
 
 if ischar(obj)
   obj = objRead(obj);
@@ -103,12 +105,16 @@ switch lower(func)
 end
 axis equal
 set(gca,'Visible','Off');
-% 
 
-try
-  set(gca,'CameraUpVector',[0 1 0]);%,'CameraPosition',[0 0 1]);
-  view([1 1 1]);
+if exist('OCTAVE_VERSION')
+  try
+    set(gca,'CameraUpVector',[0 1 0]);%,'CameraPosition',[0 0 1]);
+    view([1 1 1]);
+    rotate3d on
+  catch
+       ;
+  end
+else
+  set(gca,'CameraUpVector',[0 1 0],'CameraPosition',[1 1 1]);
   rotate3d on
-catch
-  ;
 end
