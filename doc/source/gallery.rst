@@ -17,6 +17,21 @@ Gallery
 .. image:: ../images/gallery/bubbles_150.png
    :width: 150px
    :target: gallery-bubbles.html
+.. image:: ../images/gallery/fabric_cyl_150.png
+   :width: 150px
+   :target: gallery-fabric.html
+.. image:: ../images/gallery/moon_150.png
+   :width: 150px
+   :target: gallery-moon.html
+.. image:: ../images/gallery/gabor_150.png
+   :width: 150px
+   :target: gallery-gabor.html
+
+
+
+.. image:: ../images/gallery/radialfreq_150.png
+   :width: 150px
+   :target: gallery-radialfreq.html
 
 .. toctree::
    :maxdepth: 1
@@ -25,5 +40,9 @@ Gallery
    gallery-transparent-blob
    gallery-light-from-above
    gallery-bubbles
+   gallery-fabric
+   gallery-moon
+   gallery-gabor
+   gallery-radialfreq
 
 

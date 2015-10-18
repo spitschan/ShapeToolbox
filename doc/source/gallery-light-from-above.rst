@@ -82,7 +82,7 @@ have to use another light source. ::
     </shape>
 
     <emitter  type="envmap">
-      <string name="filename" value="../corkscrew/20060807_wells6_lp.hdr"/>
+      <string name="filename" value="20060807_wells6_lp.hdr"/>
       <float name="scale"  value="1"/>
       <transform name="toWorld">
         <rotate y="1" angle="90" />
@@ -92,3 +92,6 @@ have to use another light source. ::
   </scene>
 
 
+Please note that this is just an example.  There's no guarantee these
+are in any way reasonable, or sensible, modeling or rendering
+parameters for a particular application. 
