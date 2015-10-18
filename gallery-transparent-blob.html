@@ -56,12 +56,14 @@
 <div class="section" id="transparent-blob-with-noisy-textured-background">
 <span id="gallerytransparentblob"></span><h1>Transparent blob with noisy, textured background<a class="headerlink" href="#transparent-blob-with-noisy-textured-background" title="Permalink to this headline">¶</a></h1>
 <a class="reference internal image-reference" href="_images/blob_400.png"><img alt="_images/blob_400.png" src="_images/blob_400.png" style="width: 400px;" /></a>
-<p>TODO: Render better quality image.</p>
 <p>Code for producing the model:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">25</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">8</span><span class="p">],..</span>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% Make a blob: a sphere with large Gaussian bumps.  Also define a</span>
+<span class="c">% material name, &#39;blobmat&#39;:</span>
+<span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="p">.</span><span class="mi">25</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">8</span><span class="p">],..</span>
             <span class="s">&#39;material&#39;</span><span class="p">,</span><span class="s">&#39;blobmat&#39;</span><span class="p">,</span>
             <span class="s">&#39;blob.obj&#39;</span><span class="p">);</span>
 
+<span class="c">% Make three noisy planes.  Also define material name, &#39;bkgrmat&#39;:</span>
 <span class="n">noiseprm</span> <span class="p">=</span> <span class="p">[</span><span class="mi">32</span> <span class="mi">1</span> <span class="mi">45</span> <span class="mi">45</span> <span class="p">.</span><span class="mi">02</span><span class="p">];</span>
 <span class="k">for</span> <span class="n">ii</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">3</span>
   <span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,</span><span class="n">noiseprm</span><span class="p">,</span>
@@ -70,7 +72,123 @@
 <span class="k">end</span>
 </pre></div>
 </div>
-<p>TODO: Radiance code for rendering.</p>
+<p>The example above was rendered in Radiance.  The commands and files
+below assume Radiance is installed.</p>
+<p>Convert the <code class="docutils literal"><span class="pre">.obj</span></code> files to Radiance <code class="docutils literal"><span class="pre">.rad</span></code> files.  Note that
+<code class="docutils literal"><span class="pre">rad</span></code> is not the only format, and in many cases, it will make sense
+to use another Radiance format.  See other examples in the Gallery and
+in the manual, and Radiance documentation. Here we just use <code class="docutils literal"><span class="pre">.rad</span></code>.
+In the terminal, do:</p>
+<div class="highlight-none"><div class="highlight"><pre>obj2rad blob.obj &gt; blob.rad
+obj2rad background1.obj &gt; background1.rad
+obj2rad background2.obj &gt; background2.rad
+obj2rad background3.obj &gt; background3.rad
+</pre></div>
+</div>
+<p>Next, the file for the whole scene.  The following is the contents of the file
+<code class="docutils literal"><span class="pre">scene.rad</span></code>.  Note that the material names in the baginning of the
+file have to match the material names used above when creating the models:</p>
+<div class="highlight-none"><div class="highlight"><pre>#------------------------------------------------
+# Materials
+
+void glass blobmat
+0
+0
+3 0.75 0.75 0.75
+# red, green, blue transmissivity
+
+void plastic bkgrmat
+0
+0
+5 0.65 1.0 0.65 .05 0
+# red green blue specularity roughness
+
+void plastic black
+0
+0
+5 0.0 0.0 0.0 .0 0
+# red green blue specularity roughness
+
+#----------------------------------------
+# Light source
+
+#LightField:hdr_env
+void colorpict hdr_env
+13 red green blue rnl_probe.hdr angmap.cal sb_u sb_v -rx 0 -ry 180 -rz 0
+0
+0
+
+hdr_env glow glow_mat
+0
+0
+4 1 1 1 0
+
+#light field
+!genrbox glow_mat boxenv 50 50 50 -i | xform -t -25 -25 -25
+
+#----------------------------------------
+# A black background
+
+black polygon bkgr1
+0
+0
+12
+        -2.0 -2.0 -2.0
+         6.0 -2.0 -2.0
+         6.0  6.0 -2.0
+        -2.0  6.0 -2.0
+
+black polygon bkgr2
+0
+0
+12
+        -2.0 -2.0 -2.0
+        -2.0  6.0 -2.0
+        -2.0  6.0  6.0
+        -2.0 -2.0  6.0
+
+black polygon bkgr3
+0
+0
+12
+        -2.0 -2.0 -2.0
+        -2.0 -2.0  6.0
+         6.0 -2.0  6.0
+         6.0 -2.0 -2.0
+
+#----------------------------------------
+# Finally, put the blob and other elements in place
+
+!less background1.rad   | xform -rx 0 -ry 0 -rz 0 -s  1.0 -t 0.5 0.5 0.0
+!less background2.rad   | xform -rx 0 -ry -90 -rz 0 -s  1.0 -t 0.0 0.5 0.5
+!less background3.rad   | xform -rx 90 -ry 0 -rz 0 -s  1.0 -t 0.5 0.0 0.5
+!less blob.rad | xform -rx 0 -ry 0 -rz 0 -s  0.3 -t  0.5 0.5  0.5
+</pre></div>
+</div>
+<p>The next is a <code class="docutils literal"><span class="pre">.rif</span></code> file that holds information and parameters for
+the rendering process.  The contents of the file <code class="docutils literal"><span class="pre">scene.rif</span></code>:</p>
+<div class="highlight-none"><div class="highlight"><pre>ZONE= I  -2 2 -2 2 -2 2
+scene = scene.rad
+objects = blob.rad background1.rad background2.rad background3.rad scene.rif
+EXPOSURE = 1
+QUALITY = h
+INDIRECT = 0
+DETAIL = h
+VARIABILITY = m
+RESOLUTION = 800
+PENUMBRAS = t
+PICTURE = scene
+view = -vp 2.0 1.25 2.3 -vd -2.0 -1.0 -2.3 -vu 0 1 0
+render = -av .0 .0 .0
+</pre></div>
+</div>
+<p>Finally, to render, run in terminal:</p>
+<div class="highlight-none"><div class="highlight"><pre>rad scene.rif
+</pre></div>
+</div>
+<p>Please note that this is just an example.  There&#8217;s no guarantee these
+are in any way reasonable, or sensible, modeling or rendering
+parameters for a particular application.</p>
 </div>
 
 

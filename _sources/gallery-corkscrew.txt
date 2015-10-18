@@ -86,3 +86,6 @@ have to use another light source. ::
   </scene>
 
 
+Please note that this is just an example.  There's no guarantee these
+are in any way reasonable, or sensible, modeling or rendering
+parameters for a particular application. 

@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>A cratered moon &mdash; ShapeToolbox 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
+    <link rel="up" title="Gallery" href="gallery.html" />
+    <link rel="next" title="A Gabor" href="gallery-gabor.html" />
+    <link rel="prev" title="Image as a height map and texture" href="gallery-fabric.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="gallery-gabor.html" title="A Gabor"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gallery-fabric.html" title="Image as a height map and texture"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gallery.html" accesskey="U">Gallery</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="a-cratered-moon">
+<span id="gallerymoon"></span><h1>A cratered moon<a class="headerlink" href="#a-cratered-moon" title="Permalink to this headline">¶</a></h1>
+<a class="reference internal image-reference" href="_images/moon_400.png"><img alt="_images/moon_400.png" src="_images/moon_400.png" style="width: 400px;" /></a>
+<p>This example uses two function, <code class="docutils literal"><span class="pre">objMakeBump</span></code> and
+<code class="docutils literal"><span class="pre">objMakeCustom</span></code>.  The first function is used to produce a slightly
+irregular sphere by adding large Gaussian bumps to a sphere.  This
+model is then passed to the second function to add &#8220;craters&#8221; to the
+sphere.</p>
+<p>First, we need a function that makes the craters.  The following is
+the contents of the file <code class="docutils literal"><span class="pre">crater.m</span></code>:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="k">function</span><span class="w"> </span>C <span class="p">=</span><span class="w"> </span><span class="nf">crater</span><span class="p">(</span>d,prm<span class="p">)</span><span class="w"></span>
+
+<span class="n">r</span> <span class="p">=</span> <span class="n">prm</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>       <span class="c">% radius of the crater</span>
+<span class="n">a</span> <span class="p">=</span> <span class="n">prm</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>       <span class="c">% amplitude of the crater edge</span>
+<span class="n">width1</span> <span class="p">=</span> <span class="n">prm</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>  <span class="c">% width of the inner slope</span>
+<span class="n">width2</span> <span class="p">=</span> <span class="n">prm</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>  <span class="c">% width of the outer slope</span>
+
+<span class="n">d</span> <span class="p">=</span> <span class="n">d</span><span class="o">-</span><span class="n">r</span><span class="p">;</span>
+<span class="n">C</span> <span class="p">=</span> <span class="nb">zeros</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">d</span><span class="p">));</span>
+
+<span class="c">% The inner slope of the crater</span>
+<span class="n">idx</span> <span class="p">=</span> <span class="n">d</span><span class="o">&gt;-</span><span class="n">width1</span> <span class="o">&amp;</span> <span class="n">d</span><span class="o">&lt;</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">C</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="p">=</span> <span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">pi</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">width1</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">d</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span><span class="o">-</span><span class="nb">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">));</span>
+
+<span class="c">% The outer slope</span>
+<span class="n">idx</span> <span class="p">=</span> <span class="n">d</span><span class="o">&lt;</span><span class="n">width2</span> <span class="o">&amp;</span> <span class="n">d</span><span class="o">&gt;</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">C</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="p">=</span> <span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">pi</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">width2</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">d</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span><span class="o">+</span><span class="nb">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>Now the code for producing the model:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">m</span> <span class="p">=</span> <span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">30</span> <span class="p">.</span><span class="mi">05</span> <span class="mf">0.2</span><span class="p">],</span><span class="s">&#39;mindist&#39;</span><span class="p">,.</span><span class="mi">35</span><span class="p">,</span><span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">128</span> <span class="mi">256</span><span class="p">]);</span>
+
+<span class="n">prm</span> <span class="p">=</span> <span class="p">[</span><span class="mi">20</span> <span class="mf">0.50</span> <span class="mf">0.30</span> <span class="p">.</span><span class="mi">03</span> <span class="mf">0.18</span>  <span class="mf">0.18</span>
+       <span class="mi">20</span> <span class="mf">0.26</span> <span class="mf">0.15</span> <span class="p">.</span><span class="mi">03</span> <span class="mf">0.09</span>  <span class="mf">0.09</span><span class="p">];</span>
+
+<span class="n">objMakeCustom</span><span class="p">(</span><span class="n">m</span><span class="p">,</span>
+              <span class="p">@</span><span class="n">crater</span><span class="p">,</span><span class="n">prm</span><span class="p">,</span><span class="c">...</span>
+              <span class="s">&#39;mindist&#39;</span><span class="p">,</span><span class="nb">pi</span><span class="o">/</span><span class="mi">6</span><span class="p">,</span><span class="c">...</span>
+              <span class="s">&#39;model&#39;</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="c">...</span>
+              <span class="s">&#39;normals&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">,</span>
+              <span class="s">&#39;moon.obj&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To get a better quality rendering of the crater rims, you might want
+to increase the mesh resolution, and set the option <code class="docutils literal"><span class="pre">npoints</span></code> to a
+higher value, for example <code class="docutils literal"><span class="pre">...,'npoints',[256</span> <span class="pre">512],...</span></code>.</p>
+<p>XML for rendering with Mitsuba.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;scene</span>  <span class="na">version=</span><span class="s">&quot;0.5.0&quot;</span><span class="nt">&gt;</span>
+
+  <span class="nt">&lt;integrator</span> <span class="na">type=</span><span class="s">&quot;path&quot;</span><span class="nt">/&gt;</span>
+
+  <span class="nt">&lt;sensor</span> <span class="na">type=</span><span class="s">&quot;perspective&quot;</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;transform</span> <span class="na">name=</span><span class="s">&quot;toWorld&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;lookAt</span> <span class="na">origin=</span><span class="s">&quot;3, 3, 3&quot;</span> <span class="na">target=</span><span class="s">&quot;0, 0, 0&quot;</span> <span class="na">up=</span><span class="s">&quot;0, 1, 0&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/transform&gt;</span>
+
+    <span class="nt">&lt;float</span> <span class="na">name=</span><span class="s">&quot;farClip&quot;</span> <span class="na">value=</span><span class="s">&quot;20&quot;</span><span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;sampler</span> <span class="na">type=</span><span class="s">&quot;stratified&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;integer</span> <span class="na">name=</span><span class="s">&quot;sampleCount&quot;</span> <span class="na">value=</span><span class="s">&quot;128&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/sampler&gt;</span>
+
+    <span class="nt">&lt;film</span> <span class="na">type=</span><span class="s">&quot;hdrfilm&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;integer</span> <span class="na">name=</span><span class="s">&quot;width&quot;</span> <span class="na">value=</span><span class="s">&quot;512&quot;</span><span class="nt">/&gt;</span>
+      <span class="nt">&lt;integer</span> <span class="na">name=</span><span class="s">&quot;height&quot;</span> <span class="na">value=</span><span class="s">&quot;512&quot;</span><span class="nt">/&gt;</span>
+      <span class="nt">&lt;rfilter</span> <span class="na">type=</span><span class="s">&quot;gaussian&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/film&gt;</span>
+  <span class="nt">&lt;/sensor&gt;</span>
+
+  <span class="nt">&lt;shape</span>  <span class="na">type=</span><span class="s">&quot;obj&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;string</span>  <span class="na">name=</span><span class="s">&quot;filename&quot;</span>  <span class="na">value=</span><span class="s">&quot;moon.obj&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;bsdf</span>  <span class="na">type=</span><span class="s">&quot;roughplastic&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;srgb</span>  <span class="na">name=</span><span class="s">&quot;reflectance&quot;</span>  <span class="na">value=</span><span class="s">&quot;#eeddbb&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/bsdf&gt;</span>
+    <span class="nt">&lt;transform</span> <span class="na">name=</span><span class="s">&quot;toWorld&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;rotate</span> <span class="na">y=</span><span class="s">&quot;1&quot;</span> <span class="na">angle=</span><span class="s">&quot;280&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/transform&gt;</span>
+  <span class="nt">&lt;/shape&gt;</span>
+
+  <span class="nt">&lt;emitter</span>  <span class="na">type=</span><span class="s">&quot;sunsky&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;float</span> <span class="na">name=</span><span class="s">&quot;scale&quot;</span>  <span class="na">value=</span><span class="s">&quot;2&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;float</span> <span class="na">name=</span><span class="s">&quot;hour&quot;</span> <span class="na">value=</span><span class="s">&quot;17&quot;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/emitter&gt;</span>
+
+<span class="nt">&lt;/scene&gt;</span>
+</pre></div>
+</div>
+<p>Please note that this is just an example.  There&#8217;s no guarantee these
+are in any way reasonable, or sensible, modeling or rendering
+parameters for a particular application.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gallery-fabric.html"
+                        title="previous chapter">Image as a height map and texture</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gallery-gabor.html"
+                        title="next chapter">A Gabor</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gallery-moon.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="gallery-gabor.html" title="A Gabor"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gallery-fabric.html" title="Image as a height map and texture"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gallery.html" >Gallery</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Toni P. Saarela.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
