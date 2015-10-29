@@ -110,9 +110,10 @@ interesting or informative to use in a vision experiment.
 Batch option in objMake*-functions
 ==================================
 
-
+TODO.
 
 
 objMakeBatch-function
 =====================
 
+TODO.

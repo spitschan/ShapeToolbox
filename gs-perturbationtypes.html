@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Perturbation types &mdash; ShapeToolbox 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
+    <link rel="up" title="Getting started with ShapeToolbox" href="gettingstarted.html" />
+    <link rel="next" title="Improving rendering quality: mesh size and vertex normals" href="gs-quality.html" />
+    <link rel="prev" title="Modulating the modulation" href="gs-modulation.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="gs-quality.html" title="Improving rendering quality: mesh size and vertex normals"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gs-modulation.html" title="Modulating the modulation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gettingstarted.html" accesskey="U">Getting started with ShapeToolbox</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div></div></blockquote>
+<div class="section" id="perturbation-types">
+<span id="gs-perturbationtypes"></span><h1>Perturbation types<a class="headerlink" href="#perturbation-types" title="Permalink to this headline">¶</a></h1>
+<p>This section briefly illustrates the different types of perturbation
+that can be added to the shapes.  It also shows some of the other base
+shapes (besides the sphere).</p>
+<div class="section" id="sinusoids">
+<h2>Sinusoids<a class="headerlink" href="#sinusoids" title="Permalink to this headline">¶</a></h2>
+<p>Earlier sections demonstrated perturbing the sphere with sinusoids.
+Sinusoids can be added to other shapes as well, for example to planes
+and tori:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">t</span> <span class="p">=</span> <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;torus&#39;</span><span class="p">,[</span><span class="mi">12</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">]);</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+<span class="n">p</span> <span class="p">=</span> <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,[</span><span class="mi">4</span> <span class="p">.</span><span class="mi">05</span> <span class="mi">0</span> <span class="o">-</span><span class="mi">45</span><span class="p">;</span> <span class="mi">12</span> <span class="p">.</span><span class="mi">025</span> <span class="mi">0</span> <span class="mi">45</span><span class="p">];</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+<span class="n">p</span> <span class="p">=</span> <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,</span><span class="c">...</span>
+                <span class="p">[</span><span class="mi">24</span> <span class="p">.</span><span class="mi">05</span> <span class="mi">0</span> <span class="o">-</span><span class="mi">45</span> <span class="mi">1</span><span class="p">;</span> <span class="mi">12</span> <span class="p">.</span><span class="mi">05</span> <span class="mi">0</span> <span class="mi">45</span> <span class="mi">2</span><span class="p">],</span><span class="c">...</span>
+                <span class="p">[</span><span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span><span class="p">;</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">180</span> <span class="mi">0</span> <span class="mi">2</span><span class="p">]);</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="filtered-noise">
+<h2>Filtered noise<a class="headerlink" href="#filtered-noise" title="Permalink to this headline">¶</a></h2>
+<p>Filtered noise components can be used to perturb all shapes with the
+function <a class="reference internal" href="ref-objmakenoise.html#ref-objmakenoise"><span>objMakeNoise</span></a>.  The input vector to this function
+defines the filtering parameters: <code class="docutils literal"><span class="pre">[FREQ</span> <span class="pre">FREQWDT</span> <span class="pre">OR</span> <span class="pre">ORWDT</span> <span class="pre">AMPL]</span></code>,
+where freq is the mean frequency, freqwdt is the bakdwidth (full-width
+at half height), or is the orientation/angle, and orwdt is the
+orientation bandwidth.  ampl is the amplitude.  Examples:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">c</span> <span class="p">=</span> <span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="mi">10</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">30</span> <span class="p">.</span><span class="mi">07</span><span class="p">]);</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+<span class="n">c</span> <span class="p">=</span> <span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="mi">8</span> <span class="mi">1</span> <span class="mi">60</span> <span class="mi">45</span> <span class="p">.</span><span class="mi">1</span><span class="p">]);</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To make isotropic noise, set the orientation bandwidth to <code class="docutils literal"><span class="pre">Inf</span></code>:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">m</span> <span class="p">=</span> <span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,[</span><span class="mi">16</span> <span class="mi">1</span> <span class="mi">0</span> <span class="n">Inf</span> <span class="p">.</span><span class="mi">05</span><span class="p">]);</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+<span class="n">m</span> <span class="p">=</span> <span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,[</span><span class="mi">4</span> <span class="mi">2</span> <span class="mi">45</span> <span class="mi">20</span> <span class="p">.</span><span class="mi">1</span><span class="p">;</span> <span class="mi">32</span> <span class="mi">1</span> <span class="mi">0</span> <span class="n">Inf</span> <span class="p">.</span><span class="mi">02</span><span class="p">]);</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Envelopes can be used with noise carriers just as with
+sinusoidal carriers:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">s</span> <span class="p">=</span> <span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">24</span> <span class="mi">1</span> <span class="mi">0</span> <span class="n">Inf</span> <span class="p">.</span><span class="mi">1</span><span class="p">],[</span><span class="mi">7</span> <span class="mi">1</span> <span class="o">-</span><span class="mi">90</span> <span class="mi">90</span><span class="p">]);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="gaussian-bumps-and-dents">
+<h2>Gaussian bumps and dents<a class="headerlink" href="#gaussian-bumps-and-dents" title="Permalink to this headline">¶</a></h2>
+<p>Function <a class="reference internal" href="ref-objmakebump.html#ref-objmakebump"><span>objMakeBump</span></a> adds Gaussian &#8220;bumps&#8221; (or dents) to
+the shape.  By default the bumps are randomly placed, but there is an
+option for precise positioning of bumps (see the documentation for
+<a class="reference internal" href="ref-objmakebump.html#ref-objmakebump"><span>objMakeBump</span></a>).  The parameter vector is <code class="docutils literal"><span class="pre">[nbumps</span> <span class="pre">ampl</span> <span class="pre">sd]</span></code>,
+where <code class="docutils literal"><span class="pre">nbumps</span></code> is the number of bumps, <code class="docutils literal"><span class="pre">ampl</span></code> is the amplitude,
+and <code class="docutils literal"><span class="pre">sd</span></code> is the standard deviation of the Gaussian.</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">sph</span> <span class="p">=</span> <span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">);</span> <span class="c">% Uses default parameters</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">sph</span><span class="p">);</span>
+
+<span class="n">sph</span> <span class="p">=</span> <span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">10</span> <span class="p">.</span><span class="mi">05</span> <span class="p">.</span><span class="mi">6</span><span class="p">;</span> <span class="mi">40</span> <span class="p">.</span><span class="mi">2</span> <span class="p">.</span><span class="mi">1</span><span class="p">]);</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">sph</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>To make dents, define a negative amplitude:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">cyl</span> <span class="p">=</span> <span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="mi">30</span> <span class="o">-</span><span class="mf">0.05</span> <span class="mf">0.15</span><span class="p">]);</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
+
+<span class="c">% Combine bumps and dents</span>
+<span class="n">cyl</span> <span class="p">=</span> <span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="mi">20</span> <span class="p">.</span><span class="mi">1</span> <span class="p">.</span><span class="mi">4</span><span class="p">;</span> <span class="mi">40</span> <span class="o">-</span><span class="p">.</span><span class="mi">05</span> <span class="p">.</span><span class="mi">15</span><span class="p">]);</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">cyl</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When two or more bumps are overlapping, the perturbations are added.
+To constrain how close two bumps can be, use the <code class="docutils literal"><span class="pre">mindist</span></code>-option
+that sets a minimum distance for bump centers:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">p1</span> <span class="p">=</span> <span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,[</span><span class="mi">20</span> <span class="p">.</span><span class="mi">1</span> <span class="p">.</span><span class="mi">03</span><span class="p">]);</span>
+<span class="n">p2</span> <span class="p">=</span> <span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,[</span><span class="mi">20</span> <span class="p">.</span><span class="mi">1</span> <span class="p">.</span><span class="mi">03</span><span class="p">],</span><span class="s">&#39;mindist&#39;</span><span class="p">,.</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">figure</span>
+<span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span> <span class="n">objShow</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
+<span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span> <span class="n">objShow</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The default behavior of adding overlapping bumps can be overridden by
+setting the option <code class="docutils literal"><span class="pre">max</span></code> to true: the perturbations are then
+combined using a max-operation instead of summing.</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">p1</span> <span class="p">=</span> <span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,[</span><span class="mi">20</span> <span class="p">.</span><span class="mi">1</span> <span class="p">.</span><span class="mi">2</span><span class="p">]);</span>
+<span class="n">p2</span> <span class="p">=</span> <span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,[</span><span class="mi">20</span> <span class="p">.</span><span class="mi">1</span> <span class="p">.</span><span class="mi">2</span><span class="p">],</span><span class="s">&#39;max&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">);</span>
+<span class="n">figure</span>
+<span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span> <span class="n">objShow</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
+<span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span> <span class="n">objShow</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="custom-modulation">
+<h2>Custom modulation<a class="headerlink" href="#custom-modulation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="matrix-as-a-height-map">
+<h3>Matrix as a height map<a class="headerlink" href="#matrix-as-a-height-map" title="Permalink to this headline">¶</a></h3>
+<p>TODO.</p>
+</div>
+<div class="section" id="image-as-a-height-map">
+<h3>Image as a height map<a class="headerlink" href="#image-as-a-height-map" title="Permalink to this headline">¶</a></h3>
+<p>TODO.</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">s</span> <span class="p">=</span> <span class="n">objMakeCustom</span> <span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="s">&#39;shapetoolbox.png&#39;</span><span class="p">,.</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="n">p</span> <span class="p">=</span> <span class="n">objMakeCustom</span> <span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,</span><span class="s">&#39;shapetoolbox.png&#39;</span><span class="p">,.</span><span class="mi">05</span><span class="p">);</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="user-defined-function">
+<h3>User-defined function<a class="headerlink" href="#user-defined-function" title="Permalink to this headline">¶</a></h3>
+<p>TODO.</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">spike</span> <span class="p">=</span> <span class="p">@(</span><span class="n">d</span><span class="p">,</span><span class="n">x</span><span class="p">)</span> <span class="n">x</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nb">exp</span><span class="p">(</span><span class="o">-</span><span class="n">d</span><span class="o">/</span><span class="n">x</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="n">s</span> <span class="p">=</span> <span class="n">objMakeCustom</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="n">spike</span><span class="p">,[</span><span class="mi">40</span> <span class="p">.</span><span class="mi">3</span> <span class="p">.</span><span class="mi">5</span> <span class="p">.</span><span class="mi">05</span><span class="p">],</span><span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">512</span> <span class="mi">256</span><span class="p">],</span><span class="s">&#39;mindist&#39;</span><span class="p">,.</span><span class="mi">15</span><span class="p">);</span>
+<span class="n">objShow</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Perturbation types</a><ul>
+<li><a class="reference internal" href="#sinusoids">Sinusoids</a></li>
+<li><a class="reference internal" href="#filtered-noise">Filtered noise</a></li>
+<li><a class="reference internal" href="#gaussian-bumps-and-dents">Gaussian bumps and dents</a></li>
+<li><a class="reference internal" href="#custom-modulation">Custom modulation</a><ul>
+<li><a class="reference internal" href="#matrix-as-a-height-map">Matrix as a height map</a></li>
+<li><a class="reference internal" href="#image-as-a-height-map">Image as a height map</a></li>
+<li><a class="reference internal" href="#user-defined-function">User-defined function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gs-modulation.html"
+                        title="previous chapter">Modulating the modulation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gs-quality.html"
+                        title="next chapter">Improving rendering quality: mesh size and vertex normals</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gs-perturbationtypes.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="gs-quality.html" title="Improving rendering quality: mesh size and vertex normals"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gs-modulation.html" title="Modulating the modulation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="gettingstarted.html" >Getting started with ShapeToolbox</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Toni P. Saarela.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

@@ -77,7 +77,7 @@ model with the command:</p>
 </pre></div>
 </div>
 <p>The second input argument defines the modulation parameters.  We pass
-an empty array (&#8220;[]&#8221;) to use the default parameters.  Model on those
+an empty array (&#8220;[]&#8221;) to use the default parameters.  More on those
 parameter below.  The model is saved in the file <code class="docutils literal"><span class="pre">sphere.obj</span></code>.  You
 can view the saved model object with one of the programs suggested in
 the section <a class="reference internal" href="gs-viewing.html#gs-viewing"><span>A note on viewing 3D-models</span></a>.  Rendered, with gray plastic as
@@ -93,7 +93,7 @@ image of the object viewed with <code class="docutils literal"><span class="pre"
 image is shown, you can always view the same model quickly using
 <code class="docutils literal"><span class="pre">objShow</span></code> as in the first example.</p>
 <p>Next, we&#8217;ll start changing some of the parameters of the modulation.
-The parameters are given as the first input argument to
+The parameters are given as the second input argument to
 <a class="reference internal" href="ref-objmakesine.html#ref-objmakesine"><span>objMakeSine</span></a>.  The parameter vector defining the
 modulation parameters has the form:</p>
 <div class="highlight-matlab"><div class="highlight"><pre><span class="n">par</span> <span class="p">=</span> <span class="p">[</span><span class="n">frequency</span> <span class="n">amplitude</span> <span class="n">phase</span> <span class="nb">angle</span><span class="p">]</span>
@@ -153,7 +153,7 @@ examples, see <a class="reference internal" href="helperfuncs.html#helpers"><spa
 </div>
 <div class="section" id="adding-components">
 <span id="gs-components"></span><h2>Adding components<a class="headerlink" href="#adding-components" title="Permalink to this headline">¶</a></h2>
-<p>The modulations are not restricted to one component.  If more than one
+<p>The perturbations are not restricted to one component.  If more than one
 component are defined, the modulations are added together.  The
 modulation components are defined in the rows of the first input
 argument.  The following example has two components, both with the

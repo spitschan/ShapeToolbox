@@ -26,7 +26,7 @@
     <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
     <link rel="up" title="Getting started with ShapeToolbox" href="gettingstarted.html" />
     <link rel="next" title="Setting material and texture properties" href="gs-material-texture.html" />
-    <link rel="prev" title="Modulation types" href="gs-modulationtypes.html" /> 
+    <link rel="prev" title="Perturbation types" href="gs-perturbationtypes.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -39,7 +39,7 @@
           <a href="gs-material-texture.html" title="Setting material and texture properties"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="gs-modulationtypes.html" title="Modulation types"
+          <a href="gs-perturbationtypes.html" title="Perturbation types"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="gettingstarted.html" accesskey="U">Getting started with ShapeToolbox</a> &raquo;</li> 
@@ -55,24 +55,43 @@
 <div></div></blockquote>
 <div class="section" id="improving-rendering-quality-mesh-size-and-vertex-normals">
 <span id="gs-normals"></span><h1>Improving rendering quality: mesh size and vertex normals<a class="headerlink" href="#improving-rendering-quality-mesh-size-and-vertex-normals" title="Permalink to this headline">¶</a></h1>
+<p>In 3D models, a surface is represented as a collection of vertices and
+polygons, or faces, defined by these vertices.  ShapeToolbox saves the 3D
+models as Wavefront .obj-files.  The .obj-file stores the vertex
+positions and the information about the faces (a face is a list of
+vertices).</p>
+<p>How faithfully a surface is represented depends on the number of
+polygons used.  The approximation can be improved by using more
+polygons, at the expense of having a larger model.  Having more
+polygons means having to define more vertices: The more vertices (and
+polygonal faces) there are, the better a smoothly curved surface can
+be approximated.  But the more vertices, the larger the file size.</p>
+<p>In addition to increasing the model size in terms of number of
+vertices, including vertex normals can vastly improve rendering
+quality.  These options are demonstrated below.</p>
 <div class="section" id="mesh-resolution">
 <h2>Mesh resolution<a class="headerlink" href="#mesh-resolution" title="Permalink to this headline">¶</a></h2>
-<p>TODO: Larger/finer mesh: better approximation of the surface.  Also larger
-files.  Finer mesh enables higher-frequency modulation, but don&#8217;t use
-too large mash size as the file size increases accordingly.</p>
+<p>If you add very fine or high-frequency perturbations to a model, the
+default mesh resolution of ShapeToolbox might not be high enough.  You
+can set the mesh size with the option <code class="docutils literal"><span class="pre">npoints</span></code> that defines the
+number of vertices in the two directions.  What these directions are
+depends on the base shape.  For a plane, they are the x and y
+directions, for a sphere, azimuth and elevation, and so forth.</p>
+<p>(Conversely, if you have only coarse, low-frequency variation, the
+default mesh size might be way too large.  In this case, you might
+want to decrease it.)</p>
+<p>For example, to add high-frequency noise to a plane with a
+finer-than-default mesh:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,[</span><span class="mi">64</span> <span class="mi">1</span> <span class="mi">30</span> <span class="mi">30</span> <span class="p">.</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">512</span> <span class="mi">512</span><span class="p">]);</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="vertex-normals">
 <h2>Vertex normals<a class="headerlink" href="#vertex-normals" title="Permalink to this headline">¶</a></h2>
-<p>ShapeToolbox saves the 3D models as Wavefront .obj-files.  The shape is
-represented as a collection of vertices and polygons, or faces,
-defined by these vertices.  The .obj-file stores the vertex positions
-and the information about the faces (a face is a list of vertices).
-The more vertices (and faces) there are, the better a smoothly curved
-surface can be approximated.  Of course, the more vertices, the larger
-the file size.  A typical way to improve the quality of rendering of
-the model is to define vertex normals.  A vertex normal is a
-three-dimensional vector that points in the direction of the surface
-normal of the surface-to-be-approximated at that location.</p>
+<p>A typical way to improve the quality of rendering of a 3D model is to
+define vertex normals.  A vertex normal is a three-dimensional vector
+that points in the direction of the surface normal of the
+surface-to-be-approximated at that location.</p>
 <div class="section" id="turning-the-computation-of-normals-on">
 <h3>Turning the computation of normals on<a class="headerlink" href="#turning-the-computation-of-normals-on" title="Permalink to this headline">¶</a></h3>
 <p>ShapeToolbox has an option to compute the vertex normals.  By default
@@ -173,8 +192,8 @@ Most of the time this should not be a problem though.</li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="gs-modulationtypes.html"
-                        title="previous chapter">Modulation types</a></p>
+  <p class="topless"><a href="gs-perturbationtypes.html"
+                        title="previous chapter">Perturbation types</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="gs-material-texture.html"
                         title="next chapter">Setting material and texture properties</a></p>
@@ -212,7 +231,7 @@ Most of the time this should not be a problem though.</li>
           <a href="gs-material-texture.html" title="Setting material and texture properties"
              >next</a> |</li>
         <li class="right" >
-          <a href="gs-modulationtypes.html" title="Modulation types"
+          <a href="gs-perturbationtypes.html" title="Perturbation types"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="gettingstarted.html" >Getting started with ShapeToolbox</a> &raquo;</li> 

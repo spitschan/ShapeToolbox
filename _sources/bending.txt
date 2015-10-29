@@ -1,13 +1,16 @@
 
 .. _bending:
 
-************************************************
-Making more complex shapes without perturbations
-************************************************
+**************************
+Making more complex shapes
+**************************
 
 TODO.
 
 First, combine surface of revolution and extrusion profiles.
+
+Demonstrate using the y-option with revolution to define more complex
+surfaces of revolution.
 
 Then, use spinex and spinez options with cylinders, surfaces of
 revolution, and extrusions.  EMphasize it's only a translation of the
