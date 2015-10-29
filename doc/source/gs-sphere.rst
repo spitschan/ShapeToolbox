@@ -31,7 +31,7 @@ To save the model to a file, set the option "save" to true::
   objMakeSine('sphere',[],'save',true);
 
 The second input argument defines the modulation parameters.  We pass
-an empty array ("[]") to use the default parameters.  Model on those
+an empty array ("[]") to use the default parameters.  More on those
 parameter below.  The model is saved in the file ``sphere.obj``.  You
 can view the saved model object with one of the programs suggested in
 the section :ref:`gs-viewing`.  Rendered, with gray plastic as
@@ -51,7 +51,7 @@ image is shown, you can always view the same model quickly using
 ``objShow`` as in the first example.
 
 Next, we'll start changing some of the parameters of the modulation.
-The parameters are given as the first input argument to
+The parameters are given as the second input argument to
 :ref:`ref-objmakesine`.  The parameter vector defining the
 modulation parameters has the form::
 
@@ -132,7 +132,7 @@ examples, see :ref:`helpers`.
 Adding components
 =================
 
-The modulations are not restricted to one component.  If more than one
+The perturbations are not restricted to one component.  If more than one
 component are defined, the modulations are added together.  The
 modulation components are defined in the rows of the first input
 argument.  The following example has two components, both with the

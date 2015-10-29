@@ -68,6 +68,8 @@ function model = objMakeBump(shape,prm,varargin)
 %   objMakeBump('plane',[2 .1 .1; 2 -.1 .1],'locations',...
 %               {{[-.5 .5],[-.5 .5]},{[-.5 .5],[.5 -.5]}})
 % 
+% TODO: MAX
+%
 % RETURNS:
 % ========
 % A structure holding all the information about the model.  This

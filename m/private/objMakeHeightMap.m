@@ -1,6 +1,6 @@
-function model = objMakeBumpMap(model)
+function model = objMakeHeightMap(model)
 
-% OBJMAKEBUMPMAP
+% OBJMAKEHEIGHTMAP
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-06-01 - ts - first version
@@ -8,6 +8,7 @@ function model = objMakeBumpMap(model)
 % 2015-10-09 - ts - added/fixed bump map support for planes,
 %                    cylinders, tori
 % 2015-10-10 - ts - added support for the worm shape
+% 2015-10-29 - ts - renamed from objMakeBumpMap to objMakeHeightMap
 
 switch model.shape
   case 'sphere'

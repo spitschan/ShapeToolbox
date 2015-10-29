@@ -126,10 +126,13 @@ function model = objMake(shape,varargin)
 % mesh in the corresponding direction, the curve is interpolated.
 %
 % SPINEX, SPINEZ
-% For use with shapes 'cylinder', 'revolution', and 'extrusion' only.
-% A vector giving the coordinates of the midline, or "spine", of the
-% shape as a function of the y-coordinate.  The following example
-% produces a sinusoidal curve in the x-direction:
+% As used with shapes 'cylinder', 'revolution', and 'extrusion'; see
+% below for use with 'worm'. A vector giving the coordinates of the
+% midline, or "spine", of the shape as a function of the y-coordinate.
+% The midpoint of each slice of the model in the xz-plane is
+% translated from the origin to the coordinates defined by 'spinex'
+% and 'spinez'.  The following example produces a sinusoidal curve in
+% the x-direction: 
 %  y = linspace(0,4*pi,128);
 %  x = sin(y);
 %  objMake('cylinder','spinex',x,'save',true);
@@ -140,11 +143,21 @@ function model = objMake(shape,varargin)
 % If the length of the vector 'spinex' or 'spinez' does not match the
 % size of the model mesh y-direction, the curve is interpolated.
 %
-% TODO: SPINEY
-% 
-% TODO: Y
+% SPINEX, SPINEZ, SPINEY
+% As used with shape 'worm'; see above for use with cylinder-like
+% objects.  Vectors that define the midline of the worm shape.  
 %
-% TODO: MAX
+% SCALEY
+% Boolean, set this to true to scale the height of the model so that
+% the model has a constant length along its spine when using the
+% options 'spinex' and 'spinez'. 
+%
+% Y
+% Can be used when the shape is 'revolution'.  Gives the y-coordinate
+% for 'rcurve' (see above).  By default, the y-coordinate is
+% monotonically increasing.  Setting a default vector for Y, one can
+% define more complex surfaces of revolution.  See the online
+% documentation for examples.
 %
 % RPAR
 % When the shape is 'torus', the optional parameter vector RPAR

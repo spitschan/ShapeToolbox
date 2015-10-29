@@ -15,8 +15,8 @@ function model = objMakeCustom(shape,f,prm,varargin)
 %
 % The base shape is defined by the first argument, SHAPE.  The base
 % shape is perturbed by using either an image or a matrix as a height
-% or a bump map, or by providing a handle to a function that
-% determines the perturbation.  Explained in more detail below.
+% map, or by providing a handle to a function that determines the
+% perturbation.  Explained in more detail below.
 % 
 % SHAPE:
 % ======
@@ -55,7 +55,7 @@ function model = objMakeCustom(shape,f,prm,varargin)
 %    ...
 %    NLOCSN CUTOFFN PARN1 PARN2 ...] 
 %
-% IMAGE OR MATRIX AS A HEIGHT/BUMP MAP
+% IMAGE OR MATRIX AS A HEIGHT MAP
 % ====================================
 % The perturbation value can also be read from an image or a matrix.
 % In this case, the second input argument gives the name of the image
@@ -96,6 +96,8 @@ function model = objMakeCustom(shape,f,prm,varargin)
 % for a single perturbation type.  For several types: 
 %   {{[x11 x12 ...],[x21 x22 ...],...},{[y11 y12 ...],[y21 y22 ...],...}}
 % 
+% TODO: MAX
+%
 % RETURNS:
 % ========
 % A structure holding all the information about the model.  This
@@ -130,6 +132,7 @@ function model = objMakeCustom(shape,f,prm,varargin)
 %                   help refers to objMake instead of repeating
 %                   added option for torus major radius modulation
 %                    (was there a reason it was not here?)
+% 2015-10-29 - ts - updated call to renamed objmakeheightmap
 
 % TODO
 
@@ -217,7 +220,7 @@ end
 if ~model.flags.use_map
   model = objPlaceBumps(model);
 else
-  model = objMakeBumpMap(model);
+  model = objMakeHeightMap(model);
   switch model.shape
     case 'sphere'
       model.vertices = objSph2XYZ(model.Theta,model.Phi,model.R);

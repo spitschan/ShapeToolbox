@@ -38,7 +38,9 @@ does not exist) and show something like the following:
 
 See :ref:`ref-objshow` (or ``help objShow`` in Octave/Matlab) for details.
 This function is useful for quickly viewing the shape.  It does not render
-material properties or do texture mapping.
+material properties or do texture mapping.  It has a couple of viewing
+options in addition to the default demonstrated above, including an
+option to view the wireframe mode.
 
 view3dscene
 ===========

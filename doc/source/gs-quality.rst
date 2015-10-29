@@ -6,26 +6,53 @@ Improving rendering quality: mesh size and vertex normals
 =========================================================
 
 
+  
+
+In 3D models, a surface is represented as a collection of vertices and
+polygons, or faces, defined by these vertices.  |toolbox| saves the 3D
+models as Wavefront .obj-files.  The .obj-file stores the vertex
+positions and the information about the faces (a face is a list of
+vertices).
+
+How faithfully a surface is represented depends on the number of
+polygons used.  The approximation can be improved by using more
+polygons, at the expense of having a larger model.  Having more
+polygons means having to define more vertices: The more vertices (and
+polygonal faces) there are, the better a smoothly curved surface can
+be approximated.  But the more vertices, the larger the file size.
+
+In addition to increasing the model size in terms of number of
+vertices, including vertex normals can vastly improve rendering
+quality.  These options are demonstrated below.
+
+
 Mesh resolution
 ===============
 
-TODO: Larger/finer mesh: better approximation of the surface.  Also larger
-files.  Finer mesh enables higher-frequency modulation, but don't use
-too large mash size as the file size increases accordingly.
+
+If you add very fine or high-frequency perturbations to a model, the
+default mesh resolution of |toolbox| might not be high enough.  You
+can set the mesh size with the option ``npoints`` that defines the
+number of vertices in the two directions.  What these directions are
+depends on the base shape.  For a plane, they are the x and y
+directions, for a sphere, azimuth and elevation, and so forth.
+
+(Conversely, if you have only coarse, low-frequency variation, the
+default mesh size might be way too large.  In this case, you might
+want to decrease it.)
+
+For example, to add high-frequency noise to a plane with a
+finer-than-default mesh::
+
+  objMakeNoise('plane',[64 1 30 30 .1],'npoints',[512 512]);
 
 Vertex normals
 ==============
 
-|toolbox| saves the 3D models as Wavefront .obj-files.  The shape is
-represented as a collection of vertices and polygons, or faces,
-defined by these vertices.  The .obj-file stores the vertex positions
-and the information about the faces (a face is a list of vertices).
-The more vertices (and faces) there are, the better a smoothly curved
-surface can be approximated.  Of course, the more vertices, the larger
-the file size.  A typical way to improve the quality of rendering of
-the model is to define vertex normals.  A vertex normal is a
-three-dimensional vector that points in the direction of the surface
-normal of the surface-to-be-approximated at that location.
+A typical way to improve the quality of rendering of a 3D model is to
+define vertex normals.  A vertex normal is a three-dimensional vector
+that points in the direction of the surface normal of the
+surface-to-be-approximated at that location.
 
 Turning the computation of normals on
 -------------------------------------

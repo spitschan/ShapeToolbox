@@ -19,7 +19,7 @@ For examples of more complete projects, see :ref:`tutorials`.
    gs-viewing
    gs-sphere
    gs-modulation
-   gs-modulationtypes
+   gs-perturbationtypes
    gs-quality
    gs-material-texture
    gs-batch

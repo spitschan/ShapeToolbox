@@ -18,6 +18,7 @@ function model = objDefaultStruct(shape,reset)
 % 2015-10-10 - ts - added support for worm shape
 % 2015-10-14 - ts - added max -flag
 % 2015-10-15 - ts - changed default sizes
+% 2015-10-20 - ts - changed default for scaley to false
 
 if nargin<2 || isempty(reset)
   reset = false;
@@ -73,5 +74,5 @@ model.flags.comp_normals = false;
 model.flags.use_rms = false;
 model.flags.use_map = false;
 model.flags.custom_locations = false;
-model.flags.scaley = true;
+model.flags.scaley = false;
 model.flags.max = false;

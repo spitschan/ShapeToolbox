@@ -58,25 +58,37 @@ shapes between them.  Texture coordinates can be defined for texture
 mapping, and there is an option for computing vertex normals for
 improved rendering quality.
 
-TODO TODO TODO: 
 
-TODO: What it does not do.  It doesn't model surface using NURBS, it
-only does polygonal modeling.  I cannot do arbitrary shapes, although
+|toolbox| only does polygonal modeling of the shapes, no NURBS are
+available.  It cannot do arbitrary shapes, although
 the available shapes and modulations do provide reasonable flexibility
 for research purposes.  In many cases, the models are large and
 redundant---there can be many vertex points in an area where a few
 would suffice, and there is no smart checking and removal of those.
 Actually, there is no smart or fancy anything!  The models are mainly
-intended for experiments on vision.  TODO: mesh size stays constant so
-that two models can be blended.  The idea is that the user knows
-exactly what kind of model s/he is creating---efficiency is
-secondary.  On the other hand, there is minimal error checking on the
-parameters.  It is the user's responsibility to make sure the
-modulation parameters make sense.  This is because, again, this is a
+intended for experiments on vision.  As they are meant for research
+purposes rather than for efficient graphics applications, no
+optimization is done in terms of model size etc.  Also, having a
+standard mesh size enables the user to easily blend two or more shapes
+together.  There is also minimal error checking on input arguments and
+modulation parameters, so it is the user's responsibility to make sure the
+parameters make sense.  This is because, again, this is a
 tool for making models for research.  We don't want to start guessing
 what kind of weird shapes you have in mind.
+
 
 Workflow
 ========
 
 TODO.
+
+1. Design the model(s)
+
+2. Make the model(s)
+
+3. Set material properties and scene layout
+
+4. Render
+
+5. Post-process
+

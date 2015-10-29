@@ -134,6 +134,7 @@ function x = arcscale(x,y,z,l)
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-10-11 - ts - first version
+% 2015-10-20 - ts - fixed a bug when returning without scaling
 
 % Works in both two and three dimensions; just set the third
 % coordinate to zero if only two given.
@@ -154,6 +155,7 @@ d = diff(x,[],1);
 % don't do anything:
 l2 = sum(sqrt(sum(d.^2,2)));
 if abs(l-l2)<.00001
+   x = x(:,1);
   return
 end
 
