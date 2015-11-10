@@ -13,33 +13,25 @@ Plane
 Coordinate system
 =================
 
+The plane lies on the xy-plane, with perturbations added in the
+z-direction.  The picture above shows the coordinate system in 3D and
+2D space, and the pictures to the right show how the triangluar faces
+are arranged.
 
-.. _objmake-plane:
+For oriented perturbations, 0 is vertical (modulation as a function of
+the x-coordinate), 90 is horizontal.
 
-objMake
-=======
+Default mesh size
+=================
 
+The default size (number of vertices) for the plane is 128-by-128.
+For models with very high-frequency perturbations or otherwise fine
+detail, you might want to increase the mesh size.  To do this, use the
+option ``npoints``::
 
-.. _objmakesine-plane:
+  objMakeSine('plane',[32 .1 0 0],'npoints',[320 320]);
 
-objMakeSine
-===========
+Default model size
+==================
 
-
-.. _objmakenoise-plane:
-
-objMakeNoise
-============
-
-
-.. _objmakebump-plane:
-
-objMakeBump
-===========
-
-
-
-.. _objmakecustom-plane:
-
-objMakeCustom
-=============
+Width, height = 1.  Centered at the origin.

@@ -40,9 +40,9 @@ impatient, this might be the best way to get started---look at the
 examples and start modifying them.
 
 For more complete projects and step-by-step instructions, there is the
-:ref:`tutorials` section.  For anyone who read this far, just start
-from the beginning, or maybe in the :ref:`getstart` section.
-You would have probably done that anyway.
+:ref:`tutorials` section.  For anyone patient enough to have read this
+far, just start from the beginning, or maybe in the :ref:`getstart`
+section.
 
 
 .. toctree::

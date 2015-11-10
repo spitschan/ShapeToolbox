@@ -5,6 +5,9 @@
 Object types
 ************
 
+Many sections are still under work.  Patience.
+
+
 .. toctree::
    :maxdepth: 2
 
