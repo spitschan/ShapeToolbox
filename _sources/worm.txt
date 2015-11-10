@@ -13,33 +13,24 @@ Coordinate system
 
 
 
+Default mesh size
+=================
 
-.. _objmake-worm:
+The default size (number of vertices) for the plane is 128-by-128.
+For models with very high-frequency perturbations or otherwise fine
+detail, you might want to increase the mesh size.  To do this, use the
+option ``npoints``::
 
-objMake
-=======
-
-
-.. _objmakesine-worm:
-
-objMakeSine
-===========
+  objMakeSine('worm',[32 .1 0 0],...,'npoints',[320 320]);
 
 
-.. _objmakenoise-worm:
+Default model size
+==================
 
-objMakeNoise
-============
-
-
-.. _objmakebump-worm:
-
-objMakeBump
-===========
+Radius=1.  Height=2*pi.
 
 
 
-.. _objmakecustom-worm:
+Defining the shape
+==================
 
-objMakeCustom
-=============

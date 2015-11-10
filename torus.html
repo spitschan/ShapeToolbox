@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
     <link rel="up" title="Object types" href="object_types.html" />
-    <link rel="next" title="Revolution" href="revolution.html" />
-    <link rel="prev" title="Cylinder" href="cylinder.html" /> 
+    <link rel="next" title="Cylinder" href="cylinder.html" />
+    <link rel="prev" title="Plane" href="plane.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -36,10 +36,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="revolution.html" title="Revolution"
+          <a href="cylinder.html" title="Cylinder"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="cylinder.html" title="Cylinder"
+          <a href="plane.html" title="Plane"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="object_types.html" accesskey="U">Object types</a> &raquo;</li> 
@@ -58,26 +58,25 @@
 <img alt="_images/torus_coords.png" src="_images/torus_coords.png" />
 <div class="section" id="coordinate-system">
 <h2>Coordinate system<a class="headerlink" href="#coordinate-system" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="default-mesh-size">
+<h2>Default mesh size<a class="headerlink" href="#default-mesh-size" title="Permalink to this headline">¶</a></h2>
+<p>The default size (number of vertices) for the torus is 128-by-128.
+For models with very high-frequency perturbations or otherwise fine
+detail, you might want to increase the mesh size.  To do this, use the
+option <code class="docutils literal"><span class="pre">npoints</span></code>:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;torus&#39;</span><span class="p">,[</span><span class="mi">32</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],</span><span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">320</span> <span class="mi">320</span><span class="p">]);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="default-model-size">
+<h2>Default model size<a class="headerlink" href="#default-model-size" title="Permalink to this headline">¶</a></h2>
+<p>Main radius=1.  Minor (tube) radius=0.4.</p>
+</div>
+<div class="section" id="modulation-of-the-main-radius">
+<h2>Modulation of the main radius<a class="headerlink" href="#modulation-of-the-main-radius" title="Permalink to this headline">¶</a></h2>
 <p>The torus also has the option for the modulation of the major radius.
 This happens as a function of the angle theta.</p>
-</div>
-<div class="section" id="objmake">
-<span id="objmake-torus"></span><h2>objMake<a class="headerlink" href="#objmake" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakesine">
-<span id="objmakesine-torus"></span><h2>objMakeSine<a class="headerlink" href="#objmakesine" title="Permalink to this headline">¶</a></h2>
-<p>Watch out for discontinuities when using oriented (non=cardinal)
-modulations.  The gratings cannot be made to meet at both seams.  You
-can use a modulator to hide the discontinuity at one of the seams.</p>
-</div>
-<div class="section" id="objmakenoise">
-<span id="objmakenoise-torus"></span><h2>objMakeNoise<a class="headerlink" href="#objmakenoise" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakebump">
-<span id="objmakebump-torus"></span><h2>objMakeBump<a class="headerlink" href="#objmakebump" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakecustom">
-<span id="objmakecustom-torus"></span><h2>objMakeCustom<a class="headerlink" href="#objmakecustom" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -91,21 +90,19 @@ can use a modulator to hide the discontinuity at one of the seams.</p>
   <ul>
 <li><a class="reference internal" href="#">Torus</a><ul>
 <li><a class="reference internal" href="#coordinate-system">Coordinate system</a></li>
-<li><a class="reference internal" href="#objmake">objMake</a></li>
-<li><a class="reference internal" href="#objmakesine">objMakeSine</a></li>
-<li><a class="reference internal" href="#objmakenoise">objMakeNoise</a></li>
-<li><a class="reference internal" href="#objmakebump">objMakeBump</a></li>
-<li><a class="reference internal" href="#objmakecustom">objMakeCustom</a></li>
+<li><a class="reference internal" href="#default-mesh-size">Default mesh size</a></li>
+<li><a class="reference internal" href="#default-model-size">Default model size</a></li>
+<li><a class="reference internal" href="#modulation-of-the-main-radius">Modulation of the main radius</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="cylinder.html"
-                        title="previous chapter">Cylinder</a></p>
+  <p class="topless"><a href="plane.html"
+                        title="previous chapter">Plane</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="revolution.html"
-                        title="next chapter">Revolution</a></p>
+  <p class="topless"><a href="cylinder.html"
+                        title="next chapter">Cylinder</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -137,10 +134,10 @@ can use a modulator to hide the discontinuity at one of the seams.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="revolution.html" title="Revolution"
+          <a href="cylinder.html" title="Cylinder"
              >next</a> |</li>
         <li class="right" >
-          <a href="cylinder.html" title="Cylinder"
+          <a href="plane.html" title="Plane"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="object_types.html" >Object types</a> &raquo;</li> 

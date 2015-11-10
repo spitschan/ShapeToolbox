@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
     <link rel="up" title="Object types" href="object_types.html" />
-    <link rel="next" title="Making more complex shapes without perturbations" href="bending.html" />
+    <link rel="next" title="Making more complex shapes" href="bending.html" />
     <link rel="prev" title="Extrusion" href="extrusion.html" /> 
   </head>
   <body role="document">
@@ -36,7 +36,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="bending.html" title="Making more complex shapes without perturbations"
+          <a href="bending.html" title="Making more complex shapes"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="extrusion.html" title="Extrusion"
@@ -59,20 +59,22 @@
 <div class="section" id="coordinate-system">
 <h2>Coordinate system<a class="headerlink" href="#coordinate-system" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="objmake">
-<span id="objmake-worm"></span><h2>objMake<a class="headerlink" href="#objmake" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="default-mesh-size">
+<h2>Default mesh size<a class="headerlink" href="#default-mesh-size" title="Permalink to this headline">¶</a></h2>
+<p>The default size (number of vertices) for the plane is 128-by-128.
+For models with very high-frequency perturbations or otherwise fine
+detail, you might want to increase the mesh size.  To do this, use the
+option <code class="docutils literal"><span class="pre">npoints</span></code>:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;worm&#39;</span><span class="p">,[</span><span class="mi">32</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],</span><span class="c">...,&#39;npoints&#39;,[320 320]);</span>
+</pre></div>
 </div>
-<div class="section" id="objmakesine">
-<span id="objmakesine-worm"></span><h2>objMakeSine<a class="headerlink" href="#objmakesine" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="objmakenoise">
-<span id="objmakenoise-worm"></span><h2>objMakeNoise<a class="headerlink" href="#objmakenoise" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="default-model-size">
+<h2>Default model size<a class="headerlink" href="#default-model-size" title="Permalink to this headline">¶</a></h2>
+<p>Radius=1.  Height=2*pi.</p>
 </div>
-<div class="section" id="objmakebump">
-<span id="objmakebump-worm"></span><h2>objMakeBump<a class="headerlink" href="#objmakebump" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakecustom">
-<span id="objmakecustom-worm"></span><h2>objMakeCustom<a class="headerlink" href="#objmakecustom" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="defining-the-shape">
+<h2>Defining the shape<a class="headerlink" href="#defining-the-shape" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -86,11 +88,9 @@
   <ul>
 <li><a class="reference internal" href="#">Worm</a><ul>
 <li><a class="reference internal" href="#coordinate-system">Coordinate system</a></li>
-<li><a class="reference internal" href="#objmake">objMake</a></li>
-<li><a class="reference internal" href="#objmakesine">objMakeSine</a></li>
-<li><a class="reference internal" href="#objmakenoise">objMakeNoise</a></li>
-<li><a class="reference internal" href="#objmakebump">objMakeBump</a></li>
-<li><a class="reference internal" href="#objmakecustom">objMakeCustom</a></li>
+<li><a class="reference internal" href="#default-mesh-size">Default mesh size</a></li>
+<li><a class="reference internal" href="#default-model-size">Default model size</a></li>
+<li><a class="reference internal" href="#defining-the-shape">Defining the shape</a></li>
 </ul>
 </li>
 </ul>
@@ -100,7 +100,7 @@
                         title="previous chapter">Extrusion</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="bending.html"
-                        title="next chapter">Making more complex shapes without perturbations</a></p>
+                        title="next chapter">Making more complex shapes</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -132,7 +132,7 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="bending.html" title="Making more complex shapes without perturbations"
+          <a href="bending.html" title="Making more complex shapes"
              >next</a> |</li>
         <li class="right" >
           <a href="extrusion.html" title="Extrusion"

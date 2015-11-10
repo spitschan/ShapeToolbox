@@ -59,104 +59,67 @@
 <img alt="_images/sphere_coords.png" src="_images/sphere_coords.png" />
 <div class="section" id="coordinate-system">
 <h2>Coordinate system<a class="headerlink" href="#coordinate-system" title="Permalink to this headline">¶</a></h2>
-<p>TODO: There might be zero-area faces, and Radiance at least will
-complain about them.  The sampling is in many cases highly redundant
-near the poles where the lines of longitude meet.  This could be
-down-sampled when writing to a file to reduce the files size, but it
-is not done in ShapeToolbox.  There are a couple of reasons for this.
-The models produced by ShapeToolbox functions can be given as input to
-other functions to add perturbations, and two models can also be
-blended.  In these cases, the coordinates systems and the sampling
-points have to match.  Also, in some cases you might want a
-high-frequency modulation near the poles.  These models are meant for
-experiments, not for efficient computer graphics applications, so
-ShapeToolbox does not throw away the vertex data.</p>
+<p>Perturbations for the sphere are defined in a spherical coordinate
+system, pictured above.  The picture on the left shows the coordinate
+system in a 3D figure, the second picture from the left has the
+spherical coordinates wrapped open.  The two pictures on the right
+show how the triangular faces approximating the surface are formed.</p>
+<p>Note that in this coordinate system y-axis points &#8220;up&#8221;.</p>
+<p>When adding a sinusoidal modulation to the sphere, orientation of 0
+means &#8220;vertical&#8221;, that is, modulation in the azimuth (theta)
+angle.  Orientation of 90 is &#8220;horizontal&#8221;, or in the elevation
+angle.</p>
 </div>
-<div class="section" id="objmake">
-<span id="objmake-sphere"></span><h2>objMake<a class="headerlink" href="#objmake" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="mapping-perturbations-and-textures-to-a-sphere">
+<h2>Mapping perturbations and textures to a sphere<a class="headerlink" href="#mapping-perturbations-and-textures-to-a-sphere" title="Permalink to this headline">¶</a></h2>
+<p>When adding a vertical sinusoidal perturbation to a sphere, it will
+become very high frequency towards the poles (spatially, in terms of
+the angle the frequency stays the same).  The same happens when using
+noise, or when using an image or a matrix as a height map.  The
+same happens with texture/UV coordinates: the mapped texture will look
+distorted on the surface of the sphere.</p>
+<p>There is currently no flat-mapping of these modulations or textures to
+a sphere.</p>
+<p>An expection are Gaussian bumps (using <code class="docutils literal"><span class="pre">objMakeBump</span></code>) and
+perturbation determined by a user-defined function (using
+<code class="docutils literal"><span class="pre">objMakeCustom</span></code>).  Here, the bumps are symmetric with the desired
+size in radians, regradless of the location of the bump.</p>
 </div>
-<div class="section" id="objmakesine">
-<span id="objmakesine-sphere"></span><h2>objMakeSine<a class="headerlink" href="#objmakesine" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakenoise">
-<span id="objmakenoise-sphere"></span><h2>objMakeNoise<a class="headerlink" href="#objmakenoise" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakebump">
-<span id="objmakebump-sphere"></span><h2>objMakeBump<a class="headerlink" href="#objmakebump" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="objmakecustom">
-<span id="objmakecustom-sphere"></span><h2>objMakeCustom<a class="headerlink" href="#objmakecustom" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="image">
-<h3>Image<a class="headerlink" href="#image" title="Permalink to this headline">¶</a></h3>
-<img alt="_images/text.png" src="_images/text.png" />
-</div>
-<div class="section" id="a-matrix">
-<h3>A matrix<a class="headerlink" href="#a-matrix" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="user-defined-functions">
-<h3>User-defined functions<a class="headerlink" href="#user-defined-functions" title="Permalink to this headline">¶</a></h3>
-<p>Explanation, function handles, blah blah.</p>
-<div class="section" id="a-bumpy-sphere">
-<h4>A bumpy sphere<a class="headerlink" href="#a-bumpy-sphere" title="Permalink to this headline">¶</a></h4>
-<p>First, give an example how one might mimick <a class="reference internal" href="ref-objmakebump.html#ref-objmakebump"><span>objMakeBump</span></a> using
-the custom function.  Define the bump function in-line.</p>
-<p>Define the function:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">f</span> <span class="p">=</span> <span class="p">@(</span><span class="n">d</span><span class="p">,</span><span class="n">prm</span><span class="p">)</span> <span class="n">prm</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nb">exp</span><span class="p">(</span><span class="o">-</span><span class="n">d</span><span class="o">.^</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">prm</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>^<span class="mi">2</span><span class="p">))</span>
-</pre></div>
-</div>
-<p>Now do the thing:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">prm</span> <span class="p">=</span> <span class="p">[</span><span class="mi">20</span> <span class="mf">3.5</span><span class="o">*</span><span class="mi">8</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">8</span><span class="p">]</span>
-
-<span class="n">objMakeCustom</span><span class="p">(</span><span class="s">&#39;custom&#39;</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">prm</span><span class="p">)</span>
+<div class="section" id="default-mesh-size">
+<h2>Default mesh size<a class="headerlink" href="#default-mesh-size" title="Permalink to this headline">¶</a></h2>
+<p>The default size (number of vertices) for the sphere shape is
+64-by-128 (elevation, azimuth).  For models with very high-frequency
+perturbations or otherwise fine detail, you might want to increase the
+mesh size.  To do this, use the option <code class="docutils literal"><span class="pre">npoints</span></code>:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">40</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],</span><span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">200</span> <span class="mi">400</span><span class="p">]);</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="a-cratered-moon">
-<h4>A cratered moon<a class="headerlink" href="#a-cratered-moon" title="Permalink to this headline">¶</a></h4>
-<p>Then, give the crater example.</p>
-<p>Specify the crater function:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="k">function</span><span class="w"> </span>C <span class="p">=</span><span class="w"> </span><span class="nf">crater</span><span class="p">(</span>d,prm<span class="p">)</span><span class="w"></span>
-
-<span class="n">r</span> <span class="p">=</span> <span class="n">prm</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>       <span class="c">% radius of the crater</span>
-<span class="n">a</span> <span class="p">=</span> <span class="n">prm</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>       <span class="c">% amplitude of the crater edge</span>
-<span class="n">width1</span> <span class="p">=</span> <span class="n">prm</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>  <span class="c">% width of the inner slope</span>
-<span class="n">width2</span> <span class="p">=</span> <span class="n">prm</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>  <span class="c">% width of the outer slope</span>
-
-<span class="n">d</span> <span class="p">=</span> <span class="n">d</span><span class="o">-</span><span class="n">r</span><span class="p">;</span>
-<span class="n">C</span> <span class="p">=</span> <span class="nb">zeros</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">d</span><span class="p">));</span>
-
-<span class="c">% The inner slope of the crater</span>
-<span class="n">idx</span> <span class="p">=</span> <span class="n">d</span><span class="o">&gt;-</span><span class="n">width1</span> <span class="o">&amp;</span> <span class="n">d</span><span class="o">&lt;</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
-<span class="n">C</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="p">=</span> <span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">pi</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">width1</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">d</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span><span class="o">-</span><span class="nb">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">));</span>
-
-<span class="c">% The outer slope</span>
-<span class="n">idx</span> <span class="p">=</span> <span class="n">d</span><span class="o">&lt;</span><span class="n">width2</span> <span class="o">&amp;</span> <span class="n">d</span><span class="o">&gt;</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span>
-<span class="n">C</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="p">=</span> <span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="nb">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">pi</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">width2</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">d</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span><span class="o">+</span><span class="nb">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">));</span>
-</pre></div>
+<div class="section" id="default-model-size">
+<h2>Default model size<a class="headerlink" href="#default-model-size" title="Permalink to this headline">¶</a></h2>
+<p>Radius = 1.</p>
 </div>
-<p>Make the sphere with craters:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="c">%      n  cutoff radius amplitude width1 width2</span>
-<span class="n">prm</span> <span class="p">=</span> <span class="p">[</span><span class="mi">10</span> <span class="mi">25</span>   <span class="mi">15</span>  <span class="p">.</span><span class="mi">025</span> <span class="mi">10</span> <span class="mi">10</span>
-       <span class="mi">10</span> <span class="mf">12.5</span> <span class="mf">7.5</span> <span class="p">.</span><span class="mi">025</span> <span class="mi">5</span>  <span class="mi">5</span><span class="p">]</span>
-
-<span class="n">objMakeCustom</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="c">...</span>
-              <span class="p">@</span><span class="n">crater</span><span class="p">,</span><span class="n">prm</span><span class="p">,</span><span class="c">...</span>
-              <span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">256</span> <span class="mi">512</span><span class="p">],</span><span class="c">...</span>
-              <span class="s">&#39;mindist&#39;</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="c">...</span>
-              <span class="s">&#39;moon.obj&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Or make a cylinder with craters:</p>
-<div class="highlight-matlab"><div class="highlight"><pre><span class="n">prm</span> <span class="p">=</span> <span class="p">[</span><span class="mi">20</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">8</span><span class="o">+</span><span class="nb">pi</span><span class="o">/</span><span class="mi">16</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">8</span> <span class="p">.</span><span class="mi">025</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">16</span> <span class="nb">pi</span><span class="o">/</span><span class="mi">16</span><span class="p">]</span>
-
-<span class="n">objMakeCustom</span><span class="p">(</span><span class="s">&#39;cylinder&#39;</span><span class="p">,</span><span class="c">...</span>
-              <span class="p">@</span><span class="n">crater</span><span class="p">,</span><span class="n">prm</span><span class="p">,</span><span class="c">...</span>
-              <span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">512</span> <span class="mi">512</span><span class="p">],</span><span class="c">...</span>
-              <span class="s">&#39;mindist&#39;</span><span class="p">,</span><span class="nb">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">);</span>
-</pre></div>
-</div>
-</div>
-</div>
+<div class="section" id="redundant-vertices">
+<h2>Redundant vertices<a class="headerlink" href="#redundant-vertices" title="Permalink to this headline">¶</a></h2>
+<p>The lines of longitude get closer together before meeting at the pole
+of the sphere, and so the density of vertices increases towards the
+poles also.  In many cases, the sampling is clearly redundant and a
+smaller number of vertices would suffice.  In these cases, the mesh
+could be down-sampled to reduce file size.  ShapeToolbox does not throw
+away any vertex or face data, however.  This is for a couple of
+reasons.  First, these models are mainly intended for research on
+visual perception, not for efficient graphics applications.  Second,
+in some cases you might need a high resolution near the poles.</p>
+<p>Third, the models produced by ShapeToolbox functions can be given as
+input to other functions to add perturbations, and two models can also
+be blended (using <code class="docutils literal"><span class="pre">objBlend</span></code>).  In these cases, the coordinates
+systems and the sampling points have to match.  Not fiddling with the
+mesh enables one to do both (see <a class="reference internal" href="gs-combining.html#gs-combining"><span>Combining modulation types</span></a> and
+<a class="reference internal" href="gs-blending.html#gs-blending"><span>Blending (morphing between) two models</span></a>).</p>
+<p>Some faces have a zero area near the poles and some rendering engines,
+at least Radiance, will complain about these.  They will not affect
+the rendering quality.  The current version of ShapeToolbox does not
+remove these faces.</p>
 </div>
 </div>
 
@@ -170,20 +133,10 @@ the custom function.  Define the bump function in-line.</p>
   <ul>
 <li><a class="reference internal" href="#">Sphere</a><ul>
 <li><a class="reference internal" href="#coordinate-system">Coordinate system</a></li>
-<li><a class="reference internal" href="#objmake">objMake</a></li>
-<li><a class="reference internal" href="#objmakesine">objMakeSine</a></li>
-<li><a class="reference internal" href="#objmakenoise">objMakeNoise</a></li>
-<li><a class="reference internal" href="#objmakebump">objMakeBump</a></li>
-<li><a class="reference internal" href="#objmakecustom">objMakeCustom</a><ul>
-<li><a class="reference internal" href="#image">Image</a></li>
-<li><a class="reference internal" href="#a-matrix">A matrix</a></li>
-<li><a class="reference internal" href="#user-defined-functions">User-defined functions</a><ul>
-<li><a class="reference internal" href="#a-bumpy-sphere">A bumpy sphere</a></li>
-<li><a class="reference internal" href="#a-cratered-moon">A cratered moon</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li><a class="reference internal" href="#mapping-perturbations-and-textures-to-a-sphere">Mapping perturbations and textures to a sphere</a></li>
+<li><a class="reference internal" href="#default-mesh-size">Default mesh size</a></li>
+<li><a class="reference internal" href="#default-model-size">Default model size</a></li>
+<li><a class="reference internal" href="#redundant-vertices">Redundant vertices</a></li>
 </ul>
 </li>
 </ul>

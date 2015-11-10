@@ -26,7 +26,7 @@
     <link rel="top" title="ShapeToolbox 0.1 documentation" href="index.html" />
     <link rel="up" title="Object types" href="object_types.html" />
     <link rel="next" title="Extrusion" href="extrusion.html" />
-    <link rel="prev" title="Torus" href="torus.html" /> 
+    <link rel="prev" title="Cylinder" href="cylinder.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -39,7 +39,7 @@
           <a href="extrusion.html" title="Extrusion"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="torus.html" title="Torus"
+          <a href="cylinder.html" title="Cylinder"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="object_types.html" accesskey="U">Object types</a> &raquo;</li> 
@@ -59,20 +59,25 @@
 <div class="section" id="coordinate-system">
 <h2>Coordinate system<a class="headerlink" href="#coordinate-system" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="objmake">
-<span id="objmake-revolution"></span><h2>objMake<a class="headerlink" href="#objmake" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="default-mesh-size">
+<h2>Default mesh size<a class="headerlink" href="#default-mesh-size" title="Permalink to this headline">¶</a></h2>
+<p>The default size (number of vertices) for the plane is 128-by-128.
+For models with very high-frequency perturbations or otherwise fine
+detail, you might want to increase the mesh size.  To do this, use the
+option <code class="docutils literal"><span class="pre">npoints</span></code>:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;revolution&#39;</span><span class="p">,[</span><span class="mi">32</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">],</span><span class="c">...,&#39;npoints&#39;,[320 320]);</span>
+</pre></div>
 </div>
-<div class="section" id="objmakesine">
-<span id="objmakesine-revolution"></span><h2>objMakeSine<a class="headerlink" href="#objmakesine" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="objmakenoise">
-<span id="objmakenoise-revolution"></span><h2>objMakeNoise<a class="headerlink" href="#objmakenoise" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="default-model-size">
+<h2>Default model size<a class="headerlink" href="#default-model-size" title="Permalink to this headline">¶</a></h2>
+<p>Height=2*pi.</p>
 </div>
-<div class="section" id="objmakebump">
-<span id="objmakebump-revolution"></span><h2>objMakeBump<a class="headerlink" href="#objmakebump" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="defining-the-shape-profile">
+<h2>Defining the shape profile<a class="headerlink" href="#defining-the-shape-profile" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="objmakecustom">
-<span id="objmakecustom-revolution"></span><h2>objMakeCustom<a class="headerlink" href="#objmakecustom" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="modifying-the-midline-of-the-shape">
+<h2>Modifying the midline of the shape<a class="headerlink" href="#modifying-the-midline-of-the-shape" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -86,18 +91,17 @@
   <ul>
 <li><a class="reference internal" href="#">Revolution</a><ul>
 <li><a class="reference internal" href="#coordinate-system">Coordinate system</a></li>
-<li><a class="reference internal" href="#objmake">objMake</a></li>
-<li><a class="reference internal" href="#objmakesine">objMakeSine</a></li>
-<li><a class="reference internal" href="#objmakenoise">objMakeNoise</a></li>
-<li><a class="reference internal" href="#objmakebump">objMakeBump</a></li>
-<li><a class="reference internal" href="#objmakecustom">objMakeCustom</a></li>
+<li><a class="reference internal" href="#default-mesh-size">Default mesh size</a></li>
+<li><a class="reference internal" href="#default-model-size">Default model size</a></li>
+<li><a class="reference internal" href="#defining-the-shape-profile">Defining the shape profile</a></li>
+<li><a class="reference internal" href="#modifying-the-midline-of-the-shape">Modifying the midline of the shape</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="torus.html"
-                        title="previous chapter">Torus</a></p>
+  <p class="topless"><a href="cylinder.html"
+                        title="previous chapter">Cylinder</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="extrusion.html"
                         title="next chapter">Extrusion</a></p>
@@ -135,7 +139,7 @@
           <a href="extrusion.html" title="Extrusion"
              >next</a> |</li>
         <li class="right" >
-          <a href="torus.html" title="Torus"
+          <a href="cylinder.html" title="Cylinder"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">ShapeToolbox 0.1 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="object_types.html" >Object types</a> &raquo;</li> 
