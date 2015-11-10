@@ -10,14 +10,15 @@ A cratered moon
    :width: 400px
 
 
-This example uses two function, ``objMakeBump`` and
+This example uses two functions, ``objMakeBump`` and
 ``objMakeCustom``.  The first function is used to produce a slightly
 irregular sphere by adding large Gaussian bumps to a sphere.  This
 model is then passed to the second function to add "craters" to the
 sphere.
 
 First, we need a function that makes the craters.  The following is
-the contents of the file ``crater.m``::
+the contents of the file ``crater.m`` (you can copy it and save it in
+``crater.m``)::
 
   function C = crater(d,prm)
   

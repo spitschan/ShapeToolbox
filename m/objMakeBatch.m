@@ -1,9 +1,9 @@
-function status = objMakeBatch(type,filename,ignore_errors)
+function status = objMakeBatch(filename,ignore_errors)
 
 % OBJMAKEBATCH
 %
-% Usage: STATUS = objMakeBatch(MODULATION,PRM,[IGNORE_ERRORS])
-%        STATUS = objMakeBatch(MODULATION,FILENAME,[IGNORE_ERRORS])
+% Usage: STATUS = objMakeBatch(PRM,[IGNORE_ERRORS])
+%        STATUS = objMakeBatch(FILENAME,[IGNORE_ERRORS])
 %
 % Create objects in a batch.  
 %
@@ -12,22 +12,25 @@ function status = objMakeBatch(type,filename,ignore_errors)
 % 
 % The first input argument, MODULATION, is a string defining the
 % type of modulation/perturbation to the base shape.  Possible
-% values are 'sine', 'noise', 'bump', and 'custom'.
+% values are 'none', 'sine', 'noise', 'bump', and 'custom'.
 %
 % In the first form,
-%  > STATUS = objMakeBatch(MODULATION,PRM)
+%  > STATUS = objMakeBatch(PRM)
 % PRM is a cell array of cell arrays.  Each cell defines the
-% parameters for a single model.  The contents of each cell is exactly
+% parameters for a single model.  The first element of the cell is a
+% string defining the perturbation.  Possible values are 'none',
+% 'sine', 'noise', 'bump', and 'custom', and it can be different for
+% each model.  The contents of the rest of the each cell is exactly
 % what you would give as input to the corresponding objMake*-function.
 % For example, the following two calls:
 %  > objMakeSine('sphere',[8 .05 60 0],'sphere1.obj');
 %  > objMakeSine('cylinder',[4 .1 0 0],'cylinder1.obj');
 % are equivalent to the single call:
-%  > prm = {{'sphere',[8 .05 60 0],'sphere1.obj'},{'cylinder',[4 .1 0 0],'cylinder1.obj'}};
-%  > objMakeSine(prm);
+%  > prm = {{'sine','sphere',[8 .05 60 0],'sphere1.obj'},{'sine','cylinder',[4 .1 0 0],'cylinder1.obj'}};
+%  > objMakeBatch(prm);
 %
 % In the second form, 
-%  > STATUS = objMakeBatch(MODULATION,FILENAME)
+%  > STATUS = objMakeBatch(FILENAME)
 % FILENAME is the name of an .m-file defining the modulation
 % parameters.  This file has to be a script (not a function),
 % defining a single cell array named 'prm'.  The cells of this cell
@@ -36,12 +39,14 @@ function status = objMakeBatch(type,filename,ignore_errors)
 % to save the following to a file named, say, 'batchprm.m':
 % 
 %   prm = {
-%          {'sphere',[8 .05 60 0],'sphere1.obj'},
-%          {'cylinder',[4 .1 0 0],'cylinder1.obj'}
+%          {'sine','sphere',[8 .05 60 0],'sphere1.obj'},
+%          {'sine','cylinder',[4 .1 0 0],'cylinder1.obj'}
 %         };
 %
 % and then calling objMakeSine as:
-% > objMakeSine('batchprm.m');
+% > objMakeBatch('batchprm.m');
+%
+% Note that the perturbation does not have to be the same for all models.
 % 
 % The optional input argument IGNORE_ERRORS is a boolean.  If true,
 % the batch processing continues to the next model when an error
@@ -57,10 +62,15 @@ function status = objMakeBatch(type,filename,ignore_errors)
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-10-02 - ts - first version
+% 2015-11-09 - ts - fixed errors in help
+%                   removed input arg 'modulation', the modulation is
+%                   now defined by the first element of the
+%                   parameter cell array and can be different for
+%                   each model
 
 status = 0;
 
-if nargin<3 || isempty(ignore_errors)
+if nargin<2 || isempty(ignore_errors)
   ignore_errors = false;
 end
 
@@ -79,17 +89,17 @@ end
 
 for ii = 1:length(prm)
   try
-    switch lower(type)
+    switch lower(prm{ii}{1})
       case 'none'
-        objMake(prm{ii});
+        objMake(prm{ii}{2:end});
       case 'sine'
-        objMakeSine(prm{ii});
+        objMakeSine(prm{ii}{2:end});
       case 'noise'
-        objMakeNoise(prm{ii});
+        objMakeNoise(prm{ii}{2:end});
       case 'bump'
-        objMakeBump(prm{ii});
+        objMakeBump(prm{ii}{2:end});
       case 'custom'
-        objMakeCustom(prm{ii});
+        objMakeCustom(prm{ii}{2:end});
       otherwise
         error(sprintf('Unknown modulation type.\n'));
     end

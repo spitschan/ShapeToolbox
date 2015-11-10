@@ -41,7 +41,7 @@ shape profile provided by the user.  These shapes can be further
 perturbed by different kinds of modulation.  The modulations include
 sinusoidal components, filtered noise, Gaussian bumps and dents, and
 other, user-defined perturbations.  User-defined perturbations include
-using matrices and images as bump maps, as well as perturbations
+using matrices and images as height maps, as well as perturbations
 defined by user-provided functions.  All parameters for the different
 perturbations are provided by the user, so one can easily produce
 parametrically varying shapes for experiment purposes.
@@ -70,7 +70,7 @@ intended for experiments on vision.  As they are meant for research
 purposes rather than for efficient graphics applications, no
 optimization is done in terms of model size etc.  Also, having a
 standard mesh size enables the user to easily blend two or more shapes
-together.  There is also minimal error checking on input arguments and
+together.  There is also only minimal error checking on input arguments and
 modulation parameters, so it is the user's responsibility to make sure the
 parameters make sense.  This is because, again, this is a
 tool for making models for research.  We don't want to start guessing
