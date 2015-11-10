@@ -55,14 +55,19 @@
 <div></div></blockquote>
 <div class="section" id="making-a-series-of-shapes-batch-processing">
 <span id="gs-batch"></span><h1>Making a series of shapes &#8212; batch processing<a class="headerlink" href="#making-a-series-of-shapes-batch-processing" title="Permalink to this headline">¶</a></h1>
+<p id="gs-series">One of the purposes of ShapeToolbox is to provide a tool for making sets
+of stimuli with parametric variations in shape.  This section
+illustrates the creation of some example series.  There are different
+ways of creating a series of stimuli.  The first, of course, is just
+to call an objMake*-function repeatedly while changing the parameters
+of the shape.  This is demonstrated first.</p>
+<p>ShapeToolbox also has batch-options for creating several shapes with a
+single function call; these are illustrated further below.</p>
 <div class="section" id="making-a-series-of-stimuli">
-<span id="gs-series"></span><h2>Making a series of stimuli<a class="headerlink" href="#making-a-series-of-stimuli" title="Permalink to this headline">¶</a></h2>
-<p>One of the purposes of ShapeToolbox is to provide a tool for making
-sets of stimuli with parametric variations in shape.  This section
-illustrates the creation of some example series.  This section does
-not introduce any new functionality of the toolbox, it&#8217;s just calling
-the now-familiar function <a class="reference internal" href="ref-objmakesine.html#ref-objmakesine"><span>objMakeSine</span></a> inside a simple
-Octave/Matlab loop.</p>
+<h2>Making a series of stimuli<a class="headerlink" href="#making-a-series-of-stimuli" title="Permalink to this headline">¶</a></h2>
+<p>This section does not introduce any new functionality of the toolbox,
+it&#8217;s just calling the now-familiar function <a class="reference internal" href="ref-objmakesine.html#ref-objmakesine"><span>objMakeSine</span></a>
+inside a simple Octave/Matlab loop.</p>
 <p>The first example has a single component.  The frequency is varied
 from 2 to 16 cycles while the other properties stay constant.  An
 orthogonal envelope is used as in the previous examples.  The value of
@@ -143,11 +148,78 @@ interesting or informative to use in a vision experiment.</p>
 </div>
 <div class="section" id="batch-option-in-objmake-functions">
 <h2>Batch option in objMake*-functions<a class="headerlink" href="#batch-option-in-objmake-functions" title="Permalink to this headline">¶</a></h2>
-<p>TODO.</p>
+<p>Every objMake*-function has a &#8220;batch&#8221; option to create several
+models.  This is a somewhat clumsy way to call the functions if you
+want to pass several arguments to them, but might be useful in some
+cases.  To create several models, you define the model parameters in a
+cell array and pass the array to the function.  In fact, it is a cell
+array of cell arrays, with each cell giving the parameters for one
+model:</p>
+<div class="highlight-none"><div class="highlight"><pre>prm = {{parameters for model 1},
+       {parameters for model 2},
+       ...
+       {parameters for model N}}
+</pre></div>
+</div>
+<p>The next example creates two cylinders.  Both cylinders are perturbed
+by filtered noise, but the mean frequency is different:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">prm</span> <span class="p">=</span> <span class="p">{{</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="mi">6</span>  <span class="mi">1</span> <span class="mi">0</span> <span class="mi">30</span> <span class="p">.</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;cyl1.obj&#39;</span><span class="p">},</span><span class="c">...</span>
+       <span class="p">{</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="mi">12</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">30</span> <span class="p">.</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;cyl2.obj&#39;</span><span class="p">}};</span>
+
+<span class="n">objMakeNoise</span><span class="p">(</span><span class="n">prm</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The base shapes do not have to the same.  The following creates a
+noisy cylinder and a noisy plane:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">prm</span> <span class="p">=</span> <span class="p">{{</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="mi">6</span>  <span class="mi">1</span> <span class="mi">0</span> <span class="mi">30</span> <span class="p">.</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;cyl.obj&#39;</span><span class="p">},</span><span class="c">...</span>
+       <span class="p">{</span><span class="s">&#39;plane&#39;</span><span class="p">,[</span><span class="mi">12</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">30</span> <span class="p">.</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;plane.obj&#39;</span><span class="p">}};</span>
+
+<span class="n">objMakeNoise</span><span class="p">(</span><span class="n">prm</span><span class="p">);</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="objmakebatch-function">
 <h2>objMakeBatch-function<a class="headerlink" href="#objmakebatch-function" title="Permalink to this headline">¶</a></h2>
-<p>TODO.</p>
+<p>The function <code class="docutils literal"><span class="pre">objMakeBatch</span></code> is a little more general than the
+batch-option in the individual objMake*-functions (see above).  Again,
+several models can be created, and the model parameters are passed in
+a cell array.  The cell array can be given directly as an argument to
+<code class="docutils literal"><span class="pre">objMakeBatch</span></code> or it can be defined in an m.-file and the file name
+can then be given as an argument.</p>
+<p>The perturbation type does not have to be the same for all models to
+be created.  That is, <code class="docutils literal"><span class="pre">objMakeBatch</span></code> can call different functions
+that produce sinusoidal, noise, etc. perturbations.  The perturbation
+type is given as the first argument in each cell.</p>
+<p>The following repeats what the last example above does:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">prm</span> <span class="p">=</span> <span class="p">{{</span><span class="s">&#39;noise&#39;</span><span class="p">,</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="mi">6</span>  <span class="mi">1</span> <span class="mi">0</span> <span class="mi">30</span> <span class="p">.</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;cyl.obj&#39;</span><span class="p">},</span><span class="c">...</span>
+       <span class="p">{</span><span class="s">&#39;noise&#39;</span><span class="p">,</span><span class="s">&#39;plane&#39;</span><span class="p">,[</span><span class="mi">12</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">30</span> <span class="p">.</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;plane.obj&#39;</span><span class="p">}};</span>
+
+<span class="n">objMakeBatch</span><span class="p">(</span><span class="n">prm</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>To make a noisy cylinder, a bumpy plane, and a smooth torus:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">prm</span> <span class="p">=</span> <span class="p">{{</span><span class="s">&#39;noise&#39;</span><span class="p">,</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="mi">6</span>  <span class="mi">1</span> <span class="mi">0</span> <span class="mi">30</span> <span class="p">.</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;cyl.obj&#39;</span><span class="p">},</span><span class="c">...</span>
+       <span class="p">{</span><span class="s">&#39;bump&#39;</span><span class="p">,</span><span class="s">&#39;plane&#39;</span><span class="p">,[</span><span class="mi">20</span> <span class="p">.</span><span class="mi">1</span> <span class="p">.</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;plane.obj&#39;</span><span class="p">},</span><span class="c">...</span>
+       <span class="p">{</span><span class="s">&#39;none&#39;</span><span class="p">,</span><span class="s">&#39;torus&#39;</span><span class="p">,</span><span class="s">&#39;torus.obj&#39;</span><span class="p">}};</span>
+
+<span class="n">objMakeBatch</span><span class="p">(</span><span class="n">prm</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The same can be done by defining the parameter cell array <code class="docutils literal"><span class="pre">prm</span></code> in
+an m-file and giving the filename as an input argument.  If the
+contents of the file <code class="docutils literal"><span class="pre">modelparams.m</span></code> is:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">prm</span> <span class="p">=</span> <span class="p">{{</span><span class="s">&#39;noise&#39;</span><span class="p">,</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="mi">6</span>  <span class="mi">1</span> <span class="mi">0</span> <span class="mi">30</span> <span class="p">.</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;cyl.obj&#39;</span><span class="p">},</span><span class="c">...</span>
+       <span class="p">{</span><span class="s">&#39;bump&#39;</span><span class="p">,</span><span class="s">&#39;plane&#39;</span><span class="p">,[</span><span class="mi">20</span> <span class="p">.</span><span class="mi">1</span> <span class="p">.</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;plane.obj&#39;</span><span class="p">},</span><span class="c">...</span>
+       <span class="p">{</span><span class="s">&#39;none&#39;</span><span class="p">,</span><span class="s">&#39;torus&#39;</span><span class="p">,</span><span class="s">&#39;torus.obj&#39;</span><span class="p">}};</span>
+</pre></div>
+</div>
+<p>you would call <code class="docutils literal"><span class="pre">objMakeBatch</span></code> as:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeBatch</span><span class="p">(</span><span class="s">&#39;modelparams.m&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>In this case, <code class="docutils literal"><span class="pre">modelparams.m</span></code> should not contain anything else other
+than the cell array definition, and the cell array should be named
+<code class="docutils literal"><span class="pre">prm</span></code>.</p>
 </div>
 </div>
 

@@ -55,6 +55,25 @@
 <div></div></blockquote>
 <div class="section" id="combining-modulation-types">
 <span id="gs-combining"></span><h1>Combining modulation types<a class="headerlink" href="#combining-modulation-types" title="Permalink to this headline">¶</a></h1>
+<p>As shown in earlier examples, the <cite>objMake*</cite>-functions can return the
+model structure, which can then be viewed with the function <cite>objShow</cite>.
+Returning the model structure has another use also: it can be passed
+as an argument to another <cite>objMake*</cite>-function to add further
+perturbation to it.  The following example first makes a cylinder with
+a sinusoidal perturbation and then adds Gaussian &#8216;dents&#8217; to it:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">m</span> <span class="p">=</span> <span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="mi">4</span> <span class="p">.</span><span class="mi">1</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">],</span><span class="s">&#39;cyl1&#39;</span><span class="p">);</span>
+<span class="n">objMakeBump</span><span class="p">(</span><span class="n">m</span><span class="p">,[</span><span class="mi">50</span> <span class="o">-</span><span class="p">.</span><span class="mi">1</span> <span class="p">.</span><span class="mi">25</span><span class="p">],</span><span class="s">&#39;cyl2&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Here are the two shapes side by side:</p>
+<a class="reference internal image-reference" href="_images/gs-comb-cyl.png"><img alt="_images/gs-comb-cyl.png" src="_images/gs-comb-cyl.png" style="width: 300px;" /></a>
+<p>The second example first makes a bumpy plane and then adds
+high-frequency noise to it to simulate a rougher surface texture:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">m</span> <span class="p">=</span> <span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,[</span><span class="mi">20</span> <span class="p">.</span><span class="mi">05</span> <span class="p">.</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">512</span> <span class="mi">512</span><span class="p">],</span><span class="s">&#39;plane1&#39;</span><span class="p">);</span>
+<span class="n">objMakeNoise</span><span class="p">(</span><span class="n">m</span><span class="p">,[</span><span class="mi">32</span> <span class="mi">1</span> <span class="mi">0</span> <span class="n">Inf</span> <span class="p">.</span><span class="mi">02</span><span class="p">],</span><span class="s">&#39;plane2&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/gs-comb-pln.png"><img alt="_images/gs-comb-pln.png" src="_images/gs-comb-pln.png" style="width: 300px;" /></a>
 </div>
 
 

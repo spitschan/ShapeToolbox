@@ -28,7 +28,7 @@ Code::
   for ii = 1:length(a)
     filename = sprintf('spiky_%02d.obj',a(ii)*10);
     m(ii) = objMakeCustom('sphere',spike,[20 pi/4 a(ii) b r(ii)],...
-                          'npoints',[512 256],'mindist',pi/8,filename);
+                          'npoints',[256 512],'mindist',pi/8,filename);
   end
 
   % Show the models

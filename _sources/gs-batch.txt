@@ -8,16 +8,22 @@ Making a series of shapes --- batch processing
 
 .. _gs-series:
 
+One of the purposes of |toolbox| is to provide a tool for making sets
+of stimuli with parametric variations in shape.  This section
+illustrates the creation of some example series.  There are different
+ways of creating a series of stimuli.  The first, of course, is just
+to call an objMake*-function repeatedly while changing the parameters
+of the shape.  This is demonstrated first.  
+
+|toolbox| also has batch-options for creating several shapes with a
+single function call; these are illustrated further below.
 
 Making a series of stimuli
 ==========================
 
-One of the purposes of |toolbox| is to provide a tool for making
-sets of stimuli with parametric variations in shape.  This section
-illustrates the creation of some example series.  This section does
-not introduce any new functionality of the toolbox, it's just calling
-the now-familiar function :ref:`ref-objmakesine` inside a simple
-Octave/Matlab loop.
+This section does not introduce any new functionality of the toolbox,
+it's just calling the now-familiar function :ref:`ref-objmakesine`
+inside a simple Octave/Matlab loop.
 
 The first example has a single component.  The frequency is varied
 from 2 to 16 cycles while the other properties stay constant.  An
@@ -110,10 +116,80 @@ interesting or informative to use in a vision experiment.
 Batch option in objMake*-functions
 ==================================
 
-TODO.
+Every objMake*-function has a "batch" option to create several
+models.  This is a somewhat clumsy way to call the functions if you
+want to pass several arguments to them, but might be useful in some
+cases.  To create several models, you define the model parameters in a
+cell array and pass the array to the function.  In fact, it is a cell
+array of cell arrays, with each cell giving the parameters for one
+model:
+
+.. code-block:: none
+
+  prm = {{parameters for model 1},
+         {parameters for model 2},
+         ...
+         {parameters for model N}}
+
+The next example creates two cylinders.  Both cylinders are perturbed
+by filtered noise, but the mean frequency is different::
+
+  prm = {{'cylinder',[6  1 0 30 .1],'cyl1.obj'},...
+         {'cylinder',[12 1 0 30 .1],'cyl2.obj'}};
+
+  objMakeNoise(prm);
+
+The base shapes do not have to the same.  The following creates a
+noisy cylinder and a noisy plane::
+
+  prm = {{'cylinder',[6  1 0 30 .1],'cyl.obj'},...
+         {'plane',[12 1 0 30 .1],'plane.obj'}};
+
+  objMakeNoise(prm);
 
 
 objMakeBatch-function
 =====================
 
-TODO.
+The function ``objMakeBatch`` is a little more general than the
+batch-option in the individual objMake*-functions (see above).  Again,
+several models can be created, and the model parameters are passed in
+a cell array.  The cell array can be given directly as an argument to
+``objMakeBatch`` or it can be defined in an m.-file and the file name
+can then be given as an argument.
+
+The perturbation type does not have to be the same for all models to
+be created.  That is, ``objMakeBatch`` can call different functions
+that produce sinusoidal, noise, etc. perturbations.  The perturbation
+type is given as the first argument in each cell.
+
+The following repeats what the last example above does::
+
+  prm = {{'noise','cylinder',[6  1 0 30 .1],'cyl.obj'},...
+         {'noise','plane',[12 1 0 30 .1],'plane.obj'}};
+
+  objMakeBatch(prm);
+
+To make a noisy cylinder, a bumpy plane, and a smooth torus::
+
+  prm = {{'noise','cylinder',[6  1 0 30 .1],'cyl.obj'},...
+         {'bump','plane',[20 .1 .1],'plane.obj'},...
+         {'none','torus','torus.obj'}};
+  
+  objMakeBatch(prm);
+
+The same can be done by defining the parameter cell array ``prm`` in
+an m-file and giving the filename as an input argument.  If the
+contents of the file ``modelparams.m`` is::
+  
+  prm = {{'noise','cylinder',[6  1 0 30 .1],'cyl.obj'},...
+         {'bump','plane',[20 .1 .1],'plane.obj'},...
+         {'none','torus','torus.obj'}};
+
+you would call ``objMakeBatch`` as::
+
+  objMakeBatch('modelparams.m');
+
+In this case, ``modelparams.m`` should not contain anything else other
+than the cell array definition, and the cell array should be named
+``prm``.

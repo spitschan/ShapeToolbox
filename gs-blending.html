@@ -55,15 +55,60 @@
 <div></div></blockquote>
 <div class="section" id="blending-morphing-between-two-models">
 <span id="gs-blending"></span><h1>Blending (morphing between) two models<a class="headerlink" href="#blending-morphing-between-two-models" title="Permalink to this headline">¶</a></h1>
-<p>TODO.</p>
-<p>Often the best way to make a series of models and smoothly vary
-the modulation parameters.</p>
-<p>But there is a way to blend/average/morph two models with user-defined
-weights.</p>
-<p>Make a smooth model and one perturbed by noise.  Then blend those to
-different degrees.  This is the only way to do it because the noise is
-random.  (Or you could make a matrix of noise and use that as a bump
-map.)</p>
+<p>Often the best way to make a series of models with smooth variations
+in shape is to gradually vary the perturbation parameters (e.g., the
+amplitudes and frequencies of sine components).  Sometimes this might
+not be enough though, for example if the shape is perturbed by noise
+components and you want to gradually change, say the amplitude <cite>of
+that same noisy perturbation</cite>.  Blending two models is an alternative
+way to create intermediate shapes between any given two models
+(provided they have the same base shape).</p>
+<p>The procedure is simple.  First, create two models using any of the
+<cite>objMake*</cite>-functions.  Then, use <code class="docutils literal"><span class="pre">objBlend</span></code> to blend them into an
+intermediate shape between the two originals.  Example:</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% Create a smooth sphere</span>
+<span class="n">m1</span> <span class="p">=</span> <span class="n">objMake</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">);</span>
+
+<span class="c">% Create a bumpy sphere</span>
+<span class="n">m2</span> <span class="p">=</span> <span class="n">objMakeBump</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[</span><span class="mi">30</span> <span class="p">.</span><span class="mi">2</span> <span class="p">.</span><span class="mi">1</span><span class="p">]);</span>
+
+<span class="c">% Blend them together to create an average.  In this case, the result</span>
+<span class="c">% will be a bumpy sphere with the bumps having half the amplitude of</span>
+<span class="c">% the original.</span>
+<span class="n">m3</span> <span class="p">=</span> <span class="n">objBlend</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span><span class="n">m2</span><span class="p">);</span>
+
+<span class="n">figure</span><span class="p">;</span>
+<span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span> <span class="n">objShow</span><span class="p">(</span><span class="n">m1</span><span class="p">);</span>
+<span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span> <span class="n">objShow</span><span class="p">(</span><span class="n">m3</span><span class="p">);</span>
+<span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">);</span> <span class="n">objShow</span><span class="p">(</span><span class="n">m2</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Here&#8217;s a rendered image of those spheres.  The middle one is a blend
+between the two others:</p>
+<a class="reference internal image-reference" href="_images/gs-blenddemo.png"><img alt="_images/gs-blenddemo.png" src="_images/gs-blenddemo.png" style="width: 450px;" /></a>
+<p>You can also define the weights with which the models are blended.
+The example below creates two noisy cylinders and makes a series of
+intermediate shapes, blending the originals in different proportions.
+The weight <cite>w</cite> is given as a number between 0 and 1.  This is the weight
+for the <cite>first</cite> shape.  The second shape will then have a weight of
+1-<cite>w</cite>.</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="c">% Create two different, noisy shapes</span>
+<span class="n">m1</span> <span class="p">=</span> <span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="mi">2</span> <span class="mi">1</span> <span class="mi">90</span> <span class="mi">30</span> <span class="p">.</span><span class="mi">4</span><span class="p">]);</span>
+<span class="n">m2</span> <span class="p">=</span> <span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;cylinder&#39;</span><span class="p">,[</span><span class="mi">4</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">30</span> <span class="p">.</span><span class="mi">4</span><span class="p">]);</span>
+
+<span class="c">% Set the weights with which to combine the original shapes.</span>
+<span class="n">weights</span> <span class="p">=</span> <span class="mi">0</span><span class="p">:.</span><span class="mi">25</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+
+<span class="c">% Loop through the weights and save each model</span>
+<span class="k">for</span> <span class="n">w</span> <span class="p">=</span> <span class="n">weights</span>
+  <span class="n">objBlend</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span><span class="n">m2</span><span class="p">,</span><span class="n">w</span><span class="p">,</span><span class="s">&#39;save&#39;</span><span class="p">,</span><span class="n">true</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>You can set any filename for the model when saving it.  The default
+filename includes the weight, for example, <cite>cylinder_025_075.obj</cite>.
+The figure below shows the five shapes:</p>
+<a class="reference internal image-reference" href="_images/gs-blenddemo2.png"><img alt="_images/gs-blenddemo2.png" src="_images/gs-blenddemo2.png" style="width: 450px;" /></a>
 </div>
 
 
