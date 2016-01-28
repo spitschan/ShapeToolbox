@@ -81,6 +81,10 @@ function m1 = objBlend(m1,m2,varargin)
 % 2015-06-16 - ts - added handling of extrusions.  cylinders,
 %                   revolutions, and extrusions can be blended.
 %                   updated help
+% 2016-01-21 - ts - append filename extension if needed
+%                   improved handling of input args (weight)
+%                   blend also model size, not only modulation
+%                   calls objMakeVertices
 
 % TODO:
 % - Better parsing of input arguments.
@@ -94,6 +98,7 @@ function m1 = objBlend(m1,m2,varargin)
 dosave = false;
 filename = '';
 [w,par] = parseparams(varargin);
+w = w{1};
 if ~isempty(par)
   ii = 1;
   while ii<=length(par)
@@ -117,18 +122,15 @@ end
 
 if isempty(w)
   w = [.5 .5];
-else 
-  w = w{1};
-  if isscalar(w)
-    if ~((w<=1) && (w>=0))
-      error('With three input arguments, the weight has to be in range [0,1].');
-    end
-    w(2) = 1 - w;
-  else
-    tot = w(1) + w(2);
-    w(1) = w(1)./tot;
-    w(2) = w(2)./tot;
+elseif isscalar(w)
+  if ~((w<=1) && (w>=0))
+    error('With three input arguments, the weight has to be in range [0,1].');
   end
+  w(2) = 1 - w;
+else
+  tot = w(1) + w(2);
+  w(1) = w(1)./tot;
+  w(2) = w(2)./tot;
 end
 
 if isempty(filename)
@@ -145,28 +147,43 @@ end
 switch m1.shape
   case 'sphere'
     m1.R = w(1)*m1.R + w(2)*m2.R;
-    m1.vertices = objSph2XYZ(m1.Theta,m1.Phi,m1.R);
   case 'plane'
+    m1.X = w(1)*m1.X + w(2)*m2.X;
+    m1.Y = w(1)*m1.Y + w(2)*m2.Y;
     m1.Z = w(1)*m1.Z + w(2)*m2.Z;
-    m1.vertices = [m1.X m1.Y m1.Z];
   case {'cylinder','revolution','extrusion'}
     m1.R = w(1)*m1.R + w(2)*m2.R;
-    X =  m1.R .* cos(m1.Theta);
-    Z = -m1.R .* sin(m1.Theta);
-    m1.vertices = [X m1.Y Z];
+    m1.Y = w(1)*m1.Y + w(2)*m2.Y;
+    m1.spine.X = w(1)*m1.spine.X + w(2)*m2.spine.X;
+    m1.spine.Z = w(1)*m1.spine.Z + w(2)*m2.spine.Z;
+  case 'worm'
+    m1.R = w(1)*m1.R + w(2)*m2.R;
+    m1.X = w(1)*m1.X + w(2)*m2.X;
+    m1.Y = w(1)*m1.Y + w(2)*m2.Y;
+    m1.Z = w(1)*m1.Z + w(2)*m2.Z;
+    m1.spine.X = w(1)*m1.spine.X + w(2)*m2.spine.X;
+    m1.spine.Y = w(1)*m1.spine.Y + w(2)*m2.spine.Y;
+    m1.spine.Z = w(1)*m1.spine.Z + w(2)*m2.spine.Z;
   case 'torus'
     m1.R = w(1)*m1.R + w(2)*m2.R;
     m1.r = w(1)*m1.r + w(2)*m2.r;
-    m1.vertices = objSph2XYZ(m1.Theta,m1.Phi,m1.r,m1.R);
+  case 'disk'
+    m1.Y = w(1)*m1.Y + w(2)*m2.Y;
   otherwise
     error('Unknown or unsupported shape.');
 end
+
+m1 = objMakeVertices(m1);
 
 m1.normals = [];
 m1.faces = [];
 
 if dosave
   m1.filename = filename;
+  % Add file name extension if needed
+  if isempty(regexp(m1.filename,'\.obj$'))
+    m1.filename = [m1.filename,'.obj'];
+  end
   m1 = objSaveModel(m1);
 end
 

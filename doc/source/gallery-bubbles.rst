@@ -28,16 +28,16 @@ Code for producing the model::
   % to make bubbles of different size.  In each row, the first parameter
   % is the number of bubbles, the second is a cut-off value, and the
   % third is the radius.  The cut-off and radius are the same in this case.
-  objMakeCustom('plane',
-                f,                     % a handle to our function
-                [24 .15 .15;           % 24 large bubbles
-                 120 .1 .1;            % 120 medium ones
-                 1200 .03 .03],        % and 1200 small bubbles
-                'width',2,'height',2,  % larger than the default plane
-                'npoints',[512 512],   % finer mesh
-                'max',true,            % don't add overlapping bubbles
-                'normals',true,        % improved rendering
-                'bubbles.obj');        % save in bubbles.obj
+  objMakeCustom('plane',...
+                f,...                     % a handle to our function
+                [24 .15 .15;              % 24 large bubbles
+                 120 .1 .1;               % 120 medium ones
+                 1200 .03 .03],...        % and 1200 small bubbles
+                'width',2,'height',2,...  % larger than the default plane
+                'npoints',[512 512],...   % finer mesh
+                'max',true,...            % don't add overlapping bubbles
+                'normals',true,...        % improved rendering
+                'bubbles.obj');           % save in bubbles.obj
 
 
 .. highlight:: xml

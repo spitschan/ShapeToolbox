@@ -100,6 +100,9 @@ function model = objMakeBump(shape,prm,varargin)
 % 2015-10-10 - ts - added support for worm shape
 % 2015-10-11 - ts - fixes in documentation; added support for torus again
 % 2015-10-15 - ts - fixed the updating of the nargin/narg var to work with matlab
+% 2016-01-21 - ts - calls objMakeVertices
+%                   added (finally) torus major radius modulation
+%                   added disk shape
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
@@ -161,18 +164,14 @@ switch model.shape
     model = objInterpCurves(model);
   case 'torus'
     defprm = [20 .1 pi/12];
-    % defprm = [];
-    % clear model
-    % fprintf('Gaussian bumps not yet implemented for torus.\n');
-    % return
   case 'revolution'
     defprm = [20 .1 pi/12];
     model = objInterpCurves(model);
-    %model.curve = model.curve/max(model.curve);
   case 'extrusion'
     defprm = [20 .1 pi/12];
     model = objInterpCurves(model);
-    %model.curve = model.curve/max(model.curve);
+  case 'disk'
+    defprm = [20 .05 .05];
   otherwise
     error('Unknown shape');
 end
@@ -204,17 +203,23 @@ model.opts.f = @(d,prm) prm(1)*exp(-d.^2/(2*prm(2)^2));
 % Vertices
 if model.flags.new_model
   model = objSetCoords(model);
-elseif ~isempty(strmatch(model.shape,{'cylinder','revolution','extrusion'}))
-  if model.flags.oldcaps
-     model = objRemCaps(model);
-  end
+end
+
+switch model.shape
+  case {'cylinder','revolution','extrusion'}    
+    if ~model.flags.new_model && model.flags.oldcaps
+      model = objRemCaps(model);
+    end
+  case 'torus'
+    if ~isempty(model.opts.rprm)
+      rprm = model.opts.rprm;
+      for ii = 1:size(rprm,1)
+        model.R = model.R + rprm(ii,2) * sin(rprm(ii,1)*model.Theta + rprm(ii,3));
+      end
+    end
 end
 model = objPlaceBumps(model);
-if ~isempty(strmatch(model.shape,{'cylinder','revolution','extrusion'}))
-  if model.flags.caps
-     model = objAddCaps(model);
-  end
-end
+model = objMakeVertices(model);
 
 % Set the parameter vector back to what it was.
 model.prm(ii).prm = prm;

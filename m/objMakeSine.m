@@ -115,6 +115,7 @@ function model = objMakeSine(shape,cprm,varargin)
 % 2015-10-10 - ts - added support for worm shape
 % 2015-10-15 - ts - fixed the updating of the nargin/narg var to work with matlab
 %                   help refers to objMake instead of repeating
+% 2016-01-21 - ts - calls objMakeVertices
 
 %------------------------------------------------------------
 
@@ -177,11 +178,11 @@ switch model.shape
   case 'revolution'
     defprm = [8 .1 0 0 0];
     model = objInterpCurves(model);
-    %model.curve = model.curve/max(model.curve);
   case 'extrusion'
     defprm = [8 .1 0 0 0];
     model = objInterpCurves(model);
-    %model.curve = model.curve/max(model.curve);
+  case 'disk'
+    defprm = [8 .1 0 0 0];
   otherwise
     error('Unknown shape');
 end
@@ -234,28 +235,17 @@ end
 switch model.shape
   case 'sphere'
     model.R = model.R + objMakeSineComponents(cprm,mprm,model.Theta,model.Phi);
-    model.vertices = objSph2XYZ(model.Theta,model.Phi,model.R);
   case 'plane'
     model.Z = model.Z + objMakeSineComponents(cprm,mprm,model.X,model.Y);
-    model.vertices = [model.X model.Y model.Z];
   case {'cylinder','revolution','extrusion'}
     if ~model.flags.new_model && model.flags.oldcaps
       model = objRemCaps(model);
     end
     model.R = model.R + objMakeSineComponents(cprm,mprm,model.Theta,model.Y);
-    if model.flags.caps
-      model = objAddCaps(model);
-    end
-    model.X =  model.R .* cos(model.Theta);
-    model.Z = -model.R .* sin(model.Theta);
-    model.X = model.X + model.spine.X;
-    model.Z = model.Z + model.spine.Z;
-    model.vertices = [model.X model.Y model.Z];
   case 'worm'
     % TODO: objRemCaps
     model.R = model.R + objMakeSineComponents(cprm,mprm,model.Theta,model.Y);
     % TODO: objAddCaps
-    model = objMakeWorm(model);
   case 'torus'
     if ~isempty(model.opts.rprm)
       rprm = model.opts.rprm;
@@ -266,10 +256,19 @@ switch model.shape
     if ~isempty(cprm)
       model.r = model.r + objMakeSineComponents(cprm,mprm,model.Theta,model.Phi);
     end
-    model.vertices = objSph2XYZ(model.Theta,model.Phi,model.r,model.R);
+  case 'disk'
+    if strcmp(model.opts.coords,'polar')
+      model.Y = model.Y + objMakeSineComponents(cprm,mprm,model.Theta,model.R);
+      [model.X, model.Z] = pol2cart(model.Theta,model.R);
+    elseif strcmp(model.opts.coords,'cartesian')
+      model.Y = model.Y + objMakeSineComponents(cprm,mprm,model.X,model.Z);
+      [model.Theta, model.R] = pol2cart(model.X,model.Z);
+    end
   otherwise
     error('Unknown shape.');
 end
+
+model = objMakeVertices(model);
 
 %-------------------------------------------------------------
 % 

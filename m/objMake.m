@@ -178,6 +178,12 @@ function model = objMake(shape,varargin)
 % Examples:
 %  objMake('plane','width',2,'height',0.5);
 %  objMake('cylinder','height',1.35);
+%
+% RADIUS, MAJOR_RADIUS
+% Scalar.  Change the radius of a sphere or a cylinder, or the major
+% radius of a torus.  Default is 1.  Example:
+%  objMake('sphere','radius',1.5);
+%
 % 
 % RETURNS:
 % ========
@@ -232,7 +238,8 @@ function model = objMake(shape,varargin)
 % 2015-10-15 - ts - added option to modulate torus radius (rpar)
 %                    previously only possible with objMakeSine etc
 %                   updated help
-
+% 2016-01-19 - ts - added the disk shape
+% 2016-01-21 - ts - calls objMakeVertices
 
 %------------------------------------------------------------
 
@@ -279,7 +286,7 @@ clear shape
 model = objParseArgs(model,par);
 
 switch model.shape
-  case {'sphere','plane','torus'}
+  case {'sphere','plane','torus','disk'}
   case {'cylinder','revolution','extrusion','worm'}
     model = objInterpCurves(model);
     %model.curve = model.curve/max(model.curve);
@@ -294,19 +301,6 @@ if model.flags.new_model
 end
 
 switch model.shape
-  case 'sphere'
-    model.vertices = objSph2XYZ(model.Theta,model.Phi,model.R);
-  case 'plane'
-    model.vertices = [model.X model.Y model.Z];
-  case {'cylinder','revolution','extrusion'}
-    if model.flags.caps
-      model = objAddCaps(model);
-    end
-    model.X =  model.R .* cos(model.Theta);
-    model.Z = -model.R .* sin(model.Theta);
-    model.X = model.X + model.spine.X;
-    model.Z = model.Z + model.spine.Z;
-    model.vertices = [model.X model.Y model.Z];
   case 'torus'
     if ~isempty(model.opts.rprm)
       rprm = model.opts.rprm;
@@ -314,13 +308,9 @@ switch model.shape
         model.R = model.R + rprm(ii,2) * sin(rprm(ii,1)*model.Theta + rprm(ii,3));
       end
     end
-    model.vertices = objSph2XYZ(model.Theta,model.Phi,model.r,model.R);
-  case 'worm'
-    % TODO: objAddCaps
-    model = objMakeWorm(model);
-  otherwise
-    error('Unknown shape.');
 end
+
+model = objMakeVertices(model);
 
 %-------------------------------------------------------------
 % 

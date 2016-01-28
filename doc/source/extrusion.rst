@@ -4,7 +4,7 @@
 Extrusion
 =========
 
-.. image:: ../images/cylinder_coords.png
+.. image:: ../images/coordinates/cylinder_coords.png
 
 
 

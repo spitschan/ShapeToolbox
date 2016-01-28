@@ -19,6 +19,8 @@ function model = objDefaultStruct(shape,reset)
 % 2015-10-14 - ts - added max -flag
 % 2015-10-15 - ts - changed default sizes
 % 2015-10-20 - ts - changed default for scaley to false
+% 2016-01-19 - ts - added disk shape
+% 2016-01-22 - ts - added index for the number of "layers"
 
 if nargin<2 || isempty(reset)
   reset = false;
@@ -49,6 +51,12 @@ if ~reset
       model.tube_radius = 0.4;
       model.radius = 1;
       model.opts.rprm = [];
+    case {'disk','disc'}
+      shape = 'disk';
+      model.m = 128; 
+      model.n = 128;
+      model.radius = 1;
+      model.opts.coords = 'polar';
     otherwise
       error('Unknown shape.');
   end
@@ -56,10 +64,12 @@ if ~reset
   model.filename = [model.shape,'.obj'];
   model.flags.new_model = true;
   model.flags.caps = false;
+  model.idx = 1;
 else
   model = shape;
   model.flags.new_model = false;
   model.flags.oldcaps = model.flags.caps;
+  model.idx = length(model.prm)+1;
 end
 
 model.mtlfilename = '';

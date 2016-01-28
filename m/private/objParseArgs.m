@@ -129,14 +129,32 @@ if ~isempty(par)
              error('No value or a bad value given for option ''radius''.');
            end              
          case 'rpar'
-           if ~model.flags.new_model
-              error('You cannot change the radius of an existing model.');
-           end
            if ii<length(par) && isnumeric(par{ii+1})
              ii = ii + 1;
              model.opts.rprm = par{ii};
            else
-             error('No value or a bad value given for option ''radius''.');
+             error('No value or a bad value given for option ''rpar''.');
+           end
+         case 'cpar'
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii + 1;
+             model.prm(model.idx).cprm = par{ii};
+           else
+             error('No value or a bad value given for option ''cpar''.');
+           end
+         case 'mpar'
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii + 1;
+             model.prm(model.idx).mprm = par{ii};
+           else
+             error('No value or a bad value given for option ''mpar''.');
+           end
+         case 'npar'
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii + 1;
+             model.prm(model.idx).nprm = par{ii};
+           else
+             error('No value or a bad value given for option ''npar''.');
            end
          case {'locations','loc'}
            if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
@@ -249,6 +267,19 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''max''.');
            end
+        case 'coords'
+          if ii<length(par) && ischar(par{ii+1})
+             ii = ii+1;
+             stmp = {'polar','cartesian'};
+             idx = strmatch(par{ii},stmp);
+             if isempty(idx)
+               error('Bad value given for option ''mindist''.');
+             else
+               model.opts.coords = stmp{idx};
+             end
+          else
+             error('No value or a bad value given for option ''mindist''.');
+          end
         otherwise
           model.filename = par{ii};
           model.flags.dosave = true;

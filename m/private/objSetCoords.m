@@ -13,6 +13,7 @@ function model = objSetCoords(model)
 % 2015-06-10 - ts - radius, width, height not set here anymore
 % 2015-10-08 - ts - added handling of the 'spinex' and 'spinez' options
 % 2015-10-10 - ts - added support for worm shape
+% 2016-01-19 - ts - added disk shape
 
 switch model.shape
   case 'sphere'
@@ -107,6 +108,16 @@ switch model.shape
     model.Phi   = Phi(:);
     model.R = model.radius*ones(model.m*model.n,1);
     model.r = model.tube_radius*ones(model.m*model.n,1);
+  case 'disk'
+    %model.theta = linspace(-pi,pi-2*pi/model.n,model.n);
+    model.theta = linspace(-pi,pi,model.n);
+    model.r = linspace(0,model.radius,model.m);
+    [Theta,R] = meshgrid(model.theta,model.r);
+    Theta = Theta'; R = R';
+    model.Theta = Theta(:);
+    model.R     = R(:);
+    [model.X, model.Z] = pol2cart(model.Theta,model.R);
+    model.Y = zeros(model.m*model.n,1);
 end
 
 

@@ -72,11 +72,11 @@ To turn the computation of normals on, set the ``'normals'``-option to
   objMakeSine('sphere',[4 .15 0 60],'normals',true)
 
 The following example illustrates the effect of including the surface
-normals.  It also illustrates another option, ``'npoints'``, which
-defines the resolution (number of vertices in the elevation and
-azimuth directions) of the model.  The example makes the same object
-in four ways: with two resolutions and with surface normal computation
-turned on/off. ::
+normals.  It also uses the option ``'npoints'``, which defines the
+resolution (number of vertices in the elevation and azimuth
+directions) of the model.  The example makes the same object in four
+ways: with two resolutions and with surface normal computation turned
+on/off. ::
 
   objMakeSine('sphere',...
               [6 .15 0 60],...
@@ -133,5 +133,7 @@ A few notes about the computation of vertex normals:
   described above.  Better vertex normal algorithms can spot the edges
   that are meant to be sharp and handle them differently.  The
   indiscriminate use of a weighted average by |toolbox| for all
-  vertices means that sharp edges will appear duller than intended.
-  Most of the time this should not be a problem though.
+  vertices means that sharp edges might appear duller than intended.
+  
+
+.. Most of the time this should not be a problem though.

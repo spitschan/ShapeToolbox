@@ -5,9 +5,9 @@
 Cylinder
 ========
 
-.. image:: ../images/cylinder_coords_3d_400.png
+.. image:: ../images/coordinates/cylinder_coords_3d_400.png
    :width: 300px
-.. image:: ../images/cylinder_coords.png
+.. image:: ../images/coordinates/cylinder_coords.png
 
 
 Coordinate system

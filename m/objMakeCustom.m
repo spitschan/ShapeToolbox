@@ -133,6 +133,8 @@ function model = objMakeCustom(shape,f,prm,varargin)
 %                   added option for torus major radius modulation
 %                    (was there a reason it was not here?)
 % 2015-10-29 - ts - updated call to renamed objmakeheightmap
+% 2016-01-21 - ts - calls objMakeVertices
+%                   added (finally) torus major radius modulation
 
 % TODO
 
@@ -211,45 +213,29 @@ end
 % Vertices
 if model.flags.new_model
   model = objSetCoords(model);
-elseif ~isempty(strmatch(model.shape,{'cylinder','revolution','extrusion'}))
-  if model.flags.oldcaps
-     model = objRemCaps(model);
-  end
+end
+
+switch model.shape
+  case {'cylinder','revolution','extrusion'}    
+    if ~model.flags.new_model && model.flags.oldcaps
+      model = objRemCaps(model);
+    end
+  case 'torus'
+    if ~isempty(model.opts.rprm)
+      rprm = model.opts.rprm;
+      for ii = 1:size(rprm,1)
+        model.R = model.R + rprm(ii,2) * sin(rprm(ii,1)*model.Theta + rprm(ii,3));
+      end
+    end
 end
 
 if ~model.flags.use_map
   model = objPlaceBumps(model);
 else
   model = objMakeHeightMap(model);
-  switch model.shape
-    case 'sphere'
-      model.vertices = objSph2XYZ(model.Theta,model.Phi,model.R);
-    case 'plane'
-      model.vertices = [model.X model.Y model.Z];
-    case 'torus'
-      if ~isempty(model.opts.rprm)
-        rprm = model.opts.rprm;
-        for ii = 1:size(rprm,1)
-          model.R = model.R + rprm(ii,2) * sin(rprm(ii,1)*model.Theta + rprm(ii,3));
-        end
-      end
-      model.vertices = objSph2XYZ(model.Theta,model.Phi,model.r,model.R);
-    case {'cylinder','revolution','extrusion'}
-      model.X =  model.R .* cos(model.Theta);
-      model.Z = -model.R .* sin(model.Theta);
-      model.X = model.X + model.spine.X;
-      model.Z = model.Z + model.spine.Z;
-      model.vertices = [model.X model.Y model.Z];
-    case 'worm'
-      model = objMakeWorm(model);
-  end
 end
 
-if ~isempty(strmatch(model.shape,{'cylinder','revolution','extrusion'}))
-  if model.flags.caps
-     model = objAddCaps(model);
-  end
-end
+model = objMakeVertices(model);
 
 %------------------------------------------------------------
 % The field prm can be made an array.  If the structure model is
@@ -273,20 +259,4 @@ if ~nargout
    clear model
 end
 
-%---------------------------------------------------------
-% Functions...
-
-function theta = wrapAnglePi(theta)
-
-% WRAPANGLEPI
-%
-% Usage: theta = wrapAnglePi(theta)
-
-% Toni Saarela, 2010
-% 2010-xx-xx - ts - first version
-
-theta = rem(theta,2*pi);
-theta(theta>pi) = -2*pi+theta(theta>pi);
-theta(theta<-pi) = 2*pi+theta(theta<-pi);
-%theta(X==0 & Y==0) = 0;
 

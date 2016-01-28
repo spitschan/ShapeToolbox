@@ -131,6 +131,8 @@ function model = objMakeNoise(shape,nprm,varargin)
 %                   help refers to objMake instead of repeating
 %                   readded option for torus main radius modulation
 %                   (why was it taken out?)
+% 2016-01-21 - ts - calls objMakeVertices
+%                   added the disk shape
 
 %------------------------------------------------------------
 
@@ -191,11 +193,9 @@ switch model.shape
   case 'revolution'
     defprm = [8 1 0 45 .1 0];
     model = objInterpCurves(model);
-    %model.curve = model.curve/max(model.curve);
   case 'extrusion'
     defprm = [8 1 0 45 .1 0];
     model = objInterpCurves(model);
-    %model.curve = model.curve/max(model.curve);
   otherwise
     error('Unknown shape');
 end
@@ -253,7 +253,6 @@ switch model.shape
     % Reshape the radius matrix to a vector again
     R = R'; 
     model.R = R(:);
-    model.vertices = objSph2XYZ(model.Theta,model.Phi,model.R);
   case 'plane'
     % For the 2D noise sample, reshape the coordinate vectors to temp 2D matrices
     X = reshape(model.X,[model.n model.m])';
@@ -264,7 +263,6 @@ switch model.shape
     % Reshape Z matrix to a vector again
     Z = Z'; 
     model.Z = Z(:);
-    model.vertices = [model.X model.Y model.Z];
   case {'cylinder','revolution','extrusion'}
     if ~model.flags.new_model && model.flags.oldcaps
       model = objRemCaps(model);
@@ -277,15 +275,6 @@ switch model.shape
     R = R';
     model.R = R(:);
 
-    model.X =  model.R .* cos(model.Theta);
-    model.Z = -model.R .* sin(model.Theta);
-    model.X = model.X + model.spine.X;
-    model.Z = model.Z + model.spine.Z;
-
-    if model.flags.caps
-      model = objAddCaps(model);
-    end
-    model.vertices = [model.X model.Y model.Z];
   case 'worm'
     % TODO: objRemCaps
     Theta = reshape(model.Theta,[model.n model.m])';
@@ -294,8 +283,6 @@ switch model.shape
     R = R + objMakeNoiseComponents(nprm,mprm,Theta,Y,model.flags.use_rms,1,model.height/(2*pi*model.radius));
     R = R';
     model.R = R(:);
-    model = objMakeWorm(model);       
-    % TODO: objAddCaps
   case 'torus'
     if ~isempty(model.opts.rprm)
       rprm = model.opts.rprm;
@@ -313,10 +300,28 @@ switch model.shape
       r = r';
       model.r = r(:);
     end
-    model.vertices = objSph2XYZ(model.Theta,model.Phi,model.r,model.R);
+  case 'disk'
+    if strcmp(model.opts.coords,'polar')
+      % For the 2D noise sample, reshape the coordinate vectors to temp 2D matrices
+      Theta = reshape(model.Theta,[model.n model.m])';
+      R = reshape(model.R,[model.n model.m])';
+      Y = reshape(model.Y,[model.n model.m])';
+      Y = Y + objMakeNoiseComponents(nprm,mprm,Theta,R,model.flags.use_rms,1,1);
+      
+      % Reshape the radius matrix to a vector again
+      Y = Y'; 
+      model.Y = Y(:);
+
+      [model.X, model.Z] = pol2cart(model.Theta,model.R);
+    elseif strcmp(model.opts.coords,'cartesian')
+       error('Noise in cartesian coordinates not implemented for shape ''disk''.');
+    end
   otherwise
     error('Unknown shape.');
 end
+
+model = objMakeVertices(model);
+
 %------------------------------------------------------------
 % 
 

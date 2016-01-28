@@ -4,7 +4,7 @@ function model = objPlaceBumps(model)
 %
 % model = objPlaceBumps(model)
 %
-% Called by objMakeBumpy, objMakeCustom
+% Called by objMakeBump, objMakeCustom
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-06-01 - ts - first version
@@ -15,6 +15,7 @@ function model = objPlaceBumps(model)
 % 2015-10-14 - ts - added option to sum/take max
 % 2015-10-15 - ts - fixed the max/sum functionality for sphere,
 %                    cylinder, torus
+% 2016-01-21 - ts - coordinate conversions moved to objMakeVertices
 
 ii = length(model.prm);
 prm = model.prm(ii).prm;
@@ -120,8 +121,6 @@ switch model.shape
     end % over bump types
 
     model.R = model.R + Rtmp;
-    model.vertices = objSph2XYZ(model.Theta,model.Phi,model.R);
-
 
   case 'plane'
 
@@ -203,8 +202,6 @@ switch model.shape
       end
 
     end
-
-    model.vertices = [model.X model.Y model.Z];
 
   case {'cylinder','revolution','extrusion','worm'}
 
@@ -295,16 +292,6 @@ switch model.shape
 
     model.R = model.R + Rtmp;
 
-    if strcmp(model.shape,'worm')
-      model = objMakeWorm(model);
-    else
-      model.X =  model.R .* cos(model.Theta);
-      model.Z = -model.R .* sin(model.Theta);
-      model.X = model.X + model.spine.X;
-      model.Z = model.Z + model.spine.Z;
-      model.vertices = [model.X model.Y model.Z];
-    end
-
   case 'torus'
     for jj = 1:nbumptypes
       rtmp = zeros(size(model.r));
@@ -385,13 +372,103 @@ switch model.shape
 
     model.r = model.r + rtmp;
 
-    if ~isempty(model.opts.rprm)
-      rprm = model.opts.rprm;
-      for ii = 1:size(rprm,1)
-        model.R = model.R + rprm(ii,2) * sin(rprm(ii,1)*model.Theta + rprm(ii,3));
+    % if ~isempty(model.opts.rprm)
+    %   rprm = model.opts.rprm;
+    %   for ii = 1:size(rprm,1)
+    %     model.R = model.R + rprm(ii,2) * sin(rprm(ii,1)*model.Theta + rprm(ii,3));
+    %   end
+    % end
+
+  case 'disk'
+
+    if strcmp(model.opts.coords,'polar')
+      error('Noise in polar coordinates not implemented for shape ''disk''.');
+    % [model.X, model.Z] = pol2cart(model.Theta,model.R);
+    elseif strcmp(model.opts.coords,'cartesian')
+
+      for jj = 1:nbumptypes
+
+        if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
+
+          x0 = model.opts.locations{1}{jj};
+          z0 = model.opts.locations{2}{jj};
+
+        elseif model.opts.mindist(jj)
+
+          % Pick candidate locations (more than needed):
+          nvec = round(4/pi*30*prm(jj,1));
+          xtmp = min(model.X(:)) + rand([nvec 1])*(max(model.X(:))-min(model.X(:)));
+          ztmp = min(model.Z(:)) + rand([nvec 1])*(max(model.Z(:))-min(model.Z(:)));
+
+          idx = sqrt(xtmp.^2+ztmp.^2)<model.radius;
+          xtmp = xtmp(idx);
+          ztmp = ztmp(idx);
+          clear idx
+
+          d = sqrt((xtmp*ones([1 nvec])-ones([nvec 1])*xtmp').^2 + (ztmp*ones([1 nvec])-ones([nvec 1])*ztmp').^2);
+
+          % Always accept the first vector
+          idx_accepted = [1];
+          n_accepted = 1;
+          % Loop over the remaining candidate vectors and keep the ones that
+          % are at least the minimum distance away from those already
+          % accepted.
+          idx = 2;
+          while idx <= size(xtmp,1)
+            if all(d(idx_accepted,idx)>=model.opts.mindist(jj))
+              idx_accepted = [idx_accepted idx];
+              n_accepted = n_accepted + 1;
+            end
+            if n_accepted==prm(jj,1)
+              break
+            end
+            idx = idx + 1;
+          end
+
+          if n_accepted<prm(jj,1)
+            error(sprintf('Could not find enough vectors to satisfy the minumum distance criterion.\nConsider reducing the value of ''mindist''.'));
+          end
+
+          x0 = xtmp(idx_accepted,:);
+          z0 = ztmp(idx_accepted,:);
+
+          clear xtmp ztmp
+
+          % For saving the locations in the model structure
+          model.opts.locations{1}{jj} = x0;
+          model.opts.locations{2}{jj} = z0;
+          
+        else
+          %- pick n random locations
+          x0 = min(model.X(:)) + rand([prm(jj,1) 1])*(max(model.X(:))-min(model.X(:)));
+          z0 = min(model.Z(:)) + rand([prm(jj,1) 1])*(max(model.Z(:))-min(model.Z(:)));
+
+          % For saving the locations in the model structure
+          model.opts.locations{1}{jj} = x0;
+          model.opts.locations{2}{jj} = z0;
+
+        end
+
+        %-------------------
+        
+        for ii = 1:prm(jj,1)
+
+          deltax = model.X - x0(ii);
+          deltaz = model.Z - z0(ii);
+          d = sqrt(deltax.^2+deltaz.^2);
+
+          idx = find(d<prm(jj,2));
+          if model.flags.max
+            model.Y(idx) = max(model.Y(idx), model.opts.f(d(idx),prm(jj,3:end)));
+          else
+            model.Y(idx) = model.Y(idx) + model.opts.f(d(idx),prm(jj,3:end));
+          end
+        end
+
       end
+
+      [model.Theta, model.R] = pol2cart(model.X,model.Z);           
     end
-    model.vertices = objSph2XYZ(model.Theta,model.Phi,model.r,model.R);
 
 end
 

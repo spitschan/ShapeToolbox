@@ -24,7 +24,7 @@ switch s.shape
     for ii = 1:m-1
       s.faces((ii-1)*n*2+1:ii*n*2,:) = (ii-1)*n + F;
     end
-  case 'plane'
+  case {'plane','disk'}
     s.faces = zeros((m-1)*(n-1)*2,3);
     ftmp = [[1 1]'*[1:n-1]];
     F(:,1) = ftmp(:);
