@@ -16,6 +16,11 @@ function model = objPlaceBumps(model)
 % 2015-10-15 - ts - fixed the max/sum functionality for sphere,
 %                    cylinder, torus
 % 2016-01-21 - ts - coordinate conversions moved to objMakeVertices
+% 2016-02-19 - ts - minor changes in error messages;
+%                   fixed saving the locations in model structure;
+%                   uses the function handle model.prm(model.idx).f
+%                   instead of the old model.opts.f
+%
 
 ii = length(model.prm);
 prm = model.prm(ii).prm;
@@ -111,11 +116,11 @@ switch model.shape
         %model.R(idx) = model.R(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));
         idx = find(d<prm(jj,2));
         if model.flags.max
-          % model.R(idx) = max(model.R(idx), model.opts.f(d(idx),prm(jj,3:end)));
-          Rtmp(idx) = max(Rtmp(idx), model.opts.f(d(idx),prm(jj,3:end)));
+          % model.R(idx) = max(model.R(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
+          Rtmp(idx) = max(Rtmp(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
         else
-          % model.R(idx) = model.R(idx) + model.opts.f(d(idx),prm(jj,3:end));
-          Rtmp(idx) = Rtmp(idx) + model.opts.f(d(idx),prm(jj,3:end));
+          % model.R(idx) = model.R(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
+          Rtmp(idx) = Rtmp(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
         end
       end % loop over bumps of this type
     end % over bump types
@@ -195,9 +200,9 @@ switch model.shape
         %model.Z(idx) = model.Z(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));
         idx = find(d<prm(jj,2));
         if model.flags.max
-          model.Z(idx) = max(model.Z(idx), model.opts.f(d(idx),prm(jj,3:end)));
+          model.Z(idx) = max(model.Z(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
         else
-          model.Z(idx) = model.Z(idx) + model.opts.f(d(idx),prm(jj,3:end));
+          model.Z(idx) = model.Z(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
         end
       end
 
@@ -255,8 +260,8 @@ switch model.shape
         clear thetatmp ytmp
 
         % For saving the locations in the model structure
-        opts.locations{1}{jj} = theta0;
-        opts.locations{2}{jj} = y0;
+        model.opts.locations{1}{jj} = theta0;
+        model.opts.locations{2}{jj} = y0;
 
       else
         %- pick n random locations
@@ -264,8 +269,8 @@ switch model.shape
         y0 = min(model.y) + rand([prm(jj,1) 1])*(max(model.y)-min(model.y));
 
         % For saving the locations in the model structure
-        opts.locations{1}{jj} = theta0;
-        opts.locations{2}{jj} = y0;
+        model.opts.locations{1}{jj} = theta0;
+        model.opts.locations{2}{jj} = y0;
 
       end
       
@@ -280,11 +285,11 @@ switch model.shape
         %model.R(idx) = model.R(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));      
         idx = find(d<prm(jj,2));
         if model.flags.max
-          % model.R(idx) = max(model.R(idx), model.opts.f(d(idx),prm(jj,3:end)));
-          Rtmp(idx) = max(Rtmp(idx), model.opts.f(d(idx),prm(jj,3:end)));
+          % model.R(idx) = max(model.R(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
+          Rtmp(idx) = max(Rtmp(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
         else
-          % model.R(idx) = model.R(idx) + model.opts.f(d(idx),prm(jj,3:end));
-          Rtmp(idx) = Rtmp(idx) + model.opts.f(d(idx),prm(jj,3:end));
+          % model.R(idx) = model.R(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
+          Rtmp(idx) = Rtmp(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
         end
       end % loop over bumps of this type
       
@@ -337,8 +342,8 @@ switch model.shape
         clear thetatmp phitmp
 
         % For saving the locations in the model structure
-        opts.locations{1}{jj} = theta0;
-        opts.locations{2}{jj} = phi0;
+        model.opts.locations{1}{jj} = theta0;
+        model.opts.locations{2}{jj} = phi0;
 
 
       else % No predefined locations, no minimum distance, just random
@@ -347,8 +352,8 @@ switch model.shape
         phi0 = min(model.phi) + rand([prm(jj,1) 1])*(max(model.phi)-min(model.phi));
 
         % For saving the locations in the model structure
-        opts.locations{1}{jj} = theta0;
-        opts.locations{2}{jj} = phi0;
+        model.opts.locations{1}{jj} = theta0;
+        model.opts.locations{2}{jj} = phi0;
 
       end
 
@@ -361,11 +366,11 @@ switch model.shape
               
         idx = find(d<prm(jj,2));
         if model.flags.max
-          % model.r(idx) = max(model.r(idx), model.opts.f(d(idx),prm(jj,3:end)));
-          rtmp(idx) = max(rtmp(idx), model.opts.f(d(idx),prm(jj,3:end)));
+          % model.r(idx) = max(model.r(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
+          rtmp(idx) = max(rtmp(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
         else
-          % model.r(idx) = model.r(idx) + model.opts.f(d(idx),prm(jj,3:end));
-          rtmp(idx) = rtmp(idx) + model.opts.f(d(idx),prm(jj,3:end));
+          % model.r(idx) = model.r(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
+          rtmp(idx) = rtmp(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
         end
       end
     end
@@ -382,7 +387,7 @@ switch model.shape
   case 'disk'
 
     if strcmp(model.opts.coords,'polar')
-      error('Noise in polar coordinates not implemented for shape ''disk''.');
+      error('Bumps in polar coordinates not implemented for shape ''disk''.');
     % [model.X, model.Z] = pol2cart(model.Theta,model.R);
     elseif strcmp(model.opts.coords,'cartesian')
 
@@ -459,9 +464,9 @@ switch model.shape
 
           idx = find(d<prm(jj,2));
           if model.flags.max
-            model.Y(idx) = max(model.Y(idx), model.opts.f(d(idx),prm(jj,3:end)));
+            model.Y(idx) = max(model.Y(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
           else
-            model.Y(idx) = model.Y(idx) + model.opts.f(d(idx),prm(jj,3:end));
+            model.Y(idx) = model.Y(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
           end
         end
 

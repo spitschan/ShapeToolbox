@@ -34,6 +34,8 @@ function s = objSaveModel(s)
 % 2015-10-10 - ts - added support for worm shape
 % 2015-10-12 - ts - computation of faces, uv-coordinates, and normals
 %                    separated into their own functions
+% 2016-01-28 - ts - reformatted the "created with"-string
+% 2016-02-19 - ts - writes perturbation type into comments
 
 m = s.m;
 n = s.n;
@@ -58,11 +60,19 @@ end
 fid = fopen(s.filename,'wt');
 fprintf(fid,'# %s\n',datestr(now,31));
 if length(s.prm)==1
-   fprintf(fid,'# Created with function %s from ShapeToolbox.\n',s.prm.mfilename);
+   if isfield(s.prm,'mfilename_called') && ~isempty(s.prm.mfilename_called)
+     fprintf(fid,'# Created with function %s (calling %s) from ShapeToolbox.\n',s.prm.mfilename,s.prm.mfilename_called);
+   else
+     fprintf(fid,'# Created with function %s from ShapeToolbox.\n',s.prm.mfilename);
+   end
 else
   for ii = 1:length(s.prm)
     if ii==1 verb = 'Created'; else verb = 'Modified'; end 
-    fprintf(fid,'# %d. %s with function %s from ShapeToolbox.\n',ii,verb,s.prm(ii).mfilename);
+    if isfield(s.prm(ii),'mfilename_called') && ~isempty(s.prm(ii).mfilename_called)
+      fprintf(fid,'# %d. %s with function %s (calling %s) from ShapeToolbox.\n',ii,verb,s.prm(ii).mfilename,s.prm(ii).mfilename_called);
+    else
+      fprintf(fid,'# %d. %s with function %s from ShapeToolbox.\n',ii,verb,s.prm(ii).mfilename);
+    end
   end
 end
 fprintf(fid,'#\n# Base shape: %s.\n',s.shape);
@@ -84,10 +94,21 @@ end
 
 for ii = 1:length(s.prm)
     if length(s.prm)==1
-      fprintf(fid,'#\n# %s\n# %s parameters:\n',repmat('-',1,50),s.prm(ii).mfilename);
+      if isfield(s.prm,'mfilename_called') && ~isempty(s.prm.mfilename_called)
+        fprintf(fid,'#\n# %s\n# %s (->%s) parameters:\n',...
+                repmat('-',1,50),s.prm(ii).mfilename,s.prm(ii).mfilename_called);
+      else
+        fprintf(fid,'#\n# %s\n# %s parameters:\n',repmat('-',1,50),s.prm(ii).mfilename);
+      end
     else
-      fprintf(fid,'#\n# %s\n# %d. %s parameters:\n',repmat('-',1,50),ii,s.prm(ii).mfilename);
+      if isfield(s.prm(ii),'mfilename_called') && ~isempty(s.prm(ii).mfilename_called)
+        fprintf(fid,'#\n# %s\n# %d. %s (->%s) parameters:\n',...
+                repmat('-',1,50),ii,s.prm(ii).mfilename,s.prm(ii).mfilename_called);
+      else
+        fprintf(fid,'#\n# %s\n# %d. %s parameters:\n',repmat('-',1,50),ii,s.prm(ii).mfilename);
+      end
     end
+    fprintf(fid,'#\n# Perturbation type: %s\n',s.prm(ii).perturbation);
   switch s.prm(ii).perturbation
     %---------------------------------------------------
     case 'sine'
@@ -118,7 +139,7 @@ for ii = 1:length(s.prm)
       end
     %---------------------------------------------------
     case 'custom'
-      writeSpecsCustom(fid,s.prm(ii))
+      writeSpecsCustom(fid,s.prm(ii),s.flags.use_map);
     %---------------------------------------------------
  end
 end
@@ -226,9 +247,9 @@ if ~isempty(mprm)
   end
 end
 
-function writeSpecsCustom(fid,prm)
+function writeSpecsCustom(fid,prm,use_map)
 
-if prm.use_map
+if use_map
   if isfield(prm,'imgname')
      fprintf(fid,'#\n# Modulation values defined by the (average) intensity\n');
      fprintf(fid,'# of the image %s.\n',prm.imgname);

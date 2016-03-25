@@ -24,6 +24,9 @@ function model = objParseArgs(model,par)
 % 2015-10-08 - ts - added the 'spinex' and 'spinez' options
 % 2015-10-12 - ts - added the 'y' option
 % 2015-10-14 - ts - added the 'max' option
+% 2016-01-28 - ts - added option 'coords' for disk shape
+%                   added options cpar, mpar, npar
+% 2016-02-19 - ts - added option par (for bumps and custom)
 
 % Flag to indicate whether uv-coordinate computation was set to false
 % explicitly.  This is used so that the option 'uvcoords' can be used
@@ -156,6 +159,20 @@ if ~isempty(par)
            else
              error('No value or a bad value given for option ''npar''.');
            end
+         case 'par'
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii + 1;
+             model.opts.prm = par{ii};
+           else
+             error('No value or a bad value given for option ''par''.');
+           end
+         case 'cperturb'
+           if ii<length(par)
+             ii = ii + 1;
+             model.opts.f = par{ii};
+           else
+             error('No value or a bad value given for option ''cperturb''.');
+           end              
          case {'locations','loc'}
            if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
              ii = ii + 1;
@@ -273,12 +290,12 @@ if ~isempty(par)
              stmp = {'polar','cartesian'};
              idx = strmatch(par{ii},stmp);
              if isempty(idx)
-               error('Bad value given for option ''mindist''.');
+               error('Bad value given for option ''coords''.');
              else
                model.opts.coords = stmp{idx};
              end
           else
-             error('No value or a bad value given for option ''mindist''.');
+             error('No value or a bad value given for option ''coords''.');
           end
         otherwise
           model.filename = par{ii};

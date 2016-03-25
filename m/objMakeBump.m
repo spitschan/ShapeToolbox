@@ -103,6 +103,8 @@ function model = objMakeBump(shape,prm,varargin)
 % 2016-01-21 - ts - calls objMakeVertices
 %                   added (finally) torus major radius modulation
 %                   added disk shape
+% 2016-02-19 - ts - function handle moved from model.opts.f 
+%                   to model.prm(model.idx).f
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
@@ -197,7 +199,7 @@ model.prm(ii).nbumptypes = nbumptypes;
 model.prm(ii).nbumps = nbumps;
 
 % Create a function for making the Gaussian profile
-model.opts.f = @(d,prm) prm(1)*exp(-d.^2/(2*prm(2)^2));
+model.prm(ii).f = @(d,prm) prm(1)*exp(-d.^2/(2*prm(2)^2));
 
 %------------------------------------------------------------
 % Vertices
