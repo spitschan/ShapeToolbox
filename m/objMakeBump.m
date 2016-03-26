@@ -105,162 +105,48 @@ function model = objMakeBump(shape,prm,varargin)
 %                   added disk shape
 % 2016-02-19 - ts - function handle moved from model.opts.f 
 %                   to model.prm(model.idx).f
+% 2016-03-26 - ts - is now a wrapper for the new objMake
+
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
 
 %------------------------------------------------------------
 
-narg = nargin;
+% narg = nargin;
 
-% For batch processing.  If there's only one input arg and it's a cell
-% array, it has all the parameters.
-if iscell(shape) && narg==1
-  % If the only input argument is a cell array of cell arrays, recurse
-  % through the cells. Each cell holds parameters for one shape.
-  if all(cellfun('iscell',shape))
-    if length(shape)>1
-      objMakeBump(shape(1:end-1));
-    end
-    objMakeBump(shape{end});
-    return
-  end
-  % Otherwise, unpack the mandatory input arguments from the beginning
-  % of the array and assign the rest to varargin:
-  narg = length(shape);
-  if narg>2
-    varargin = shape(3:end);
-  end
-  if narg>1
-    prm = shape{2};
-  end
-  shape = shape{1};
+% % For batch processing.  If there's only one input arg and it's a cell
+% % array, it has all the parameters.
+% if iscell(shape) && narg==1
+%   % If the only input argument is a cell array of cell arrays, recurse
+%   % through the cells. Each cell holds parameters for one shape.
+%   if all(cellfun('iscell',shape))
+%     if length(shape)>1
+%       objMakeBump(shape(1:end-1));
+%     end
+%     objMakeBump(shape{end});
+%     return
+%   end
+%   % Otherwise, unpack the mandatory input arguments from the beginning
+%   % of the array and assign the rest to varargin:
+%   narg = length(shape);
+%   if narg>2
+%     varargin = shape(3:end);
+%   end
+%   if narg>1
+%     prm = shape{2};
+%   end
+%   shape = shape{1};
+% end
+
+
+if nargin>1 && ~isempty(prm)
+  varargin = {'par',prm,varargin{:}};
 end
 
-% Set up the model structure
-if ischar(shape)
-  shape = lower(shape);
-  model = objDefaultStruct(shape);
-elseif isstruct(shape)
-  model = shape;
-  model = objDefaultStruct(shape,true);
-else
-  error('Argument ''shape'' has to be a string or a model structure.');
+model = objMake(shape,'bump',varargin{:});
+
+if ~nargin
+  clear model
 end
-clear shape
-
-% Check and parse optional input arguments
-[modpar,par] = parseparams(varargin);
-model = objParseArgs(model,par);
-
-%------------------------------------------------------------
-% Bump parameters
-
-switch model.shape
-  case 'sphere'
-    defprm = [20 .1 pi/12];
-  case 'plane'
-    defprm = [20 .05 .05];
-  case {'cylinder','worm'}
-    defprm = [20 .1 pi/12];
-    model = objInterpCurves(model);
-  case 'torus'
-    defprm = [20 .1 pi/12];
-  case 'revolution'
-    defprm = [20 .1 pi/12];
-    model = objInterpCurves(model);
-  case 'extrusion'
-    defprm = [20 .1 pi/12];
-    model = objInterpCurves(model);
-  case 'disk'
-    defprm = [20 .05 .05];
-  otherwise
-    error('Unknown shape');
-end
-
-if narg<2 || isempty(prm)
-  prm = defprm;
-end
-
-[nbumptypes,ncol] = size(prm);
-
-nbumps = sum(prm(:,1));
-
-if model.flags.new_model
-  ii = 1;
-else
-  ii = length(model.prm)+1;
-end
-% This is too hacky but whatever.  Make a temporary parameter vector
-% that has the cutoff as the second argument.  This way we can use
-% objPlaceBumps from both objMakeBump and objMakeCustom.
-model.prm(ii).prm = [prm(:,1) 3.5*ones(size(prm,1),1) prm(:,2:end)];
-model.prm(ii).nbumptypes = nbumptypes;
-model.prm(ii).nbumps = nbumps;
-
-% Create a function for making the Gaussian profile
-model.prm(ii).f = @(d,prm) prm(1)*exp(-d.^2/(2*prm(2)^2));
-
-%------------------------------------------------------------
-% Vertices
-if model.flags.new_model
-  model = objSetCoords(model);
-end
-
-switch model.shape
-  case {'cylinder','revolution','extrusion'}    
-    if ~model.flags.new_model && model.flags.oldcaps
-      model = objRemCaps(model);
-    end
-  case 'torus'
-    if ~isempty(model.opts.rprm)
-      rprm = model.opts.rprm;
-      for ii = 1:size(rprm,1)
-        model.R = model.R + rprm(ii,2) * sin(rprm(ii,1)*model.Theta + rprm(ii,3));
-      end
-    end
-end
-model = objPlaceBumps(model);
-model = objMakeVertices(model);
-
-% Set the parameter vector back to what it was.
-model.prm(ii).prm = prm;
-
-%------------------------------------------------------------
-% The field prm can be made an array.  If the structure model is
-% passed to another objMakeModel*-function, that function will add
-% its parameters to that array.
-ii = length(model.prm);
-model.prm(ii).perturbation = 'bump';
-model.prm(ii).mindist = model.opts.mindist;
-model.prm(ii).mfilename = mfilename;
-model.prm(ii).locations = model.opts.locations;
-if strcmp(model.shape,'torus')
-  model.prm(ii).rprm = model.opts.rprm;
-end
-
-if model.flags.dosave
-  model = objSaveModel(model);
-end
-
-if ~nargout
-   clear model
-end
-
-%---------------------------------------------------------
-% Functions...
-
-function theta = wrapAnglePi(theta)
-
-% WRAPANGLEPI
-%
-% Usage: theta = wrapAnglePi(theta)
-
-% Toni Saarela, 2010
-% 2010-xx-xx - ts - first version
-
-theta = rem(theta,2*pi);
-theta(theta>pi) = -2*pi+theta(theta>pi);
-theta(theta<-pi) = 2*pi+theta(theta<-pi);
-%theta(X==0 & Y==0) = 0;
 

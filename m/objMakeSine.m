@@ -116,183 +116,47 @@ function model = objMakeSine(shape,cprm,varargin)
 % 2015-10-15 - ts - fixed the updating of the nargin/narg var to work with matlab
 %                   help refers to objMake instead of repeating
 % 2016-01-21 - ts - calls objMakeVertices
+% 2016-03-25 - ts - is now a wrapper for the new objMake
 
 %------------------------------------------------------------
 
-narg = nargin;
+% narg = nargin;
 
-% For batch processing.  If there's only one input arg and it's a cell
-% array, it has all the parameters.
-if iscell(shape) && narg==1
-  % If the only input argument is a cell array of cell arrays, recurse
-  % through the cells. Each cell holds parameters for one shape.
-  if all(cellfun('iscell',shape))
-    if length(shape)>1
-      objMakeSine(shape(1:end-1));
-    end
-    objMakeSine(shape{end});
-    return
-  end
-  % Otherwise, unpack the mandatory input arguments from the beginning
-  % of the array and assign the rest to varargin:
-  narg = length(shape);
-  if narg>2
-    varargin = shape(3:end);
-  end
-  if narg>1
-    cprm = shape{2};
-  end
-  shape = shape{1};
+% % For batch processing.  If there's only one input arg and it's a cell
+% % array, it has all the parameters.
+% if iscell(shape) && narg==1
+%   % If the only input argument is a cell array of cell arrays, recurse
+%   % through the cells. Each cell holds parameters for one shape.
+%   if all(cellfun('iscell',shape))
+%     if length(shape)>1
+%       objMakeSine(shape(1:end-1));
+%     end
+%     objMakeSine(shape{end});
+%     return
+%   end
+%   % Otherwise, unpack the mandatory input arguments from the beginning
+%   % of the array and assign the rest to varargin:
+%   narg = length(shape);
+%   if narg>2
+%     varargin = shape(3:end);
+%   end
+%   if narg>1
+%     cprm = shape{2};
+%   end
+%   shape = shape{1};
+% end
+
+
+if ~isempty(varargin) && isnumeric(varargin{1})
+   varargin = {'mpar',varargin{:}};
 end
 
-% Set up the model structure
-if ischar(shape)
-  shape = lower(shape);
-  model = objDefaultStruct(shape);
-elseif isstruct(shape)
-  model = shape;
-  model = objDefaultStruct(shape,true);
-else
-  error('Argument ''shape'' has to be a string or a model structure.');
-end
-clear shape
-
-% Check and parse optional input arguments
-[modpar,par] = parseparams(varargin);
-model = objParseArgs(model,par);
-
-%------------------------------------------------------------
-% Carrier parameters. Set default frequency, amplitude, phase,
-% "orientation" and component group id
-
-switch model.shape
-  case 'sphere'
-    defprm = [8 .1 0 0 0];
-  case 'plane'
-    defprm = [8 .05 0 0 0];
-  case {'cylinder','worm'}
-    defprm = [8 .1 0 0 0];
-    model = objInterpCurves(model);
-  case 'torus'
-    defprm = [8 .05 0 0 0];
-  case 'revolution'
-    defprm = [8 .1 0 0 0];
-    model = objInterpCurves(model);
-  case 'extrusion'
-    defprm = [8 .1 0 0 0];
-    model = objInterpCurves(model);
-  case 'disk'
-    defprm = [8 .1 0 0 0];
-  otherwise
-    error('Unknown shape');
+if nargin>1 && ~isempty(cprm)
+  varargin = {'cpar',cprm,varargin{:}};
 end
 
-if narg<2 || isempty(cprm)
-  cprm = defprm;
+model = objMake(shape,'sine',varargin{:});
+
+if ~nargin
+  clear model
 end
-[nccomp,ncol] = size(cprm);
-
-% Fill in default carrier parameters if needed
-if ncol<5
-  defprm = ones(nccomp,1)*defprm;
-  cprm(:,ncol+1:5) = defprm(:,ncol+1:5);
-end
-clear defprm
-
-if strcmp(model.shape,'plane')
-  cprm(:,1) = cprm(:,1)*2*pi;
-end
-cprm(:,3:4) = pi * cprm(:,3:4)/180;
-
-%------------------------------------------------------------
-% Set the default modulation parameters to empty indicating no
-% modulator
-mprm  = [];
-nmcomp = 0;
-
-% If modulator parameters are given as input, set mprm to these values
-if ~isempty(modpar)
-  mprm = modpar{1};
-  % Set default values to modulator parameters as needed
-  [nmcomp,ncol] = size(mprm);
-  if ncol<5
-    defprm = ones(nmcomp,1)*[1 0 0 0];
-    mprm(:,ncol+1:5) = defprm(:,ncol:4);
-    clear defprm
-  end
-  if strcmp(model.shape,'plane')
-    mprm(:,1) = mprm(:,1)*2*pi;
-  end
-  mprm(:,3:4) = pi * mprm(:,3:4)/180;
-end
-
-%-------------------------------------------------------------
-% Vertices
-if model.flags.new_model
-  model = objSetCoords(model);
-end
-
-switch model.shape
-  case 'sphere'
-    model.R = model.R + objMakeSineComponents(cprm,mprm,model.Theta,model.Phi);
-  case 'plane'
-    model.Z = model.Z + objMakeSineComponents(cprm,mprm,model.X,model.Y);
-  case {'cylinder','revolution','extrusion'}
-    if ~model.flags.new_model && model.flags.oldcaps
-      model = objRemCaps(model);
-    end
-    model.R = model.R + objMakeSineComponents(cprm,mprm,model.Theta,model.Y);
-  case 'worm'
-    % TODO: objRemCaps
-    model.R = model.R + objMakeSineComponents(cprm,mprm,model.Theta,model.Y);
-    % TODO: objAddCaps
-  case 'torus'
-    if ~isempty(model.opts.rprm)
-      rprm = model.opts.rprm;
-      for ii = 1:size(rprm,1)
-        model.R = model.R + rprm(ii,2) * sin(rprm(ii,1)*model.Theta + rprm(ii,3));
-      end
-    end
-    if ~isempty(cprm)
-      model.r = model.r + objMakeSineComponents(cprm,mprm,model.Theta,model.Phi);
-    end
-  case 'disk'
-    if strcmp(model.opts.coords,'polar')
-      model.Y = model.Y + objMakeSineComponents(cprm,mprm,model.Theta,model.R);
-      [model.X, model.Z] = pol2cart(model.Theta,model.R);
-    elseif strcmp(model.opts.coords,'cartesian')
-      model.Y = model.Y + objMakeSineComponents(cprm,mprm,model.X,model.Z);
-      [model.Theta, model.R] = pol2cart(model.X,model.Z);
-    end
-  otherwise
-    error('Unknown shape.');
-end
-
-model = objMakeVertices(model);
-
-%-------------------------------------------------------------
-% 
-
-if model.flags.new_model
-  ii = 1;
-else
-  ii = length(model.prm)+1;
-end
-model.prm(ii).perturbation = 'sine';
-model.prm(ii).cprm = cprm;
-model.prm(ii).mprm = mprm;
-model.prm(ii).nccomp = nccomp;
-model.prm(ii).nmcomp = nmcomp;
-model.prm(ii).mfilename = mfilename;
-if strcmp(model.shape,'torus')
-  model.prm(ii).rprm = model.opts.rprm;
-end
-
-if model.flags.dosave
-  model = objSaveModel(model);
-end
-
-if ~nargout
-   clear model
-end
-

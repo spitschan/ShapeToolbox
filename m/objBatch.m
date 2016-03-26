@@ -1,9 +1,9 @@
-function status = objMakeBatch(filename,ignore_errors)
+function status = objBatch(filename,ignore_errors)
 
-% OBJMAKEBATCH
+% OBJBATCH
 %
-% Usage: STATUS = objMakeBatch(PRM,[IGNORE_ERRORS])
-%        STATUS = objMakeBatch(FILENAME,[IGNORE_ERRORS])
+% Usage: STATUS = objBatch(PRM,[IGNORE_ERRORS])
+%        STATUS = objBatch(FILENAME,[IGNORE_ERRORS])
 %
 % Create objects in a batch.  
 %
@@ -15,7 +15,7 @@ function status = objMakeBatch(filename,ignore_errors)
 % values are 'none', 'sine', 'noise', 'bump', and 'custom'.
 %
 % In the first form,
-%  > STATUS = objMakeBatch(PRM)
+%  > STATUS = objBatch(PRM)
 % PRM is a cell array of cell arrays.  Each cell defines the
 % parameters for a single model.  The first element of the cell is a
 % string defining the perturbation.  Possible values are 'none',
@@ -27,10 +27,10 @@ function status = objMakeBatch(filename,ignore_errors)
 %  > objMakeSine('cylinder',[4 .1 0 0],'cylinder1.obj');
 % are equivalent to the single call:
 %  > prm = {{'sine','sphere',[8 .05 60 0],'sphere1.obj'},{'sine','cylinder',[4 .1 0 0],'cylinder1.obj'}};
-%  > objMakeBatch(prm);
+%  > objBatch(prm);
 %
 % In the second form, 
-%  > STATUS = objMakeBatch(FILENAME)
+%  > STATUS = objBatch(FILENAME)
 % FILENAME is the name of an .m-file defining the modulation
 % parameters.  This file has to be a script (not a function),
 % defining a single cell array named 'prm'.  The cells of this cell
@@ -44,7 +44,7 @@ function status = objMakeBatch(filename,ignore_errors)
 %         };
 %
 % and then calling objMakeSine as:
-% > objMakeBatch('batchprm.m');
+% > objBatch('batchprm.m');
 %
 % Note that the perturbation does not have to be the same for all models.
 % 

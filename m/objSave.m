@@ -1,8 +1,8 @@
-function s = objSaveModel(s)
+function s = objSave(s)
 
-% OBJSAVEMODEL
+% OBJMODEL
 %
-% Usage: model = objSaveModel(model)
+% Usage: model = objSave(model)
 %
 % A function called by the objMake*-functions to compute
 % texture coordinates, faces, and so forth; and to write the model

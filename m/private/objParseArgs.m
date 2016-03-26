@@ -27,6 +27,8 @@ function model = objParseArgs(model,par)
 % 2016-01-28 - ts - added option 'coords' for disk shape
 %                   added options cpar, mpar, npar
 % 2016-02-19 - ts - added option par (for bumps and custom)
+% 2016-03-26 - ts - bump parms moved from opts to prm
+%                   custom option names now 'custom' and 'custompar'
 
 % Flag to indicate whether uv-coordinate computation was set to false
 % explicitly.  This is used so that the option 'uvcoords' can be used
@@ -162,16 +164,24 @@ if ~isempty(par)
          case 'par'
            if ii<length(par) && isnumeric(par{ii+1})
              ii = ii + 1;
-             model.opts.prm = par{ii};
+             model.prm(model.idx).prm = par{ii};
            else
              error('No value or a bad value given for option ''par''.');
            end
-         case 'cperturb'
+         case 'custompar'
+           if ii<length(par) && isnumeric(par{ii+1})
+             ii = ii + 1;
+             model.opts.prm = par{ii};
+           else
+             error('No value or a bad value given for option ''custompar''.');
+           end
+         case 'custom'
            if ii<length(par)
              ii = ii + 1;
+             keyboard
              model.opts.f = par{ii};
            else
-             error('No value or a bad value given for option ''cperturb''.');
+             error('No value or a bad value given for option ''custom''.');
            end              
          case {'locations','loc'}
            if ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2

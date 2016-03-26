@@ -85,6 +85,7 @@ function m1 = objBlend(m1,m2,varargin)
 %                   improved handling of input args (weight)
 %                   blend also model size, not only modulation
 %                   calls objMakeVertices
+% 2016-03-26 - ts - calls the renamed objSave (formerly objSaveModel)
 
 % TODO:
 % - Better parsing of input arguments.
@@ -184,7 +185,7 @@ if dosave
   if isempty(regexp(m1.filename,'\.obj$'))
     m1.filename = [m1.filename,'.obj'];
   end
-  m1 = objSaveModel(m1);
+  m1 = objModel(m1);
 end
 
 if ~nargout

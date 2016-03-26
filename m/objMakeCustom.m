@@ -135,128 +135,46 @@ function model = objMakeCustom(shape,f,prm,varargin)
 % 2015-10-29 - ts - updated call to renamed objmakeheightmap
 % 2016-01-21 - ts - calls objMakeVertices
 %                   added (finally) torus major radius modulation
+% 2016-03-26 - ts - is now a wrapper for the new objMake
 
 % TODO
 
 %------------------------------------------------------------
 
-narg = nargin;
+% narg = nargin;
 
-% For batch processing.  If there's only one input arg and it's a cell
-% array, it has all the parameters.
-if iscell(shape) && narg==1
-  % If the only input argument is a cell array of cell arrays, recurse
-  % through the cells. Each cell holds parameters for one shape.
-  if all(cellfun('iscell',shape))
-    if length(shape)>1
-      objMakeCustom(shape(1:end-1));
-    end
-    objMakeCustom(shape{end});
-    return
-  end
-  % Otherwise, unpack the mandatory input arguments from the beginning
-  % of the array and assign the rest to varargin:
-  narg = length(shape);
-  if narg>3
-    varargin = shape(4:end);
-  end
-  if narg>2
-    prm = shape{3};
-  end
-  if narg>1
-    f = shape{2};
-  end
-  shape = shape{1};
+% % For batch processing.  If there's only one input arg and it's a cell
+% % array, it has all the parameters.
+% if iscell(shape) && narg==1
+%   % If the only input argument is a cell array of cell arrays, recurse
+%   % through the cells. Each cell holds parameters for one shape.
+%   if all(cellfun('iscell',shape))
+%     if length(shape)>1
+%       objMakeCustom(shape(1:end-1));
+%     end
+%     objMakeCustom(shape{end});
+%     return
+%   end
+%   % Otherwise, unpack the mandatory input arguments from the beginning
+%   % of the array and assign the rest to varargin:
+%   narg = length(shape);
+%   if narg>3
+%     varargin = shape(4:end);
+%   end
+%   if narg>2
+%     prm = shape{3};
+%   end
+%   if narg>1
+%     f = shape{2};
+%   end
+%   shape = shape{1};
+% end
+
+
+varargin = {'custom',f,'custompar',prm,varargin{:}};
+model = objMake(shape,'custom',varargin{:});
+
+if ~nargin
+  clear model
 end
-
-% Set up the model structure
-if ischar(shape)
-  shape = lower(shape);
-  model = objDefaultStruct(shape);
-elseif isstruct(shape)
-  model = shape;
-  model = objDefaultStruct(shape,true);
-else
-  error('Argument ''shape'' has to be a string or a model structure.');
-end
-clear shape
-
-model = objParseCustomParams(model,f,prm);
-
-% Check and parse optional input arguments
-[modpar,par] = parseparams(varargin);
-model = objParseArgs(model,par);
-
-switch model.shape
-  case {'sphere','plane','torus'}
-  case {'cylinder','revolution','extrusion','worm'}
-    model = objInterpCurves(model);
-    %model.curve = model.curve/max(model.curve);
-  otherwise
-    error('Unknown shape');
-end
-
-%------------------------------------------------------------
-
-if model.flags.new_model
-  ii = 1;
-else
-  ii = length(model.prm)+1;
-end
-model.prm(ii).prm = model.opts.prm;
-if ~model.flags.use_map
-  model.prm(ii).nbumptypes = model.opts.nbumptypes;
-  model.prm(ii).nbumps = model.opts.nbumps;
-end
-
-%------------------------------------------------------------
-% Vertices
-if model.flags.new_model
-  model = objSetCoords(model);
-end
-
-switch model.shape
-  case {'cylinder','revolution','extrusion'}    
-    if ~model.flags.new_model && model.flags.oldcaps
-      model = objRemCaps(model);
-    end
-  case 'torus'
-    if ~isempty(model.opts.rprm)
-      rprm = model.opts.rprm;
-      for ii = 1:size(rprm,1)
-        model.R = model.R + rprm(ii,2) * sin(rprm(ii,1)*model.Theta + rprm(ii,3));
-      end
-    end
-end
-
-if ~model.flags.use_map
-  model = objPlaceBumps(model);
-else
-  model = objMakeHeightMap(model);
-end
-
-model = objMakeVertices(model);
-
-%------------------------------------------------------------
-% The field prm can be made an array.  If the structure model is
-% passed to another objMakeModel*-function, that function will add
-% its parameters to that array.
-ii = length(model.prm);
-model.prm(ii).perturbation = 'custom';
-model.prm(ii).mindist = model.opts.mindist;
-model.prm(ii).mfilename = mfilename;
-model.prm(ii).locations = model.opts.locations;
-model.prm(ii).use_map = model.flags.use_map;
-if strcmp(model.shape,'torus')
-  model.prm(ii).rprm = model.opts.rprm;
-end
-
-if model.flags.dosave
-  model = objSaveModel(model);
-end
-
-if ~nargout
-   clear model
-end
-
 
