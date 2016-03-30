@@ -118,3 +118,7 @@ else
   set(gca,'CameraUpVector',[0 1 0],'CameraPosition',[1 1 1]);
   rotate3d on
 end
+
+if ~nargout
+  clear h
+end
