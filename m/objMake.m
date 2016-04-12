@@ -19,31 +19,9 @@ function model = objMake(shape,perturbation,varargin)
 % 2016-02-19 - ts - handles custom perturbations
 % 2016-03-25 - ts - renamed objMake (from objMakeMaster)
 % 2016-03-26 - ts - calls the renamed objSave (formerly objSaveModel)
+% 2016-04-08 - ts - cleaning up
 
 %------------------------------------------------------------
-
-narg = nargin;
-
-% For batch processing.  If there's only one input arg and it's a cell
-% array, it has all the parameters.
-% if iscell(shape) && narg==1
-%   % If the only input argument is a cell array of cell arrays, recurse
-%   % through the cells. Each cell holds parameters for one shape.
-%   if all(cellfun('iscell',shape))
-%     if length(shape)>1
-%       objMake(shape(1:end-1));
-%     end
-%     objMake(shape{end});
-%     return
-%   end
-%   % Otherwise, unpack the mandatory input arguments from the beginning
-%   % of the array and assign the rest to varargin:
-%   narg = length(shape);
-%   if narg>1
-%     varargin = shape(2:end);
-%   end
-%   shape = shape{1};
-% end
 
 % Set up the model structure
 if ischar(shape)

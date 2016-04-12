@@ -106,7 +106,7 @@ function model = objMakeNoise(shape,nprm,varargin)
 % TODO
 
 
-% Copyright (C) 2015 Toni Saarela
+% Copyright (C) 2015,2016 Toni Saarela
 % 2015-05-31 - ts - first version, based on objMakeSphereNoisy and
 %                    others
 % 2015-06-03 - ts - envelope parameter scaling for planes
@@ -134,34 +134,35 @@ function model = objMakeNoise(shape,nprm,varargin)
 % 2016-01-21 - ts - calls objMakeVertices
 %                   added the disk shape
 % 2016-03-25 - ts - is now a wrapper for the new objMake
+% 2016-04-08 - ts - re-enabled batch mode
 
 %------------------------------------------------------------
 
-% narg = nargin;
+narg = nargin;
 
-% % For batch processing.  If there's only one input arg and it's a cell
-% % array, it has all the parameters.
-% if iscell(shape) && narg==1
-%   % If the only input argument is a cell array of cell arrays, recurse
-%   % through the cells. Each cell holds parameters for one shape.
-%   if all(cellfun('iscell',shape))
-%     if length(shape)>1
-%       objMakeNoise(shape(1:end-1));
-%     end
-%     objMakeNoise(shape{end});
-%     return
-%   end
-%   % Otherwise, unpack the mandatory input arguments from the beginning
-%   % of the array and assign the rest to varargin:
-%   narg = length(shape);
-%   if narg>2
-%     varargin = shape(3:end);
-%   end
-%   if narg>1
-%     nprm = shape{2};
-%   end
-%   shape = shape{1};
-% end
+% For batch processing.  If there's only one input arg and it's a cell
+% array, it has all the parameters.
+if iscell(shape) && narg==1
+  % If the only input argument is a cell array of cell arrays, recurse
+  % through the cells. Each cell holds parameters for one shape.
+  if all(cellfun('iscell',shape))
+    if length(shape)>1
+      objMakeNoise(shape(1:end-1));
+    end
+    objMakeNoise(shape{end});
+    return
+  end
+  % Otherwise, unpack the mandatory input arguments from the beginning
+  % of the array and assign the rest to varargin:
+  narg = length(shape);
+  if narg>2
+    varargin = shape(3:end);
+  end
+  if narg>1
+    nprm = shape{2};
+  end
+  shape = shape{1};
+end
 
 if ~isempty(varargin) && isnumeric(varargin{1})
    varargin = {'mpar',varargin{:}};

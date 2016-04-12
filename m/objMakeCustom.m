@@ -111,7 +111,7 @@ function model = objMakeCustom(shape,f,prm,varargin)
 % =========
 % TODO
 
-% Copyright (C) 2015 Toni Saarela
+% Copyright (C) 2015,2016 Toni Saarela
 % 2015-06-01 - ts - first version, based on objMakeBumpy and
 %                    others
 % 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
@@ -136,39 +136,40 @@ function model = objMakeCustom(shape,f,prm,varargin)
 % 2016-01-21 - ts - calls objMakeVertices
 %                   added (finally) torus major radius modulation
 % 2016-03-26 - ts - is now a wrapper for the new objMake
+% 2016-04-08 - ts - re-enabled batch mode
 
 % TODO
 
 %------------------------------------------------------------
 
-% narg = nargin;
+narg = nargin;
 
-% % For batch processing.  If there's only one input arg and it's a cell
-% % array, it has all the parameters.
-% if iscell(shape) && narg==1
-%   % If the only input argument is a cell array of cell arrays, recurse
-%   % through the cells. Each cell holds parameters for one shape.
-%   if all(cellfun('iscell',shape))
-%     if length(shape)>1
-%       objMakeCustom(shape(1:end-1));
-%     end
-%     objMakeCustom(shape{end});
-%     return
-%   end
-%   % Otherwise, unpack the mandatory input arguments from the beginning
-%   % of the array and assign the rest to varargin:
-%   narg = length(shape);
-%   if narg>3
-%     varargin = shape(4:end);
-%   end
-%   if narg>2
-%     prm = shape{3};
-%   end
-%   if narg>1
-%     f = shape{2};
-%   end
-%   shape = shape{1};
-% end
+% For batch processing.  If there's only one input arg and it's a cell
+% array, it has all the parameters.
+if iscell(shape) && narg==1
+  % If the only input argument is a cell array of cell arrays, recurse
+  % through the cells. Each cell holds parameters for one shape.
+  if all(cellfun('iscell',shape))
+    if length(shape)>1
+      objMakeCustom(shape(1:end-1));
+    end
+    objMakeCustom(shape{end});
+    return
+  end
+  % Otherwise, unpack the mandatory input arguments from the beginning
+  % of the array and assign the rest to varargin:
+  narg = length(shape);
+  if narg>3
+    varargin = shape(4:end);
+  end
+  if narg>2
+    prm = shape{3};
+  end
+  if narg>1
+    f = shape{2};
+  end
+  shape = shape{1};
+end
 
 
 varargin = {'custom',f,'custompar',prm,varargin{:}};

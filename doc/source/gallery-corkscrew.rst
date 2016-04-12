@@ -77,7 +77,7 @@ have to use another light source. ::
     </shape>
 
     <emitter  type="envmap">
-      <string name="filename" value="20060807_wells6_lp.hdr"/>
+      <string name="filename" value="20060807_wells6_hd.hdr"/>
       <float name="scale"  value="1"/>
       <transform name="toWorld">
         <rotate y="1" angle="90" />

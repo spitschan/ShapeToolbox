@@ -1,12 +1,13 @@
 % SHAPETOOLBOX
 %
-% Functions for 3D-models:
-% ========================
-% objMake
+% Functions for making 3D-models:
+% ===============================
+% objMakePlain
 % objMakeSine
 % objMakeNoise
 % objMakeBump
 % objMakeCustom
+% (objMake)
 %
 % Blending / morphing
 % ===================
@@ -14,7 +15,9 @@
 % 
 % Helper functions
 % ================
-% objFindFreqs
+% objBatch
 % objFindAngles
+% objFindFreqs
+% objRead
+% objSave
 % objShow
-% objSaveModel

@@ -14,7 +14,7 @@ function s = objSave(s)
 % be directly called by the user, but Matlab doesn't allow it
 % (Octave allows it.  Use Octave.)
 
-% Copyright (C) 2015 Toni Saarela
+% Copyright (C) 2015,2016 Toni Saarela
 % 2015-04-06 - ts - first version, based on the model-type-specific
 %                    functions
 % 2015-05-04 - ts - uses option comp_uv for uv-coords instead of
@@ -36,6 +36,7 @@ function s = objSave(s)
 %                    separated into their own functions
 % 2016-01-28 - ts - reformatted the "created with"-string
 % 2016-02-19 - ts - writes perturbation type into comments
+% 2016-03-26 - ts - renamed objSave (was objSaveModel)
 
 m = s.m;
 n = s.n;

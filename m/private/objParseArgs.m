@@ -29,6 +29,7 @@ function model = objParseArgs(model,par)
 % 2016-02-19 - ts - added option par (for bumps and custom)
 % 2016-03-26 - ts - bump parms moved from opts to prm
 %                   custom option names now 'custom' and 'custompar'
+% 2016-04-12 - ts - minor fixes
 
 % Flag to indicate whether uv-coordinate computation was set to false
 % explicitly.  This is used so that the option 'uvcoords' can be used
@@ -178,7 +179,6 @@ if ~isempty(par)
          case 'custom'
            if ii<length(par)
              ii = ii + 1;
-             keyboard
              model.opts.f = par{ii};
            else
              error('No value or a bad value given for option ''custom''.');
@@ -192,6 +192,7 @@ if ~isempty(par)
              error('No value or a bad value given for option ''locations''.');
            end
          case 'rotate'
+           % Is this even used?  I don't think so.
            if ii<length(par) && isnumeric(par{ii+1})
              ii = ii + 1;
              model.rotate = par{ii};

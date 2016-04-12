@@ -72,7 +72,7 @@ function m1 = objBlend(m1,m2,varargin)
 % % Weights again 0.2 and 0.8, save in 'blob.obj':
 % m = objBlend(m1,m2,[4 16],'blob.obj');
 
-% Copyright (C) 2015 Toni Saarela
+% Copyright (C) 2015,2016 Toni Saarela
 % 2015-04-03 - ts - first version
 % 2015-05-14 - ts - eats cylinders; other minor tweaks
 % 2015-05-14 - ts - devours tori, surfaces of revolution

@@ -222,7 +222,7 @@ function model = objMakePlain(shape,varargin)
 % basic shapes (sphere, cylinder...) can be usually produced with a
 % single command in a graphics/rendering program.
 
-% Copyright (C) 2015 Toni Saarela
+% Copyright (C) 2015,2016 Toni Saarela
 % 2015-06-01 - ts - first version, based on objMakeSine
 % 2015-06-02 - ts - wrote help
 % 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
@@ -241,31 +241,32 @@ function model = objMakePlain(shape,varargin)
 % 2016-01-19 - ts - added the disk shape
 % 2016-01-21 - ts - calls objMakeVertices
 % 2016-03-25 - ts - renamed objMakePlain, is now a wrapper
+% 2016-04-08 - ts - re-enabled batch mode
 
 %------------------------------------------------------------
 
-% narg = nargin;
+narg = nargin;
 
-% % For batch processing.  If there's only one input arg and it's a cell
-% % array, it has all the parameters.
-% if iscell(shape) && narg==1
-%   % If the only input argument is a cell array of cell arrays, recurse
-%   % through the cells. Each cell holds parameters for one shape.
-%   if all(cellfun('iscell',shape))
-%     if length(shape)>1
-%       objMake(shape(1:end-1));
-%     end
-%     objMake(shape{end});
-%     return
-%   end
-%   % Otherwise, unpack the mandatory input arguments from the beginning
-%   % of the array and assign the rest to varargin:
-%   narg = length(shape);
-%   if narg>1
-%     varargin = shape(2:end);
-%   end
-%   shape = shape{1};
-% end
+% For batch processing.  If there's only one input arg and it's a cell
+% array, it has all the parameters.
+if iscell(shape) && narg==1
+  % If the only input argument is a cell array of cell arrays, recurse
+  % through the cells. Each cell holds parameters for one shape.
+  if all(cellfun('iscell',shape))
+    if length(shape)>1
+      objMake(shape(1:end-1));
+    end
+    objMake(shape{end});
+    return
+  end
+  % Otherwise, unpack the mandatory input arguments from the beginning
+  % of the array and assign the rest to varargin:
+  narg = length(shape);
+  if narg>1
+    varargin = shape(2:end);
+  end
+  shape = shape{1};
+end
 
 
 model = objMake(shape,'none',varargin{:});
