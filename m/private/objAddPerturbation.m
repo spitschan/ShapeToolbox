@@ -10,6 +10,7 @@ function model = objAddPerturbation(model)
 % 2016-02-19 - ts - custom perturbations
 % 2016-02-19 - ts - function handle moved from model.opts.f 
 %                   to model.prm(model.idx).f
+% 2016-04-14 - ts - small bug fix related to the change above
 
 % TODO: objRemCaps for worm
 
@@ -183,7 +184,7 @@ switch model.prm(ii).perturbation
     model.prm(ii).nbumps = nbumps;
     
     % Create a function for making the Gaussian profile
-    model.prm.f = @(d,prm) prm(1)*exp(-d.^2/(2*prm(2)^2));
+    model.prm(ii).f = @(d,prm) prm(1)*exp(-d.^2/(2*prm(2)^2));
     
     model = objPlaceBumps(model);
 

@@ -80,6 +80,11 @@ function model = objMakeSine(shape,cprm,varargin)
 % modulators.  Gets confusing, right?  See examples below and in the
 % online help.
 %
+% COORDS:
+% Can be used with the 'disk' shape to select the coordinate system in
+% which the perturbations are added.  Either 'polar' (default) or
+% 'cartesian'.
+%
 % OPTIONS:
 % ========
 %
@@ -118,6 +123,7 @@ function model = objMakeSine(shape,cprm,varargin)
 % 2016-01-21 - ts - calls objMakeVertices
 % 2016-03-25 - ts - is now a wrapper for the new objMake
 % 2016-04-08 - ts - re-enabled batch mode
+% 2016-04-14 - ts - help
 
 %------------------------------------------------------------
 

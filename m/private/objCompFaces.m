@@ -6,7 +6,8 @@ function s = objCompFaces(s)
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-10-12 - ts - first version, separated from objSaveModel
-
+% 2016-05-27 - ts - added group handling for spheres et al.
+% 2016-05-28 - ts - groups ok for all shapes
 
 %------------------------------------------------------------
 
@@ -53,3 +54,9 @@ switch s.shape
     % Finally, to wrap around properly in the phi-direction:
     s.faces = 1 + mod(s.faces-1,m*n);
 end
+
+if isfield(s.group,'groups')
+  [s.group.groups,idx] = sort(s.group.groups);
+  s.faces = s.faces(idx,:);
+end
+

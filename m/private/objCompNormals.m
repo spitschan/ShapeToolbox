@@ -45,6 +45,7 @@ switch s.shape
   case 'torus'
     nfaces = m*n*2;
 end
+
 for ii = 1:nfaces
   s.normals(s.faces(ii,:),:) = s.normals(s.faces(ii,:),:) + [1 1 1]'*fn(ii,:);
 end

@@ -20,6 +20,7 @@ function model = objPlaceBumps(model)
 %                   fixed saving the locations in model structure;
 %                   uses the function handle model.prm(model.idx).f
 %                   instead of the old model.opts.f
+% 2016-06-20 - ts - minor restructuring
 %
 
 ii = length(model.prm);
@@ -83,26 +84,19 @@ switch model.shape
 
         p = ptmp(idx_accepted,:);
 
-        [theta0,phi0,rtmp] = cart2sph(p(:,1),p(:,2),p(:,3));  
-        clear rtmp
-
-        % For saving the locations in the model structure
-        model.opts.locations{1}{jj} = theta0;
-        model.opts.locations{2}{jj} = phi0;
-
       else
         %- pick n random directions
         %p = normrnd(0,1,[prm(jj,1) 3]);
         p = randn([prm(jj,1) 3]);
 
-        [theta0,phi0,rtmp] = cart2sph(p(:,1),p(:,2),p(:,3));  
-        clear rtmp
-
-        % For saving the locations in the model structure
-        model.opts.locations{1}{jj} = theta0;
-        model.opts.locations{2}{jj} = phi0;
-
       end
+
+      [theta0,phi0,rtmp] = cart2sph(p(:,1),p(:,2),p(:,3));  
+      clear rtmp
+
+      % For saving the locations in the model structure
+      model.opts.locations{1}{jj} = theta0;
+      model.opts.locations{2}{jj} = phi0;
 
       %-------------------
       
@@ -172,21 +166,17 @@ switch model.shape
         y0 = ytmp(idx_accepted,:);
 
         clear xtmp ytmp
-
-        % For saving the locations in the model structure
-        model.opts.locations{1}{jj} = x0;
-        model.opts.locations{2}{jj} = y0;
         
       else
         %- pick n random locations
         x0 = min(model.x) + rand([prm(jj,1) 1])*(max(model.x)-min(model.x));
         y0 = min(model.y) + rand([prm(jj,1) 1])*(max(model.y)-min(model.y));
 
-        % For saving the locations in the model structure
-        model.opts.locations{1}{jj} = x0;
-        model.opts.locations{2}{jj} = y0;
-
       end
+
+      % For saving the locations in the model structure
+      model.opts.locations{1}{jj} = x0;
+      model.opts.locations{2}{jj} = y0;
 
       %-------------------
       
@@ -259,21 +249,17 @@ switch model.shape
 
         clear thetatmp ytmp
 
-        % For saving the locations in the model structure
-        model.opts.locations{1}{jj} = theta0;
-        model.opts.locations{2}{jj} = y0;
-
       else
         %- pick n random locations
         theta0 = min(model.theta) + rand([prm(jj,1) 1])*(max(model.theta)-min(model.theta));
         y0 = min(model.y) + rand([prm(jj,1) 1])*(max(model.y)-min(model.y));
 
-        % For saving the locations in the model structure
-        model.opts.locations{1}{jj} = theta0;
-        model.opts.locations{2}{jj} = y0;
-
       end
       
+      % For saving the locations in the model structure
+      model.opts.locations{1}{jj} = theta0;
+      model.opts.locations{2}{jj} = y0;
+
       %-------------------
       
       for ii = 1:prm(jj,1)
@@ -341,21 +327,16 @@ switch model.shape
 
         clear thetatmp phitmp
 
-        % For saving the locations in the model structure
-        model.opts.locations{1}{jj} = theta0;
-        model.opts.locations{2}{jj} = phi0;
-
-
       else % No predefined locations, no minimum distance, just random
         %- pick n random locations
         theta0 = min(model.theta) + rand([prm(jj,1) 1])*(max(model.theta)-min(model.theta));
         phi0 = min(model.phi) + rand([prm(jj,1) 1])*(max(model.phi)-min(model.phi));
 
-        % For saving the locations in the model structure
-        model.opts.locations{1}{jj} = theta0;
-        model.opts.locations{2}{jj} = phi0;
-
       end
+
+      % For saving the locations in the model structure
+      model.opts.locations{1}{jj} = theta0;
+      model.opts.locations{2}{jj} = phi0;
 
       %-------------------
       
@@ -439,21 +420,17 @@ switch model.shape
 
           clear xtmp ztmp
 
-          % For saving the locations in the model structure
-          model.opts.locations{1}{jj} = x0;
-          model.opts.locations{2}{jj} = z0;
-          
         else
           %- pick n random locations
           x0 = min(model.X(:)) + rand([prm(jj,1) 1])*(max(model.X(:))-min(model.X(:)));
           z0 = min(model.Z(:)) + rand([prm(jj,1) 1])*(max(model.Z(:))-min(model.Z(:)));
 
-          % For saving the locations in the model structure
-          model.opts.locations{1}{jj} = x0;
-          model.opts.locations{2}{jj} = z0;
-
         end
 
+        % For saving the locations in the model structure
+        model.opts.locations{1}{jj} = x0;
+        model.opts.locations{2}{jj} = z0;
+        
         %-------------------
         
         for ii = 1:prm(jj,1)

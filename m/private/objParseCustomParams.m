@@ -59,3 +59,11 @@ elseif isa(f,'function_handle')
   model.prm(ii).nbumps = sum(prm(:,1));
 end
 
+% This is a terrible hack to make objSave work in case another
+% objMake*-function is used *after* objMakeCustom.  Other functions
+% reset the flag use_map to false, and then objSave will always try to
+% write "bump" specs into the obj-file comments.  This fails if a map
+% had actually been used.  For a quick fix, save the flag in the
+% parameter group and use that.  But now we have the same flag in two
+% places.  Terrible hack.  Terrible.  Terrible.
+model.prm(ii).use_map = model.flags.use_map;

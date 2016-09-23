@@ -8,26 +8,28 @@ function model = objMakePlain(shape,varargin)
 %
 % Produce a 3D model mesh object of a given shape and optionally save 
 % it to a file in Wavefront obj-format and/or return a structure that
-% holds the model information.
+% holds the model information.  The model can be quickly previewed
+% with function objShow().
 % 
 % SHAPE:
 % ======
 %
-% One of 'sphere', 'plane', 'cylinder', 'torus', 'revolution', and
-% 'extrusion'.  Example: m = objMakePlain('sphere')
+% One of 'sphere', 'plane', 'disk', 'cylinder', 'torus', 'revolution', 
+% 'extrusion', and 'worm'.  Example: m = objMakePlain('sphere')
 %
 % The shapes use a coordinate system where the y-direction is "up" and
 % the x-z plane is the reference plane.
 % 
 % Some notes and default values for the shapes (some can be changed
-% with the optional input arguments, see below):
+% with the optional input arguments, see further below):
 %
 % SPHERE: A unit sphere (radius 1), default mesh size 64x128.
 %
 % PLANE: A plane with a width and height of 1, lying on the x-y plane,
-% centered on the origin.  Default mesh size 128x128.  Obviously a
-% size of 2x2 would be enough; the larger size is used so that fine
-% modulations can later be added to the shape if needed.
+% centered on the origin.  Default mesh size 128x128.
+%
+% DISK: A circular disk on the x-z plane, centered at the origin.
+% Default mesh size 128x128. 
 %
 % CYLINDER: A cylinder with radius 1 and height of 2*pi.  Default mesh
 % size 128x128.
@@ -43,7 +45,9 @@ function model = objMakePlain(shape,varargin)
 % profile, height 2*pi.  See option 'ecurve' below on how to define the
 % profile.  Default mesh size 128x128.
 %
-% WORM: TODO.
+% WORM: A tube-like shape that tracks a user-defined curve in three
+% dimensions.  Default tube radius 1.  The curve is defined using
+% options 'spinex', 'spinez', and 'spiney'; see below.
 %
 % NOTE: By default, the model IS NOT SAVED TO A FILE.  To save, you
 % have to set the option 'FILENAME' or 'SAVE' (see below).
@@ -145,7 +149,13 @@ function model = objMakePlain(shape,varargin)
 %
 % SPINEX, SPINEZ, SPINEY
 % As used with shape 'worm'; see above for use with cylinder-like
-% objects.  Vectors that define the midline of the worm shape.  
+% objects.  Vectors that define the midline of the worm shape.  For
+% example:
+%  y = linspace(0,4*pi,128);
+%  x = sin(y);
+%  z = cos(y);
+%  m = objMakePlain('worm','spinex',x,'spinez',z);
+%  objShow(m);
 %
 % SCALEY
 % Boolean, set this to true to scale the height of the model so that
@@ -242,6 +252,7 @@ function model = objMakePlain(shape,varargin)
 % 2016-01-21 - ts - calls objMakeVertices
 % 2016-03-25 - ts - renamed objMakePlain, is now a wrapper
 % 2016-04-08 - ts - re-enabled batch mode
+% 2016-04-14 - ts - help
 
 %------------------------------------------------------------
 

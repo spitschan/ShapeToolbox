@@ -7,8 +7,8 @@ function h = objShow(obj,func)
 %
 % View a 3D model returned by one of the make objMake-functions in
 % the toolbox.  Alternatively, attempt to read such a model from a
-% Wavefront obj -file (see help objRead for limitations of this
-% approach).
+% Wavefront obj -file (see help objRead for limitations of doing
+% this). 
 %
 % Returns a handle h to the rendered graphics object.
 %
@@ -27,14 +27,16 @@ function h = objShow(obj,func)
 % Note: This function is just for quick and convenient viewing of
 % the shape, without texture mapping or material properties. Only
 % the shape is shown.  The shape is rendered using the vertex data
-% only (the face definitions are not used), so in some shapes there
+% only (the face definitions are not used).
+
+%, so in some shapes there
 % might be a discontinuity (in spheres, cylinders, tori...), as if a
 % piece or a wedge of the object was missing.  That discontinuity
 % will not be there when the shape is properly rendered with a 3D
 % modeling software.
 %
 
-% Copyright (C) 2014,2015 Toni Saarela
+% Copyright (C) 2014,2015,2016 Toni Saarela
 % 2014-07-28 - ts - first version
 % 2015-03-05 - ts - use shading interp; wrote help
 % 2015-06-04 - ts - updated help
@@ -50,6 +52,7 @@ function h = objShow(obj,func)
 %                   added 'worm' as a shape option
 % 2015-10-15 - ts - different commands for matlab and octave to set
 %                    viewing options
+% 2016-06-14 - ts - minor changes to help
 
 if ischar(obj)
   obj = objRead(obj);

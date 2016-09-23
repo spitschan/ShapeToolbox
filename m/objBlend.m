@@ -86,6 +86,7 @@ function m1 = objBlend(m1,m2,varargin)
 %                   blend also model size, not only modulation
 %                   calls objMakeVertices
 % 2016-03-26 - ts - calls the renamed objSave (formerly objSaveModel)
+% 2016-06-20 - ts - fixed handling empty weight vector
 
 % TODO:
 % - Better parsing of input arguments.
@@ -99,7 +100,6 @@ function m1 = objBlend(m1,m2,varargin)
 dosave = false;
 filename = '';
 [w,par] = parseparams(varargin);
-w = w{1};
 if ~isempty(par)
   ii = 1;
   while ii<=length(par)
@@ -123,15 +123,18 @@ end
 
 if isempty(w)
   w = [.5 .5];
-elseif isscalar(w)
-  if ~((w<=1) && (w>=0))
-    error('With three input arguments, the weight has to be in range [0,1].');
-  end
-  w(2) = 1 - w;
 else
-  tot = w(1) + w(2);
-  w(1) = w(1)./tot;
-  w(2) = w(2)./tot;
+  w = w{1};
+  if isscalar(w)
+    if ~((w<=1) && (w>=0))
+      error('With three input arguments, the weight has to be in range [0,1].');
+    end
+    w(2) = 1 - w;
+  else
+    tot = w(1) + w(2);
+    w(1) = w(1)./tot;
+    w(2) = w(2)./tot;
+  end
 end
 
 if isempty(filename)
@@ -185,7 +188,7 @@ if dosave
   if isempty(regexp(m1.filename,'\.obj$'))
     m1.filename = [m1.filename,'.obj'];
   end
-  m1 = objModel(m1);
+  m1 = objSave(m1);
 end
 
 if ~nargout

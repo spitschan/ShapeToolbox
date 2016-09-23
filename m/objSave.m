@@ -37,6 +37,9 @@ function s = objSave(s)
 % 2016-01-28 - ts - reformatted the "created with"-string
 % 2016-02-19 - ts - writes perturbation type into comments
 % 2016-03-26 - ts - renamed objSave (was objSaveModel)
+% 2016-05-27 - ts - added groups 
+% 2016-05-28 - ts - info about (face) groups written to comments
+% 2016-06-12 - ts - don't return anything if no output argumets set
 
 m = s.m;
 n = s.n;
@@ -93,6 +96,12 @@ else
   fprintf(fid,'# Vertex normals included: No.\n');
 end
 
+if s.flags.write_groups
+  fprintf(fid,'# Number of groups (for faces): %d.\n',length(s.group.idx));
+else
+  fprintf(fid,'# No groups defined.\n');
+end
+
 for ii = 1:length(s.prm)
     if length(s.prm)==1
       if isfield(s.prm,'mfilename_called') && ~isempty(s.prm.mfilename_called)
@@ -140,7 +149,7 @@ for ii = 1:length(s.prm)
       end
     %---------------------------------------------------
     case 'custom'
-      writeSpecsCustom(fid,s.prm(ii),s.flags.use_map);
+      writeSpecsCustom(fid,s.prm(ii));
     %---------------------------------------------------
  end
 end
@@ -172,30 +181,72 @@ end
 % Write face defitions to file.  These are written differently
 % depending on whether uvcoordinates and/or normals are included.
 fprintf(fid,'\n# Faces:\n');
-if ~s.flags.comp_uv
-  if s.flags.comp_normals
-    fprintf(fid,'f %d//%d %d//%d %d//%d\n',...
-            [s.faces(:,1) s.faces(:,1) ...
-             s.faces(:,2) s.faces(:,2) ...
-             s.faces(:,3) s.faces(:,3)]');
+
+for ii = 1:length(s.group.idx)
+
+  if s.flags.write_groups
+    fprintf(fid,'g %s\n',s.group.names{ii});
+    if ~isempty(s.group.materials)
+      fprintf(fid,'usemtl %s\n',s.group.materials{ii});
+    end
+    idx = s.group.groups==s.group.idx(ii);
   else
-    fprintf(fid,'f %d %d %d\n',s.faces');    
+    idx = 1:size(s.faces,1);
   end
-else
-  if s.flags.comp_normals
-    fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
-            [s.faces(:,1) s.facestxt(:,1) s.faces(:,1)...
-             s.faces(:,2) s.facestxt(:,2) s.faces(:,2)...
-             s.faces(:,3) s.facestxt(:,3) s.faces(:,3)]');
+
+  if ~s.flags.comp_uv
+    if s.flags.comp_normals
+      fprintf(fid,'f %d//%d %d//%d %d//%d\n',...
+              [s.faces(idx,1) s.faces(idx,1) ...
+               s.faces(idx,2) s.faces(idx,2) ...
+               s.faces(idx,3) s.faces(idx,3)]');
+    else
+      fprintf(fid,'f %d %d %d\n',s.faces(idx,:)');    
+    end
   else
-    fprintf(fid,'f %d/%d %d/%d %d/%d\n',...
-            [s.faces(:,1) s.facestxt(:,1) ...
-             s.faces(:,2) s.facestxt(:,2) ...
-             s.faces(:,3) s.facestxt(:,3)]');
+    if s.flags.comp_normals
+      fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
+              [s.faces(idx,1) s.facestxt(idx,1) s.faces(idx,1)...
+               s.faces(idx,2) s.facestxt(idx,2) s.faces(idx,2)...
+               s.faces(idx,3) s.facestxt(idx,3) s.faces(idx,3)]');
+    else
+      fprintf(fid,'f %d/%d %d/%d %d/%d\n',...
+              [s.faces(idx,1) s.facestxt(idx,1) ...
+               s.faces(idx,2) s.facestxt(idx,2) ...
+               s.faces(idx,3) s.facestxt(idx,3)]');
+    end
   end
 end
+
+% if ~s.flags.comp_uv
+%   if s.flags.comp_normals
+%     fprintf(fid,'f %d//%d %d//%d %d//%d\n',...
+%             [s.faces(:,1) s.faces(:,1) ...
+%                     s.faces(:,2) s.faces(:,2) ...
+%                     s.faces(:,3) s.faces(:,3)]');
+%   else
+%     fprintf(fid,'f %d %d %d\n',s.faces');    
+%   end
+% else
+%   if s.flags.comp_normals
+%     fprintf(fid,'f %d/%d/%d %d/%d/%d %d/%d/%d\n',...
+%             [s.faces(:,1) s.facestxt(:,1) s.faces(:,1)...
+%                     s.faces(:,2) s.facestxt(:,2) s.faces(:,2)...
+%                     s.faces(:,3) s.facestxt(:,3) s.faces(:,3)]');
+%   else
+%     fprintf(fid,'f %d/%d %d/%d %d/%d\n',...
+%             [s.faces(:,1) s.facestxt(:,1) ...
+%                     s.faces(:,2) s.facestxt(:,2) ...
+%                     s.faces(:,3) s.facestxt(:,3)]');
+%   end
+% end
+
 fprintf(fid,'# End faces\n');
 fclose(fid);
+
+if ~nargout
+  clear s
+end
 
 %--------------------------------------------
 % Functions to write the modulation specs; these are called above
@@ -248,9 +299,9 @@ if ~isempty(mprm)
   end
 end
 
-function writeSpecsCustom(fid,prm,use_map)
+function writeSpecsCustom(fid,prm)
 
-if use_map
+if prm.use_map
   if isfield(prm,'imgname')
      fprintf(fid,'#\n# Modulation values defined by the (average) intensity\n');
      fprintf(fid,'# of the image %s.\n',prm.imgname);

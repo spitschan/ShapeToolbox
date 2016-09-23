@@ -21,6 +21,8 @@ function model = objDefaultStruct(shape,reset)
 % 2015-10-20 - ts - changed default for scaley to false
 % 2016-01-19 - ts - added disk shape
 % 2016-01-22 - ts - added index for the number of "layers"
+% 2016-05-27 - ts - groups
+% 2016-05-30 - ts - flags for uv and normals are saved when resetting
 
 if nargin<2 || isempty(reset)
   reset = false;
@@ -64,6 +66,8 @@ if ~reset
   model.filename = [model.shape,'.obj'];
   model.flags.new_model = true;
   model.flags.caps = false;
+  model.flags.comp_uv = false;
+  model.flags.comp_normals = false;
   model.idx = 1;
 else
   model = shape;
@@ -79,10 +83,11 @@ model.opts.mindist = 0;
 model.opts.locations = {};
 
 model.flags.dosave = false;
-model.flags.comp_uv = false;
-model.flags.comp_normals = false;
 model.flags.use_rms = false;
 model.flags.use_map = false;
 model.flags.custom_locations = false;
 model.flags.scaley = false;
 model.flags.max = false;
+
+model.group.idx = 1;
+model.flags.write_groups = false;
