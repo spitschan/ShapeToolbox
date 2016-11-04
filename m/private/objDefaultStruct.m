@@ -1,4 +1,4 @@
-function model = objDefaultStruct(shape,reset)
+function model = objDefaultStruct(shape)
 
 % OBJDEFAULTSTRUCT
 %
@@ -24,11 +24,15 @@ function model = objDefaultStruct(shape,reset)
 % 2016-05-27 - ts - groups
 % 2016-05-30 - ts - flags for uv and normals are saved when resetting
 
-if nargin<2 || isempty(reset)
-  reset = false;
-end
+% if nargin<2 || isempty(reset)
+%   reset = false;
+% end
 
-if ~reset
+% Check if we're creating a new model or resetting and updating an
+% existing one:
+if ischar(shape)
+  % Create a new model
+  shape = lower(shape);
   switch shape
     case 'sphere'
       model.m = 64;
@@ -69,11 +73,14 @@ if ~reset
   model.flags.comp_uv = false;
   model.flags.comp_normals = false;
   model.idx = 1;
-else
+elseif isstruct(shape)
+  % We got a structure as input, so we reset and update an existing model
   model = shape;
   model.flags.new_model = false;
   model.flags.oldcaps = model.flags.caps;
   model.idx = length(model.prm)+1;
+else
+  error('Argument ''shape'' has to be a string or a model structure.');
 end
 
 model.mtlfilename = '';

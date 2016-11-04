@@ -20,20 +20,16 @@ function model = objMake(shape,perturbation,varargin)
 % 2016-03-25 - ts - renamed objMake (from objMakeMaster)
 % 2016-03-26 - ts - calls the renamed objSave (formerly objSaveModel)
 % 2016-04-08 - ts - cleaning up
-
+% 2016-10-22 - ts - cleaning up; pushed checking new/existing model
+%                    to objDefaultStruct
+% 2016-10-23 - ts - changed saving calling function names from
+%                    dbstack
+  
+  
 %------------------------------------------------------------
 
 % Set up the model structure
-if ischar(shape)
-  shape = lower(shape);
-  model = objDefaultStruct(shape);
-elseif isstruct(shape)
-  model = shape;
-  model = objDefaultStruct(shape,true);
-  model.flags.new_model = false;
-else
-  error('Argument ''shape'' has to be a string or a model structure.');
-end
+model = objDefaultStruct(shape);
 clear shape
 
 % Set default parameters for the given perturbation:
@@ -77,17 +73,21 @@ model = objMakeVertices(model);
 % 
 
 ii = model.idx;
-% Get the calling function from the structure array stack.  If it's an
-% objMake*-function (a wrapper), add its name to the model structure.
-% Also add the name of this function.  Then in objSave write it
-% down to the obj-file somehow sensibly.
+
+% Get the calling functions from the debugging stack.  Keep the
+% name of this function and any wrapper functions (starting
+% objMake*) from ShapeToolbox that called this one.  In objSave,
+% write them in the obj-file for reference.
 stack = dbstack;
-if length(stack)>1 && strncmp(stack(2).name,'objMake',7)
-  model.prm(ii).mfilename = stack(2).name;
-  model.prm(ii).mfilename_called = stack(1).name;
-else 
-  model.prm(ii).mfilename = mfilename;
+
+for jj = 1:length(stack)
+  if strncmp(stack(jj).name,'objMake',7)
+    model.prm(ii).mfilestack{jj} = stack(jj).name;
+  else
+    break
+  end
 end
+
 if strcmp(model.shape,'torus')
   model.prm(ii).rprm = model.opts.rprm;
 end

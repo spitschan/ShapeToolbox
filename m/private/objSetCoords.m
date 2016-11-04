@@ -14,6 +14,8 @@ function model = objSetCoords(model)
 % 2015-10-08 - ts - added handling of the 'spinex' and 'spinez' options
 % 2015-10-10 - ts - added support for worm shape
 % 2016-01-19 - ts - added disk shape
+% 2016-09-23 - ts - include spiney in cylinder-like shapes to allow
+%                    blending with worms
 
 switch model.shape
   case 'sphere'
@@ -61,6 +63,8 @@ switch model.shape
     end
     model.spine.X = ones(model.n,1) * model.spine.x;
     model.spine.X = model.spine.X(:);
+    model.spine.Y = ones(model.n,1) * model.spine.y;
+    model.spine.Y = model.spine.Y(:);
     model.spine.Z = ones(model.n,1) * model.spine.z;
     model.spine.Z = model.spine.Z(:);
   case 'worm'

@@ -87,6 +87,7 @@ function m1 = objBlend(m1,m2,varargin)
 %                   calls objMakeVertices
 % 2016-03-26 - ts - calls the renamed objSave (formerly objSaveModel)
 % 2016-06-20 - ts - fixed handling empty weight vector
+% 2016-09-23 - ts - allow blending worm with cylinder-like things
 
 % TODO:
 % - Better parsing of input arguments.
@@ -141,7 +142,7 @@ if isempty(filename)
    filename = sprintf('%s_%03d_%03d.obj',m1.shape,round(100*w(1)),round(100*w(2)));
 end
 
-shapes = {'cylinder','revolution','extrusion'};
+shapes = {'cylinder','revolution','extrusion','worm'};
 if ~strcmp(m1.shape,m2.shape)
   if ~(ismember(m1.shape,shapes) && ismember(m2.shape,shapes))
     error('Incompatible shapes.');

@@ -40,7 +40,8 @@ function s = objSave(s)
 % 2016-05-27 - ts - added groups 
 % 2016-05-28 - ts - info about (face) groups written to comments
 % 2016-06-12 - ts - don't return anything if no output argumets set
-
+% 2016-10-23 - ts - rewrote documenting the function call stack info
+  
 m = s.m;
 n = s.n;
 
@@ -63,20 +64,15 @@ end
 
 fid = fopen(s.filename,'wt');
 fprintf(fid,'# %s\n',datestr(now,31));
-if length(s.prm)==1
-   if isfield(s.prm,'mfilename_called') && ~isempty(s.prm.mfilename_called)
-     fprintf(fid,'# Created with function %s (calling %s) from ShapeToolbox.\n',s.prm.mfilename,s.prm.mfilename_called);
-   else
-     fprintf(fid,'# Created with function %s from ShapeToolbox.\n',s.prm.mfilename);
-   end
-else
-  for ii = 1:length(s.prm)
-    if ii==1 verb = 'Created'; else verb = 'Modified'; end 
-    if isfield(s.prm(ii),'mfilename_called') && ~isempty(s.prm(ii).mfilename_called)
-      fprintf(fid,'# %d. %s with function %s (calling %s) from ShapeToolbox.\n',ii,verb,s.prm(ii).mfilename,s.prm(ii).mfilename_called);
-    else
-      fprintf(fid,'# %d. %s with function %s from ShapeToolbox.\n',ii,verb,s.prm(ii).mfilename);
+for ii = 1:length(s.prm)
+  if ii==1 verb = 'Created'; else verb = 'Modified'; end 
+  fprintf(fid,'# %d. %s with function %s from ShapeToolbox.\n',ii,verb,s.prm(ii).mfilestack{end});
+  if length(s.prm(ii).mfilestack)>1
+    fprintf(fid,'#    Function call stack: %s',s.prm(ii).mfilestack{end});
+    for jj = (length(s.prm(ii).mfilestack)-1):-1:1
+      fprintf(fid,' -> %s',s.prm(ii).mfilestack{jj});
     end
+    fprintf(fid,'.\n');
   end
 end
 fprintf(fid,'#\n# Base shape: %s.\n',s.shape);
@@ -103,22 +99,21 @@ else
 end
 
 for ii = 1:length(s.prm)
-    if length(s.prm)==1
-      if isfield(s.prm,'mfilename_called') && ~isempty(s.prm.mfilename_called)
-        fprintf(fid,'#\n# %s\n# %s (->%s) parameters:\n',...
-                repmat('-',1,50),s.prm(ii).mfilename,s.prm(ii).mfilename_called);
-      else
-        fprintf(fid,'#\n# %s\n# %s parameters:\n',repmat('-',1,50),s.prm(ii).mfilename);
-      end
-    else
-      if isfield(s.prm(ii),'mfilename_called') && ~isempty(s.prm(ii).mfilename_called)
-        fprintf(fid,'#\n# %s\n# %d. %s (->%s) parameters:\n',...
-                repmat('-',1,50),ii,s.prm(ii).mfilename,s.prm(ii).mfilename_called);
-      else
-        fprintf(fid,'#\n# %s\n# %d. %s parameters:\n',repmat('-',1,50),ii,s.prm(ii).mfilename);
-      end
+  if length(s.prm)==1
+    fprintf(fid,'#\n# %s\n# %s ',repmat('-',1,50),s.prm(ii).mfilestack{end});
+  else
+    fprintf(fid,'#\n# %s\n# %d. %s ',repmat('-',1,50),ii,s.prm(ii).mfilestack{end});
+  end
+  if length(s.prm(ii).mfilestack)>1
+    fprintf(fid,'(');
+    for jj = (length(s.prm(ii).mfilestack)-1):-1:1
+      fprintf(fid,'->%s',s.prm(ii).mfilestack{jj});
     end
-    fprintf(fid,'#\n# Perturbation type: %s\n',s.prm(ii).perturbation);
+  fprintf(fid,') ');
+  end
+  fprintf(fid,'parameters:\n');
+  
+  fprintf(fid,'#\n# Perturbation type: %s\n',s.prm(ii).perturbation);
   switch s.prm(ii).perturbation
     %---------------------------------------------------
     case 'sine'
