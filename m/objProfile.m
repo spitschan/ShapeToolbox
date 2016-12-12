@@ -58,8 +58,8 @@ switch profiletype
   case 'linear'
     xlim = [0 xscale];
     ylim = [0 yscale];
-    set(ah,'XLim',xlim,'YLim',ylim);
     axis equal
+    set(ah,'XLim',xlim,'YLim',ylim);
     hold on
 
     if nargin<5 || isempty(connect)
