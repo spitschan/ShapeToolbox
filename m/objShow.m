@@ -1,9 +1,10 @@
-function h = objShow(obj,func)
+function h = objShow(obj,func,showaxes)
 
 % OBJSHOW
 %
-% Usage: h = objShow(model,[viewfunc])
-%        h = objShow(filename,[viewfunc])
+% Usage: h = objShow(model)
+%        h = objShow(model,[viewfunc],[showaxes])
+%        h = objShow(filename,...)
 %
 % View a 3D model returned by one of the make objMake-functions in
 % the toolbox.  Alternatively, attempt to read such a model from a
@@ -23,7 +24,10 @@ function h = objShow(obj,func)
 % 
 % > tor = objMakeNoise('torus');
 % > objShow(tor,'surf')
-
+%
+% The second optional input argument can be set to true to make the
+% axes visible.  Default is false, axes not visible.
+  
 % Note: This function is just for quick and convenient viewing of
 % the shape, without texture mapping or material properties. Only
 % the shape is shown.  The shape is rendered using the vertex data
@@ -53,75 +57,129 @@ function h = objShow(obj,func)
 % 2015-10-15 - ts - different commands for matlab and octave to set
 %                    viewing options
 % 2016-06-14 - ts - minor changes to help
+% 2016-12-13 - ts - improved viewing directions, rotation etc in Matlab
+%                   can set axes visible
 
-if ischar(obj)
-  obj = objRead(obj);
-end
+% TODO
+% https://se.mathworks.com/help/matlab/examples/displaying-complex-three-dimensional-objects.html
+% use patch object?
+% material: shiny etc
+% light position, ambient, specular etc
+  
+  if ischar(obj)
+    obj = objRead(obj);
+  end
 
-if nargin<2 || isempty(func)
-  func = 'surfl';
-end
+  if nargin<2 || isempty(func)
+    func = 'surfl';
+  end
 
-X = reshape(obj.vertices(:,1),[obj.n obj.m])';
-Y = reshape(obj.vertices(:,2),[obj.n obj.m])';
-Z = reshape(obj.vertices(:,3),[obj.n obj.m])';
+  if nargin<3 || isempty(showaxes)
+    showaxes = false;
+  end
+  
+  isoctave = exist('OCTAVE_VERSION');
+  
+  X = reshape(obj.vertices(:,1),[obj.n obj.m])';
+  Y = reshape(obj.vertices(:,2),[obj.n obj.m])';
+  Z = reshape(obj.vertices(:,3),[obj.n obj.m])';
 
-if isfield(obj,'shape')
-  switch obj.shape
-    case {'sphere','cylinder','revolution','extrusion','worm'}
-      X = reshape(obj.vertices(:,1),[obj.n obj.m])';
-      Y = reshape(obj.vertices(:,2),[obj.n obj.m])';
-      Z = reshape(obj.vertices(:,3),[obj.n obj.m])';
-      X = [X X(:,1)]; 
-      Y = [Y Y(:,1)]; 
-      Z = [Z Z(:,1)]; 
-    case 'torus'
-      X = reshape(obj.vertices(:,1),[obj.n obj.m])';
-      Y = reshape(obj.vertices(:,2),[obj.n obj.m])';
-      Z = reshape(obj.vertices(:,3),[obj.n obj.m])';
-      X = [X X(:,1)]; 
-      Y = [Y Y(:,1)]; 
-      Z = [Z Z(:,1)]; 
-      X = [X; X(1,:)]; 
-      Y = [Y; Y(1,:)]; 
-      Z = [Z; Z(1,:)]; 
+  if isfield(obj,'shape')
+    switch obj.shape
+      case {'sphere','cylinder','revolution','extrusion','worm'}
+        X = reshape(obj.vertices(:,1),[obj.n obj.m])';
+        Y = reshape(obj.vertices(:,2),[obj.n obj.m])';
+        Z = reshape(obj.vertices(:,3),[obj.n obj.m])';
+        X = [X X(:,1)]; 
+        Y = [Y Y(:,1)]; 
+        Z = [Z Z(:,1)]; 
+      case 'torus'
+        X = reshape(obj.vertices(:,1),[obj.n obj.m])';
+        Y = reshape(obj.vertices(:,2),[obj.n obj.m])';
+        Z = reshape(obj.vertices(:,3),[obj.n obj.m])';
+        X = [X X(:,1)]; 
+        Y = [Y Y(:,1)]; 
+        Z = [Z Z(:,1)]; 
+        X = [X; X(1,:)]; 
+        Y = [Y; Y(1,:)]; 
+        Z = [Z; Z(1,:)]; 
+    end
+  end
+
+  % Switch the y and z coordinates.  Matlab insists having z as the
+  % up-direction when 3d rotation is on, so we do this to have y up.
+  tmp = Y;
+  Y = Z;
+  Z = tmp;
+  
+  %figure;
+  switch lower(func)
+    case 'surfl'
+      h = surfl(X,Y,Z,[4 10 4]);%,'cdata');
+      if ~isoctave
+        hl = light(gca);
+      end
+      shading interp;
+      colormap gray;
+    case 'surf'
+      h = surf(X,Y,Z);
+      colormap gray;
+    case 'mesh'
+      h = mesh(X,Y,Z);
+      set(h,'EdgeColor',[0 0 0],'FaceColor',[1 1 1]);
+    case 'wireframe'
+      h = mesh(X,Y,Z);
+      set(h,'EdgeColor',[0 0 0],'FaceColor','none');
+    otherwise
+      error('Unknown viewing function.  Use ''surfl'', ''surf'', ''mesh'', or ''wireframe''.')
+  end
+  axis equal
+  set(gca,'Visible','Off');
+
+  if isoctave
+    try
+      set(gca,'CameraUpVector',[0 1 0]);%,'CameraPosition',[0 0 1]);
+      view([1 1 1]);
+      rotate3d on
+    catch
+      ;
+    end
+  else
+    %rotate3d on
+    set(gca,'CameraUpVector',[0 0 1],...
+            'CameraUpVectorMode','manual',...
+            'CameraPosition',[1 1 1]);
+    %view([1 1 1]);
+    %
+    h3 = rotate3d;
+    % set(h3,'ActionPreCallback',@setViewProperlyMatlabSucksSoBadly);
+    % set(h3,'ActionPostCallback',@setViewProperlyMatlabSucksSoBadly);
+    set(h3,'Enable','On');
+    
+    
+    
+  end
+
+  if showaxes
+    set(gca,'Visible','On')
+    xlabel('x')
+    % Switch the labels of y and z, because Matlab insists having z
+    % point up when 3d rotation is on.  For this reason, the y and
+    % z coordinates are also switched (above) for viewing.
+    ylabel('z')
+    zlabel('y')
+  end
+
+  if ~nargout
+    clear h
   end
 end
 
-%figure;
-switch lower(func)
-  case 'surfl'
-    h = surfl(X,Y,Z,[4 10 4]);
-    shading interp;
-    colormap gray;
-  case 'surf'
-    h = surf(X,Y,Z);
-    colormap gray;
-  case 'mesh'
-    h = mesh(X,Y,Z);
-    set(h,'EdgeColor',[0 0 0],'FaceColor',[1 1 1]);
-  case 'wireframe'
-    h = mesh(X,Y,Z);
-    set(h,'EdgeColor',[0 0 0],'FaceColor','none');
-  otherwise
-    error('Unknown viewing function.  Use ''surfl'', ''surf'', ''mesh'', or ''wireframe''.')
-end
-axis equal
-set(gca,'Visible','Off');
 
-if exist('OCTAVE_VERSION')
-  try
-    set(gca,'CameraUpVector',[0 1 0]);%,'CameraPosition',[0 0 1]);
-    view([1 1 1]);
-    rotate3d on
-  catch
-       ;
-  end
-else
-  set(gca,'CameraUpVector',[0 1 0],'CameraPosition',[1 1 1]);
-  rotate3d on
-end
-
-if ~nargout
-  clear h
-end
+% function setViewProperlyMatlabSucksSoBadly(src,event)
+  
+%   set(get(src,'CurrentAxes'),...
+%       'CameraUpVector',[0 1 0],...
+%       'CameraUpVectorMode','manual');
+  
+% end
