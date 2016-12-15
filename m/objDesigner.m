@@ -18,13 +18,14 @@ function objDesigner()
   scrsize = get(0,'ScreenSize');
   scrsize = scrsize(3:4) - scrsize(1:2);
   
-  figsize = [300 400; ...   % prm
+  figsize = [300 460; ...   % prm
              300 340; ...   % preview
              300 720];      % profile
 
   fposy = scrsize(2) - 100 - figsize(:,2)';
   fposx = scrsize(1)/2 + [0 350 -350] - figsize(:,1)'/2;
   
+  lines = [420:-10:20];
   
   %------------------------------------------------------------
   % Preview window
@@ -61,78 +62,149 @@ function objDesigner()
   
   % Sine
   hPrm.sine.header(1) = uicontrol('Style','text',...
-                                  'Position',[20 220 200 20],...
-                                  'String','Carrier params.');  
-  vals = [8 .1 0 0 0; 0 0 0 0 0; 0 0 0 0 0];
+                                  'Position',[20 lines(7)+5 200 20],...
+                                  'HorizontalAlignment','left',...
+                                  'String','Carrier parameters');
   x = [20 60 100 140 180];
-  y = [200:-30:140];
-  for ii = 1:length(y)
-    for jj = 1:length(x)
+  labels = {'Freq','Ampl','Ph','Ori','Grp'};
+  y = lines(9);
+  for ii = 1:length(labels)
+    hPrm.sine.label(1,ii) = uicontrol('Style','text',...
+                                      'Position',[x(ii) y 30 20],...
+                                      'FontSize',8,...
+                                      'String',labels{ii});
+  end
+  vals = [8 .1 0 0 0; 0 0 0 0 0; 0 0 0 0 0];
+  y = lines(11:3:17);
+  for ii = 1:size(vals,1)
+    for jj = 1:size(vals,2)
       hPrm.sine.carr(ii,jj) = uicontrol('Style', 'edit',...
                                             'Position', [x(jj) y(ii) 30 20],...
                                             'String',num2str(vals(ii,jj)));
     end
   end
   
+  hPrm.sine.reset.carr = uicontrol('Style', 'pushbutton',...
+                                   'String', 'Reset',...
+                                   'Position', [20 lines(19) 50 20],...
+                                   'Callback', {@resetPrm,hPrm.sine.carr,'sine','carr'});
+  
+  
   hPrm.sine.header(2) = uicontrol('Style','text',...
-                                  'Position',[20 120 200 20],...
-                                  'String','Modulator params.');  
+                                  'Position',[20 lines(22) 200 20],...
+                                  'HorizontalAlignment','left',...
+                                  'String','Modulator parameters');
+  y = lines(24);
+  for ii = 1:length(labels)
+    hPrm.sine.label(2,ii) = uicontrol('Style','text',...
+                                      'Position',[x(ii) y 30 20],...
+                                      'FontSize',8,...
+                                      'String',labels{ii});
+  end  
   vals = [0 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0];
-  x = [20 60 100 140 180];
-  y = [100:-30:40];
-  for ii = 1:length(y)
-    for jj = 1:length(x)
+  y = lines(26:3:32);
+  for ii = 1:size(vals,1)
+    for jj = 1:size(vals,2)
       hPrm.sine.mod(ii,jj) = uicontrol('Style', 'edit',...
                                            'Position', [x(jj) y(ii) 30 20],...
                                            'String',num2str(vals(ii,jj)));
     end
   end
-
+  
+  hPrm.sine.reset.mod = uicontrol('Style', 'pushbutton',...
+                                  'String', 'Reset',...
+                                  'Position', [20 lines(34) 50 20],...
+                                  'Callback', {@resetPrm,hPrm.sine.mod,'sine','mod'});
+  
   set(hPrm.sine.header,'Visible','Off');
+  set(hPrm.sine.label,'Visible','Off');
+  set(hPrm.sine.reset.carr,'Visible','Off');
+  set(hPrm.sine.reset.mod,'Visible','Off');
   set(hPrm.sine.carr,'Visible','Off');
   set(hPrm.sine.mod,'Visible','Off');
   
   
   % Noise
   hPrm.noise.header(1) = uicontrol('Style','text',...
-                                   'Position',[20 220 200 20],...
-                                   'String','Carrier params.');  
-  vals = [8 1 0 30 .1 0; 0 0 0 0 0 0; 0 0 0 0 0 0];
+                                  'Position',[20 lines(7)+5 200 20],...
+                                  'HorizontalAlignment','left',...
+                                  'String','Carrier parameters');
   x = [20 60 100 140 180 220];
-  y = [200:-30:140];
-  for ii = 1:length(y)
-    for jj = 1:length(x)
+  labels = {'Freq','BW','Ori','BW','Ampl','Grp'};
+  y = lines(9);
+  for ii = 1:length(labels)
+    hPrm.noise.label(1,ii) = uicontrol('Style','text',...
+                                      'Position',[x(ii) y 30 20],...
+                                      'FontSize',8,...
+                                      'String',labels{ii});
+  end
+  vals = [8 1 0 30 .1 0; 0 0 0 0 0 0; 0 0 0 0 0 0];
+  y = lines(11:3:17);
+  for ii = 1:size(vals,1)
+    for jj = 1:size(vals,2)
       hPrm.noise.carr(ii,jj) = uicontrol('Style', 'edit',...
                                             'Position', [x(jj) y(ii) 30 20],...
                                             'String',num2str(vals(ii,jj)));
     end
   end
   
+  hPrm.noise.reset.carr = uicontrol('Style', 'pushbutton',...
+                                    'String', 'Reset',...
+                                    'Position', [20 lines(19) 50 20],...
+                                    'Callback', {@resetPrm,hPrm.noise.carr,'noise','carr'});
+  
+
   hPrm.noise.header(2) = uicontrol('Style','text',...
-                                   'Position',[20 120 200 20],...
-                                   'String','Modulator params.');  
-  vals = [0 0 0 0 0 0; 0 0 0 0 0 0; 0 0 0 0 0 0];
-  x = [20 60 100 140 180 220];
-  y = [100:-30:40];
-  for ii = 1:length(y)
-    for jj = 1:length(x)
+                                  'Position',[20 lines(22) 200 20],...
+                                  'HorizontalAlignment','left',...
+                                  'String','Modulator parameters');
+  labels = {'Freq','Ampl','Ph','Ori','Grp',''};
+  y = lines(24);
+  for ii = 1:length(labels)
+    hPrm.noise.label(2,ii) = uicontrol('Style','text',...
+                                      'Position',[x(ii) y 30 20],...
+                                      'FontSize',8,...
+                                      'String',labels{ii});
+  end  
+  vals = [0 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0];
+  y = lines(26:3:32);
+  for ii = 1:size(vals,1)
+    for jj = 1:size(vals,2)
       hPrm.noise.mod(ii,jj) = uicontrol('Style', 'edit',...
-                                        'Position', [x(jj) y(ii) 30 20],...
-                                        'String',num2str(vals(ii,jj)));
+                                           'Position', [x(jj) y(ii) 30 20],...
+                                           'String',num2str(vals(ii,jj)));
     end
   end
-  
+
+  hPrm.noise.reset.mod = uicontrol('Style', 'pushbutton',...
+                                   'String', 'Reset',...
+                                   'Position', [20 lines(34) 50 20],...
+                                   'Callback', {@resetPrm,hPrm.noise.mod,'noise','mod'});
+
   set(hPrm.noise.header,'Visible','Off');
+  set(hPrm.noise.label,'Visible','Off');
+  set(hPrm.noise.reset.carr,'Visible','Off');
+  set(hPrm.noise.reset.mod,'Visible','Off');
   set(hPrm.noise.carr,'Visible','Off');
   set(hPrm.noise.mod,'Visible','Off');
   
   % Bumps
   hPrm.bump.header(1) = uicontrol('Style','text',...
-                                  'Position',[20 220 200 20],...
-                                  'String','Bump params.');
-  vals = [20 .1 pi/12; 0 0 0; 0 0 0];
+                                  'Position',[20 lines(7)+5 200 20],...
+                                  'HorizontalAlignment','left',...
+                                  'String','Bump parameters');
   x = [20 60 100];
-  y = [200:-30:140];
+  labels = {'N','Ampl','Size'};
+  y = lines(9);
+  for ii = 1:length(labels)
+    hPrm.bump.label(1,ii) = uicontrol('Style','text',...
+                                      'Position',[x(ii) y 30 20],...
+                                      'FontSize',8,...
+                                      'String',labels{ii});
+  end 
+  
+  vals = [20 .1 pi/12; 0 0 0; 0 0 0];
+  y = lines(11:3:17);
   for ii = 1:length(y)
     for jj = 1:length(x)
       hPrm.bump.prm(ii,jj) = uicontrol('Style', 'edit',...
@@ -141,7 +213,14 @@ function objDesigner()
     end
   end
     
+  hPrm.bump.reset.prm = uicontrol('Style', 'pushbutton',...
+                                  'String', 'Reset',...
+                                  'Position', [20 lines(19) 50 20],...
+                                  'Callback', {@resetPrm,hPrm.bump.prm,'bump','prm'});
+  
   set(hPrm.bump.header,'Visible','Off');
+  set(hPrm.bump.label,'Visible','Off');
+  set(hPrm.bump.reset.prm,'Visible','Off');
   set(hPrm.bump.prm,'Visible','Off');
   
   %------------------------------------------------------------
@@ -174,6 +253,7 @@ function objDesigner()
   ylim = [0 yscale];
   axis equal
   set(ahCurve(1),'XLim',xlim,'YLim',ylim);
+  title('Profile for revolution');
   hold on
 
   y = ylim;
@@ -181,6 +261,11 @@ function objDesigner()
   
   y1 = linspace(0,yscale,npoints(1));
   x1 = interp1(y,x,y1,'spline');
+
+  hsmooth_orig(1,1) = plot(x1,y1,'Visible','Off');
+  hdat_orig(1,1) = plot(x,y,'Visible','Off');
+  hsmooth_orig(1,2) = plot(-x1,y1,'Visible','Off');
+  hdat_orig(1,2) = plot(-x,y,'Visible','Off');
   
   hsmooth(1,1) = plot(x1,y1,'r-');
   hdat(1,1) = plot(x,y,'ob','MarkerFaceColor','b');
@@ -235,6 +320,8 @@ function objDesigner()
     
 
     
+    hsmooth_orig(2,1) = plot(x1,y1,'Visible','Off');
+    hdat_orig(2,1) = plot(x,y,'Visible','Off');
     hsmooth(2,1) = plot(x1,y1,'r-');
     hdat(2,1) = plot(x,y,'ob','MarkerFaceColor','b');
     drawnow
@@ -242,11 +329,15 @@ function objDesigner()
     %keyboard
     
   end
+  title('Radial profile for extrusion');  
 
   % End setting up for extrusion / polar profile
   %------------------------------------------------------------
 
   %setappdata(fhCurve,'profiletype',profiletype);
+  setappdata(fhCurve,'h_orig',hdat_orig);
+  setappdata(fhCurve,'hsmooth_orig',hsmooth_orig);
+
   setappdata(fhCurve,'h',hdat);
   setappdata(fhCurve,'hsmooth',hsmooth);
   
@@ -273,6 +364,7 @@ function objDesigner()
   setappdata(fhCurve,'connect',connect);
   setappdata(fhCurve,'interp',interp);
   setappdata(fhCurve,'rdata',r1);
+  setappdata(fhCurve,'rdata_orig',r1);
   setappdata(fhCurve,'usercurve',true);
   setappdata(fhCurve,'useecurve',true);
 
@@ -285,7 +377,7 @@ function objDesigner()
 
   figure(fhCurve);
   hUseCurve(1) = uicontrol('Style', 'checkbox',...
-                           'Position', [250 650 60 20],...
+                           'Position', [250 630 60 20],...
                            'String','Use profile',...
                            'Value', 1,...
                            'Tag','1',...
@@ -299,31 +391,52 @@ function objDesigner()
                            'Tag','2',...
                            'Enable','Off',...
                            'Callback', {@toggleCurve,fhPrm,fhCurve,hPrm,ahPreview});
-  
+
+  hResetCurve(1) = uicontrol('Style', 'pushbutton',...
+                           'Position', [250 600 60 20],...
+                           'Tag','1',...
+                           'String','Reset',...
+                           'Callback', {@resetCurve,fhPrm,fhCurve,hPrm,ahPreview});
+
+  hResetCurve(2) = uicontrol('Style', 'pushbutton',...
+                           'Position', [250 180 60 20],...
+                           'Tag','2',...
+                           'String','Reset',...
+                           'Callback', {@resetCurve,fhPrm,fhCurve,hPrm,ahPreview});  
+
   %------------------------------------------------------------
   
   figure(fhPrm);
   setappdata(fhPrm,'shape','sphere');
   setappdata(fhPrm,'perturbation','none');
   
+  uicontrol('Style','text',...
+            'Position',[120 lines(1) 100 20],...
+            'HorizontalAlignment','left',...
+            'String','Perturbation');  
+
+  uicontrol('Style','text',...
+            'Position',[20 lines(1) 100 20],...
+            'HorizontalAlignment','left',...
+            'String','Shape');  
+  
   hPerturbation = uicontrol('Style', 'popup',...
                             'String', {'none','sine','noise','bump'},...
-                            'Position', [120 260 100 20],...
+                            'Position', [120 lines(3) 100 20],...
                             'Callback', {@updatePerturbation,fhPrm,fhCurve,hPrm,ahPreview});
   
   hShape = uicontrol('Style', 'popup',...
                      'String', {'sphere','plane','cylinder','torus','disk','revolution','extrusion'},...
-                     'Position', [20 260 100 20],...
+                     'Position', [20 lines(3) 100 20],...
                      'Callback', {@updateShape,fhPrm,fhCurve,hPrm,hUseCurve,ahPreview});
   %                     'Callback', {@updateShape,hPerturbation,hPrm,ahPreview});
   
   hUpdate = uicontrol('Style', 'pushbutton',...
                       'String', 'Update',...
-                      'Position', [20 20 50 20],...
+                      'Position', [20 lines(end) 50 20],...
                       'Callback', {@updatePrm,fhPrm,fhCurve,hPrm,ahPreview});
   %                      'Callback', {@updatePrm,hShape,hPerturbation,hPrm,ahPreview});
   
-
   %------------------------------------------------------------
   
   figure(fhPrm);
@@ -354,6 +467,38 @@ function toggleCurve(src,event,fhPrm,fhCurve,hPrm,ahPreview)
   
 end
 
+function resetCurve(src,event,fhPrm,fhCurve,hPrm,ahPreview)
+  idx = str2num(get(src,'Tag'));
+
+  h0 = getappdata(fhCurve,'h_orig');
+  h1 = getappdata(fhCurve,'h');
+  
+  set(h1(idx,1),'xdata',get(h0(idx,1),'xdata'));
+  set(h1(idx,1),'ydata',get(h0(idx,1),'ydata'));
+  
+  if idx==1
+    set(h1(idx,2),'xdata',get(h0(idx,2),'xdata'));  
+    set(h1(idx,2),'ydata',get(h0(idx,2),'ydata'));  
+  else
+    rdata = getappdata(fhCurve,'rdata_orig');
+    setappdata(fhCurve,'rdata',rdata);
+  end
+  
+  h0 = getappdata(fhCurve,'hsmooth_orig');
+  h1 = getappdata(fhCurve,'hsmooth');
+
+  set(h1(idx,1),'xdata',get(h0(idx,1),'xdata'));
+  set(h1(idx,1),'ydata',get(h0(idx,1),'ydata'));
+
+  if idx==1
+    set(h1(idx,2),'xdata',get(h0(idx,2),'xdata'));  
+    set(h1(idx,2),'ydata',get(h0(idx,2),'ydata'));  
+  end
+  
+  updatePrm([],[],fhPrm,fhCurve,hPrm,ahPreview);
+  
+end
+
 
 function updatePerturbation(src,event,fhPrm,fhCurve,hPrm,ahPreview)
   
@@ -362,14 +507,22 @@ function updatePerturbation(src,event,fhPrm,fhCurve,hPrm,ahPreview)
   perturbation = perturbations{p};
   
   set(hPrm.sine.header,'Visible','Off');
+  set(hPrm.sine.label,'Visible','Off');
+  set(hPrm.sine.reset.carr,'Visible','Off');
+  set(hPrm.sine.reset.mod,'Visible','Off');
   set(hPrm.sine.carr,'Visible','Off');
   set(hPrm.sine.mod,'Visible','Off');
   
   set(hPrm.noise.header,'Visible','Off');
+  set(hPrm.noise.label,'Visible','Off');
+  set(hPrm.noise.reset.carr,'Visible','Off');
+  set(hPrm.noise.reset.mod,'Visible','Off');
   set(hPrm.noise.carr,'Visible','Off');
   set(hPrm.noise.mod,'Visible','Off');  
   
   set(hPrm.bump.header,'Visible','Off');
+  set(hPrm.bump.label,'Visible','Off');
+  set(hPrm.bump.reset.prm,'Visible','Off');
   set(hPrm.bump.prm,'Visible','Off');
   
   switch perturbation
@@ -378,16 +531,24 @@ function updatePerturbation(src,event,fhPrm,fhCurve,hPrm,ahPreview)
     case 'sine'
       setappdata(fhPrm,'perturbation','sine');
       set(hPrm.sine.header,'Visible','On');
+      set(hPrm.sine.label,'Visible','On');
+      set(hPrm.sine.reset.carr,'Visible','On');
+      set(hPrm.sine.reset.mod,'Visible','On');
       set(hPrm.sine.carr,'Visible','On');
       set(hPrm.sine.mod,'Visible','On');
     case 'noise'
       setappdata(fhPrm,'perturbation','noise');
       set(hPrm.noise.header,'Visible','On');
+      set(hPrm.noise.label,'Visible','On');
+      set(hPrm.noise.reset.carr,'Visible','On');
+      set(hPrm.noise.reset.mod,'Visible','On');
       set(hPrm.noise.carr,'Visible','On');
       set(hPrm.noise.mod,'Visible','On');   
     case 'bump'
       setappdata(fhPrm,'perturbation','bump');
       set(hPrm.bump.header,'Visible','On');
+      set(hPrm.bump.label,'Visible','On');
+      set(hPrm.bump.reset.prm,'Visible','On');
       set(hPrm.bump.prm,'Visible','On');
   end
   
@@ -447,7 +608,11 @@ function updatePrm(src,event,fhPrm,fhCurve,hPrm,ah)
         end
       end
       idx = all(prm==0,2);
-      prm(idx,:) = [];
+      if all(idx)
+        prm = zeros(1,size(prm,2));
+      else
+        prm(idx,:) = [];
+      end
       idx = all(mprm==0,2);
       mprm(idx,:) = [];
     case 'bump'
@@ -488,6 +653,32 @@ function updatePrm(src,event,fhPrm,fhCurve,hPrm,ah)
   objShow(m);
 end
 
+function resetPrm(src,event,hPrm,perturbation,type)
+  switch perturbation
+    case 'sine'
+      switch type
+        case 'carr'
+          vals = [8 .1 0 0 0; 0 0 0 0 0; 0 0 0 0 0];
+        case 'mod'
+          vals = [0 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0];
+      end
+    case 'noise'
+      switch type
+        case 'carr'
+          vals = [8 1 0 30 .1 0; 0 0 0 0 0 0; 0 0 0 0 0 0];
+        case 'mod'
+          vals = [0 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0];
+      end
+    case 'bump'
+      vals = [20 .1 pi/12; 0 0 0; 0 0 0];
+  end
+  
+  for ii = 1:size(hPrm,1)
+    for jj = 1:size(hPrm,2)
+      set(hPrm(ii,jj),'String',num2str(vals(ii,jj)));
+    end
+  end
+end
 
 %------------------------------------------------------------
 % Callback functions for profiles
