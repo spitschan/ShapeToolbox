@@ -1,4 +1,4 @@
-function h = objShow(obj,func,showaxes)
+function h = objShow(obj,func,campos,showaxes)
 
 % OBJSHOW
 %
@@ -59,7 +59,8 @@ function h = objShow(obj,func,showaxes)
 % 2016-06-14 - ts - minor changes to help
 % 2016-12-13 - ts - improved viewing directions, rotation etc in Matlab
 %                   can set axes visible
-
+% 2016-12-16 - ts - camera position as optional input
+  
 % TODO
 % https://se.mathworks.com/help/matlab/examples/displaying-complex-three-dimensional-objects.html
 % use patch object?
@@ -74,7 +75,11 @@ function h = objShow(obj,func,showaxes)
     func = 'surfl';
   end
 
-  if nargin<3 || isempty(showaxes)
+  if nargin<3 || isempty(campos)
+    campos = [1.2 1.2 1.2];
+  end
+  
+  if nargin<4 || isempty(showaxes)
     showaxes = false;
   end
   
@@ -148,7 +153,7 @@ function h = objShow(obj,func,showaxes)
     %rotate3d on
     set(gca,'CameraUpVector',[0 0 1],...
             'CameraUpVectorMode','manual',...
-            'CameraPosition',[1 1 1]);
+            'CameraPosition',campos);
     %view([1 1 1]);
     %
     h3 = rotate3d;

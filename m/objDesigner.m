@@ -15,17 +15,19 @@ function objDesigner()
 % load existing / saved model to gui
 % when loading, get default parameters for all perturbations and shapes
   
-  scrsize = get(0,'ScreenSize');
-  scrsize = scrsize(3:4) - scrsize(1:2);
+  fontsize = 8;
   
-  figsize = [300 460; ...   % prm
-             300 340; ...   % preview
+  scrsize = get(0,'ScreenSize');
+  scrsize = scrsize(3:4) - scrsize(1:2) + 1;
+  
+  figsize = [300 480; ...   % prm
+             300 380; ...   % preview
              300 720];      % profile
 
   fposy = scrsize(2) - 100 - figsize(:,2)';
   fposx = scrsize(1)/2 + [0 350 -350] - figsize(:,1)'/2;
   
-  lines = [420:-10:20];
+  lines = [440:-10:20];
   
   %------------------------------------------------------------
   % Preview window
@@ -40,7 +42,7 @@ function objDesigner()
   pos = [fposx(2) fposy(2) figsize(2,:)];
   set(fhPreview,'Position',pos);
   
-  ahPreview = axes('Units','pixels','Position',[20 20 260 260]);
+  ahPreview = axes('Units','pixels','Position',[20 100 260 260]);
 
   
   %------------------------------------------------------------
@@ -79,13 +81,14 @@ function objDesigner()
   for ii = 1:size(vals,1)
     for jj = 1:size(vals,2)
       hPrm.sine.carr(ii,jj) = uicontrol('Style', 'edit',...
-                                            'Position', [x(jj) y(ii) 30 20],...
-                                            'String',num2str(vals(ii,jj)));
+                                        'Position', [x(jj) y(ii) 30 20],...
+                                        'String',num2str(vals(ii,jj)));
     end
   end
   
   hPrm.sine.reset.carr = uicontrol('Style', 'pushbutton',...
                                    'String', 'Reset',...
+                                   'FontSize',8,...
                                    'Position', [20 lines(19) 50 20],...
                                    'Callback', {@resetPrm,hPrm.sine.carr,'sine','carr'});
   
@@ -106,13 +109,14 @@ function objDesigner()
   for ii = 1:size(vals,1)
     for jj = 1:size(vals,2)
       hPrm.sine.mod(ii,jj) = uicontrol('Style', 'edit',...
-                                           'Position', [x(jj) y(ii) 30 20],...
-                                           'String',num2str(vals(ii,jj)));
+                                       'Position', [x(jj) y(ii) 30 20],...
+                                       'String',num2str(vals(ii,jj)));
     end
   end
   
   hPrm.sine.reset.mod = uicontrol('Style', 'pushbutton',...
                                   'String', 'Reset',...
+                                  'FontSize',8,...
                                   'Position', [20 lines(34) 50 20],...
                                   'Callback', {@resetPrm,hPrm.sine.mod,'sine','mod'});
   
@@ -143,13 +147,14 @@ function objDesigner()
   for ii = 1:size(vals,1)
     for jj = 1:size(vals,2)
       hPrm.noise.carr(ii,jj) = uicontrol('Style', 'edit',...
-                                            'Position', [x(jj) y(ii) 30 20],...
-                                            'String',num2str(vals(ii,jj)));
+                                         'Position', [x(jj) y(ii) 30 20],...
+                                         'String',num2str(vals(ii,jj)));
     end
   end
   
   hPrm.noise.reset.carr = uicontrol('Style', 'pushbutton',...
                                     'String', 'Reset',...
+                                    'FontSize',8,...
                                     'Position', [20 lines(19) 50 20],...
                                     'Callback', {@resetPrm,hPrm.noise.carr,'noise','carr'});
   
@@ -171,13 +176,14 @@ function objDesigner()
   for ii = 1:size(vals,1)
     for jj = 1:size(vals,2)
       hPrm.noise.mod(ii,jj) = uicontrol('Style', 'edit',...
-                                           'Position', [x(jj) y(ii) 30 20],...
-                                           'String',num2str(vals(ii,jj)));
+                                        'Position', [x(jj) y(ii) 30 20],...
+                                        'String',num2str(vals(ii,jj)));
     end
   end
 
   hPrm.noise.reset.mod = uicontrol('Style', 'pushbutton',...
                                    'String', 'Reset',...
+                                   'FontSize',8,...
                                    'Position', [20 lines(34) 50 20],...
                                    'Callback', {@resetPrm,hPrm.noise.mod,'noise','mod'});
 
@@ -215,6 +221,7 @@ function objDesigner()
     
   hPrm.bump.reset.prm = uicontrol('Style', 'pushbutton',...
                                   'String', 'Reset',...
+                                  'FontSize',8,...
                                   'Position', [20 lines(19) 50 20],...
                                   'Callback', {@resetPrm,hPrm.bump.prm,'bump','prm'});
   
@@ -222,6 +229,61 @@ function objDesigner()
   set(hPrm.bump.label,'Visible','Off');
   set(hPrm.bump.reset.prm,'Visible','Off');
   set(hPrm.bump.prm,'Visible','Off');
+  
+  % Custom
+  hPrm.custom.header(1) = uicontrol('Style','text',...
+                                  'Position',[20 lines(7)+5 200 20],...
+                                  'HorizontalAlignment','left',...
+                                  'String','Custom parameters');
+  x = 20;
+  labels = {'Function from file',...
+            'Anonymous function (@)',...
+            'Matrix from workspace',...
+            'Image file'};
+  y = lines([9 17 25 33]);
+  for ii = 1:length(labels)
+    hPrm.custom.label(ii,1) = uicontrol('Style','text',...
+                                        'Position',[x y(ii) 250 20],...
+                                        'FontSize',8,...
+                                        'HorizontalAlignment','left',...
+                                        'String',labels{ii});
+  end 
+  
+  wdt = [250 250 250 165; 215 215 215 215];
+  x = [20 55];
+  y = lines([11 19 27 35]);
+  for ii = 1:length(y)
+    for jj = 1:2
+      hPrm.custom.prm(ii,jj) = uicontrol('Style', 'edit',...
+                                      'Position', [x(jj) y(ii)-(jj-1)*25 wdt(jj,ii) 20],...
+                                      'HorizontalAlignment','left',...
+                                      'String','');
+    end
+    
+    hPrm.custom.label(ii,2) = uicontrol('Style','text',...
+                                        'Position',[20 y(ii)-25 30 20],...
+                                        'FontSize',8,...
+                                        'HorizontalAlignment','left',...
+                                        'String','Prm:');
+  end
+  
+  hPrm.custom.selectfile = uicontrol('Style', 'pushbutton',...
+                                     'String', 'Select file',...
+                                     'FontSize',8,...
+                                     'Position', [190 lines(35) 80 20],...
+                                     'Callback', {@selectFile,hPrm.custom.prm(4)});
+  
+  hPrm.custom.reset.prm = uicontrol('Style', 'pushbutton',...
+                                    'String', 'Reset',...
+                                    'FontSize',8,...
+                                    'Position', [20 lines(40) 50 20],...
+                                    'Callback', {@resetPrm,hPrm.custom.prm,'custom','prm'});
+  
+  set(hPrm.custom.header,'Visible','Off');
+  set(hPrm.custom.label,'Visible','Off');
+  set(hPrm.custom.reset.prm,'Visible','Off');
+  set(hPrm.custom.selectfile,'Visible','Off');
+  set(hPrm.custom.prm,'Visible','Off');
   
   %------------------------------------------------------------
   % Profiles for revolution and extrusion
@@ -377,32 +439,36 @@ function objDesigner()
 
   figure(fhCurve);
   hUseCurve(1) = uicontrol('Style', 'checkbox',...
-                           'Position', [250 630 60 20],...
+                           'Position', [250 630 100 20],...
                            'String','Use profile',...
+                           'FontSize',8,...
                            'Value', 1,...
                            'Tag','1',...
                            'Enable','Off',...
-                           'Callback', {@toggleCurve,fhPrm,fhCurve,hPrm,ahPreview});
+                           'Callback', {@toggleCurve,fhPrm,fhCurve,fhPreview,hPrm,ahPreview});
   
   hUseCurve(2) = uicontrol('Style', 'checkbox',...
-                           'Position', [250 210 60 20],...
+                           'Position', [250 210 100 20],...
                            'String','Use profile',...
+                           'FontSize',8,...
                            'Value', 1,...
                            'Tag','2',...
                            'Enable','Off',...
-                           'Callback', {@toggleCurve,fhPrm,fhCurve,hPrm,ahPreview});
+                           'Callback', {@toggleCurve,fhPrm,fhCurve,fhPreview,hPrm,ahPreview});
 
   hResetCurve(1) = uicontrol('Style', 'pushbutton',...
-                           'Position', [250 600 60 20],...
-                           'Tag','1',...
-                           'String','Reset',...
-                           'Callback', {@resetCurve,fhPrm,fhCurve,hPrm,ahPreview});
+                             'Position', [250 600 60 20],...
+                             'Tag','1',...
+                             'FontSize',8,...
+                             'String','Reset',...
+                             'Callback', {@resetCurve,fhPrm,fhCurve,fhPreview,hPrm,ahPreview});
 
   hResetCurve(2) = uicontrol('Style', 'pushbutton',...
-                           'Position', [250 180 60 20],...
-                           'Tag','2',...
-                           'String','Reset',...
-                           'Callback', {@resetCurve,fhPrm,fhCurve,hPrm,ahPreview});  
+                             'Position', [250 180 60 20],...
+                             'Tag','2',...
+                             'FontSize',8,...
+                             'String','Reset',...
+                             'Callback', {@resetCurve,fhPrm,fhCurve,fhPreview,hPrm,ahPreview});  
 
   %------------------------------------------------------------
   
@@ -421,28 +487,85 @@ function objDesigner()
             'String','Shape');  
   
   hPerturbation = uicontrol('Style', 'popup',...
-                            'String', {'none','sine','noise','bump'},...
+                            'String', {'none','sine','noise','bump','custom'},...
                             'Position', [120 lines(3) 100 20],...
-                            'Callback', {@updatePerturbation,fhPrm,fhCurve,hPrm,ahPreview});
+                            'Callback', {@updatePerturbation,fhPrm,fhCurve,fhPreview,hPrm,ahPreview});
   
   hShape = uicontrol('Style', 'popup',...
                      'String', {'sphere','plane','cylinder','torus','disk','revolution','extrusion'},...
                      'Position', [20 lines(3) 100 20],...
-                     'Callback', {@updateShape,fhPrm,fhCurve,hPrm,hUseCurve,ahPreview});
+                     'Callback', {@updateShape,fhPrm,fhCurve,fhPreview,hPrm,hUseCurve,ahPreview});
   %                     'Callback', {@updateShape,hPerturbation,hPrm,ahPreview});
   
   hUpdate = uicontrol('Style', 'pushbutton',...
                       'String', 'Update',...
+                      'FontSize',8,...
                       'Position', [20 lines(end) 50 20],...
-                      'Callback', {@updatePrm,fhPrm,fhCurve,hPrm,ahPreview});
+                      'Callback', {@updatePrm,fhPrm,fhCurve,fhPreview,hPrm,ahPreview});
   %                      'Callback', {@updatePrm,hShape,hPerturbation,hPrm,ahPreview});
   
+  %------------------------------------------------------------
+  
+  figure(fhPreview);
+  
+  hToggleAxes = uicontrol('Style', 'checkbox',...
+                          'Position', [20 70 115 20],...
+                          'String','Show axes',...
+                          'FontSize',fontsize,...
+                          'Value', 0,...
+                          'Callback', {@toggleAxes,ahPreview});  
+  
+  
+  bhResetView = uicontrol('Style', 'pushbutton',...
+                          'String', 'Reset view',...
+                          'Position', [150 70 130 20],...
+                          'Callback', {@resetView,fhPreview,ahPreview},...
+                          'FontSize',fontsize);    
+  
+  thExportLabel = uicontrol('Style','text',...
+                            'Position',[20 45 55 20],...
+                            'HorizontalAlignment','left',...
+                            'String','Variable',...
+                            'FontSize',fontsize);
+  
+  thExport = uicontrol('Style','edit',...
+                       'Position',[85 45 60 20],...
+                       'HorizontalAlignment','left',...
+                       'String','model',...
+                       'Callback', {@exportToWorkSpace,[],fhPreview},...
+                       'FontSize',fontsize);
+  
+  bhExport = uicontrol('Style', 'pushbutton',...
+                       'String', 'Export to workspace',...
+                       'Position', [150 45 130 20],...
+                       'Callback', {@exportToWorkSpace,thExport,fhPreview},...
+                       'FontSize',fontsize);  
+  
+  thSaveLabel = uicontrol('Style','text',...
+                          'Position',[20 20 55 20],...
+                          'HorizontalAlignment','left',...
+                          'String','Filename',...
+                          'FontSize',fontsize);
+  
+  thSave = uicontrol('Style','edit',...
+                     'Position',[85 20 60 20],...
+                     'HorizontalAlignment','left',...
+                     'String','model',...
+                     'Callback', {@saveModel,[],fhPreview},...
+                     'FontSize',fontsize);
+  
+  bhSave = uicontrol('Style', 'pushbutton',...
+                     'String', 'Save .obj file',...
+                     'Position', [150 20 130 20],...
+                     'Callback', {@saveModel,thSave,fhPreview},...
+                     'FontSize',fontsize);  
+
   %------------------------------------------------------------
   
   figure(fhPrm);
   
   % updatePerturbation([],[],fhPrm,hPrm,ahPreview);
-  updatePrm([],[],fhPrm,fhCurve,hPrm,ahPreview);
+  updatePrm([],[],fhPrm,fhCurve,fhPreview,hPrm,ahPreview);
   % updatePrm([],[],hShape,hPerturbation,hPrm,ahPreview);
 
   % m = objMakeNoise('sphere');
@@ -452,7 +575,7 @@ function objDesigner()
 end
 
 
-function toggleCurve(src,event,fhPrm,fhCurve,hPrm,ahPreview)
+function toggleCurve(src,event,fhPrm,fhCurve,fhPreview,hPrm,ahPreview)
   usecurve = get(src,'Value');
   which = str2num(get(src,'Tag'));
   if which==1
@@ -463,11 +586,11 @@ function toggleCurve(src,event,fhPrm,fhCurve,hPrm,ahPreview)
   % if usecurve
     
   % end
-  updatePrm([],[],fhPrm,fhCurve,hPrm,ahPreview);
+  updatePrm([],[],fhPrm,fhCurve,fhPreview,hPrm,ahPreview);
   
 end
 
-function resetCurve(src,event,fhPrm,fhCurve,hPrm,ahPreview)
+function resetCurve(src,event,fhPrm,fhCurve,fhPreview,hPrm,ahPreview)
   idx = str2num(get(src,'Tag'));
 
   h0 = getappdata(fhCurve,'h_orig');
@@ -495,12 +618,14 @@ function resetCurve(src,event,fhPrm,fhCurve,hPrm,ahPreview)
     set(h1(idx,2),'ydata',get(h0(idx,2),'ydata'));  
   end
   
-  updatePrm([],[],fhPrm,fhCurve,hPrm,ahPreview);
+  updatePrm([],[],fhPrm,fhCurve,fhPreview,hPrm,ahPreview);
   
 end
 
 
-function updatePerturbation(src,event,fhPrm,fhCurve,hPrm,ahPreview)
+function updatePerturbation(src,event,fhPrm,fhCurve,fhPreview,hPrm,ahPreview)
+  
+  shape = getappdata(fhPrm,'shape');
   
   p = get(src,'value');
   perturbations = get(src,'String');
@@ -525,6 +650,12 @@ function updatePerturbation(src,event,fhPrm,fhCurve,hPrm,ahPreview)
   set(hPrm.bump.reset.prm,'Visible','Off');
   set(hPrm.bump.prm,'Visible','Off');
   
+  set(hPrm.custom.header,'Visible','Off');
+  set(hPrm.custom.label,'Visible','Off');
+  set(hPrm.custom.reset.prm,'Visible','Off');
+  set(hPrm.custom.selectfile,'Visible','Off');
+  set(hPrm.custom.prm,'Visible','Off');
+  
   switch perturbation
     case 'none'
       setappdata(fhPrm,'perturbation','none');
@@ -545,18 +676,27 @@ function updatePerturbation(src,event,fhPrm,fhCurve,hPrm,ahPreview)
       set(hPrm.noise.carr,'Visible','On');
       set(hPrm.noise.mod,'Visible','On');   
     case 'bump'
-      setappdata(fhPrm,'perturbation','bump');
-      set(hPrm.bump.header,'Visible','On');
-      set(hPrm.bump.label,'Visible','On');
-      set(hPrm.bump.reset.prm,'Visible','On');
-      set(hPrm.bump.prm,'Visible','On');
+      if ~strcmp(shape,'torus')
+        setappdata(fhPrm,'perturbation','bump');
+        set(hPrm.bump.header,'Visible','On');
+        set(hPrm.bump.label,'Visible','On');
+        set(hPrm.bump.reset.prm,'Visible','On');
+        set(hPrm.bump.prm,'Visible','On');
+      end
+    case 'custom'
+      setappdata(fhPrm,'perturbation','custom');
+      set(hPrm.custom.header,'Visible','On');
+      set(hPrm.custom.label,'Visible','On');
+      set(hPrm.custom.reset.prm,'Visible','On');
+      set(hPrm.custom.selectfile,'Visible','On');
+      set(hPrm.custom.prm,'Visible','On');
   end
   
-  updatePrm([],[],fhPrm,fhCurve,hPrm,ahPreview);
+  updatePrm([],[],fhPrm,fhCurve,fhPreview,hPrm,ahPreview);
   
 end
   
-function updateShape(src,event,fhPrm,fhCurve,hPrm,hUseCurve,ah)
+function updateShape(src,event,fhPrm,fhCurve,fhPreview,hPrm,hUseCurve,ah)
   s = get(src,'value');
   shapes = get(src,'String');
   shape = shapes{s};
@@ -575,7 +715,7 @@ function updateShape(src,event,fhPrm,fhCurve,hPrm,hUseCurve,ah)
       set(hUseCurve(1),'Enable','Off');
       set(hUseCurve(2),'Enable','Off');
   end  
-  updatePrm([],[],fhPrm,fhCurve,hPrm,ah);
+  updatePrm([],[],fhPrm,fhCurve,fhPreview,hPrm,ah);
 end
 
 % function updateShape(src,event,hPerturbation,hPrm,ah)
@@ -591,7 +731,7 @@ end
 %   perturbations = get(hPerturbation,'String');
 %   perturbation = perturbations{p};
   
-function updatePrm(src,event,fhPrm,fhCurve,hPrm,ah)
+function updatePrm(src,event,fhPrm,fhCurve,fhPreview,hPrm,ah)
   shape = getappdata(fhPrm,'shape');
   perturbation = getappdata(fhPrm,'perturbation');
   
@@ -620,7 +760,18 @@ function updatePrm(src,event,fhPrm,fhCurve,hPrm,ah)
         for jj = 1:size(hPrm.(perturbation).prm,2)
           prm(ii,jj) = str2num(get(hPrm.(perturbation).prm(ii,jj),'String'));
         end
-      end      
+      end
+    case 'custom'
+      prm = '';
+      customtype = 0;
+      for ii = 1:size(hPrm.(perturbation).prm,1)
+        f = get(hPrm.(perturbation).prm(ii,1),'String');
+        prm = str2num(get(hPrm.(perturbation).prm(ii,2),'String'));
+        if ~isempty(prm)
+          customtype = ii;
+          break
+        end
+      end
   end
   
   args = {};
@@ -648,11 +799,36 @@ function updatePrm(src,event,fhPrm,fhCurve,hPrm,ah)
       m = objMakeNoise(shape,prm,mprm,args{:});
     case 'bump'
       m = objMakeBump(shape,prm,args{:});
+    case 'custom'
+      switch customtype
+        case 1
+          m = objMakeCustom(shape,eval(sprintf('@%s',f)),prm,args{:});
+        case 2
+          m = objMakeCustom(shape,eval(f),prm,args{:});
+        case 3
+          M = evalin('base',f);
+          m = objMakeCustom(shape,M,prm,args{:});
+        case 4
+          m = objMakeCustom(shape,f,prm,args{:});
+        otherwise
+          m = objMakePlain(shape,args{:});
+      end
   end
   axes(ah);
   objShow(m);
+  setappdata(fhPreview,'model',m);
 end
 
+function selectFile(src,event,hPrm)
+  [filename,filepath] = uigetfile(...
+      {'*.tiff;*.jpg;*.jpeg,*.png','Image files (*.tiff;*.jpg;*.jpeg,*.png)';...
+       '*.*','All Files (*.*)'},...
+      'Select image to use as height map');
+  set(hPrm,'String',fullfile(filepath,filename));
+% ,hPrm.custom.prm(4)
+
+end
+  
 function resetPrm(src,event,hPrm,perturbation,type)
   switch perturbation
     case 'sine'
@@ -671,6 +847,15 @@ function resetPrm(src,event,hPrm,perturbation,type)
       end
     case 'bump'
       vals = [20 .1 pi/12; 0 0 0; 0 0 0];
+  end
+
+  if strcmp(perturbation,'custom')
+    for ii = 1:size(hPrm,1)
+      for jj = 1:size(hPrm,2)
+        set(hPrm(ii,jj),'String','');
+      end
+    end
+    return
   end
   
   for ii = 1:size(hPrm,1)
@@ -920,4 +1105,55 @@ function plotpoint(src,event)
   pos = get(gca,'currentpoint');
   set(h(idx),'xdata',pos(1,1),'ydata',pos(1,2));
   drawnow
+end
+
+
+
+function exportToWorkSpace(src,event,th,fh)
+  if isempty(th)
+    varname = get(src,'String');
+  else
+    varname = get(th,'String');
+  end
+  m = getappdata(fh,'model');
+  assignin('base',varname,m);
+end
+
+function saveModel(src,event,th,fh)
+  if isempty(th)
+    filename = get(src,'String');
+  else
+    filename = get(th,'String');
+  end
+  if isempty(regexp(filename,'\.obj$'))
+    filename = [filename,'.obj'];
+  end
+  m = getappdata(fh,'model');
+  m.filename = filename;
+  objSave(m);
+end
+
+function resetView(src,event,fh,ah)
+  m = getappdata(fh,'model');
+  showaxes = get(ah,'Visible');
+  axes(ah);
+  objShow(m);
+  if strcmp(lower(showaxes),'on')
+    set(ah,'Visible','On');
+    xlabel('x');
+    ylabel('z');
+    zlabel('y');    
+  end
+end
+
+function toggleAxes(src,event,ah)
+  show = get(src,'Value');
+  if show
+    set(ah,'Visible','On');
+    xlabel('x');
+    ylabel('z');
+    zlabel('y');
+  else
+    set(ah,'Visible','Off');
+  end
 end

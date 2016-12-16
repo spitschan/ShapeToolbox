@@ -8,7 +8,10 @@ function model = objParseCustomParams(model)
 % 2015-05-30 - ts - first version
 % 2015-10-15 - ts - fixed a bug (use_map was not set with matrix input)
 % 2016-02-19 - ts - moved things from model.opts to model.prm(model.idx)
-
+% 2016-12-16 - ts - don't change the model size here according to
+%                    height map (matrix/image), as the height map
+%                    is interpolated according to model size in objMakeHeightMap
+  
 ii = model.idx;
 f = model.opts.f;
 prm = model.opts.prm;
@@ -27,8 +30,8 @@ if ischar(f)
   model.prm(ii).ampl = prm(1);
 
   [model.prm(ii).mmap,model.prm(ii).nmap] = size(model.prm(ii).map);
-  model.m = model.prm(ii).mmap;
-  model.n = model.prm(ii).nmap;
+  % model.m = model.prm(ii).mmap;
+  % model.n = model.prm(ii).nmap;
 
   model.flags.use_map = true;
 
@@ -45,8 +48,8 @@ elseif isnumeric(f)
   model.prm(ii).ampl = prm(1);
 
   [model.prm(ii).mmap,model.prm(ii).nmap] = size(model.prm(ii).map);
-  model.m = model.prm(ii).mmap;
-  model.n = model.prm(ii).nmap;
+  % model.m = model.prm(ii).mmap;
+  % model.n = model.prm(ii).nmap;
 
   model.flags.use_map = true;
 
