@@ -20,14 +20,14 @@ function objDesigner()
   scrsize = get(0,'ScreenSize');
   scrsize = scrsize(3:4) - scrsize(1:2) + 1;
   
-  figsize = [300 480; ...   % prm
+  figsize = [300 600; ...   % prm
              300 380; ...   % preview
-             300 720];      % profile
+             330 720];      % profile
 
   fposy = scrsize(2) - 100 - figsize(:,2)';
-  fposx = scrsize(1)/2 + [0 350 -350] - figsize(:,1)'/2;
+  fposx = scrsize(1)/2 + [0 350 -380] - figsize(:,1)'/2;
   
-  lines = [440:-10:20];
+  lines = [560:-10:20];
   
   %------------------------------------------------------------
   % Preview window
@@ -58,9 +58,27 @@ function objDesigner()
   pos = [fposx(1) fposy(1) figsize(1,:)];
   set(fhPrm,'Position',pos);
 
+  %------------------------------------------------------------
+  % Revolution / extrusion profile window
+  
+  fhCurve = figure('Color','white',...
+                   'Units','pixels',...
+                   'Menubar','none',...
+                   'NumberTitle','Off',...
+                   'Name','Profile');
+  % pos = get(fhCurve,'Position');
+  % pos(3:4) = siz(:)';
+  pos = [fposx(3) fposy(3) figsize(3,:)];
+  set(fhCurve,'Position',pos);
+  
+  ahCurve(1) = axes('Units','pixels','Position',[30 290 200 400]);
+  ahCurve(2) = axes('Units','pixels','Position',[30  30 200 200]);
   
   %------------------------------------------------------------
-  % Values for perturbation parameters
+  %------------------------------------------------------------
+  % Default values for perturbation parameters and input boxes
+  
+  figure(fhPrm);
   
   % Sine
   hPrm.sine.header(1) = uicontrol('Style','text',...
@@ -69,12 +87,14 @@ function objDesigner()
                                   'String','Carrier parameters');
   x = [20 60 100 140 180];
   labels = {'Freq','Ampl','Ph','Ori','Grp'};
+  tooltip = {'Frequency','Amplitude','Phase','Orientation','Group'};
   y = lines(9);
   for ii = 1:length(labels)
     hPrm.sine.label(1,ii) = uicontrol('Style','text',...
                                       'Position',[x(ii) y 30 20],...
                                       'FontSize',8,...
-                                      'String',labels{ii});
+                                      'String',labels{ii},...
+                                      'TooltipString',tooltip{ii});
   end
   vals = [8 .1 0 0 0; 0 0 0 0 0; 0 0 0 0 0];
   y = lines(11:3:17);
@@ -82,43 +102,48 @@ function objDesigner()
     for jj = 1:size(vals,2)
       hPrm.sine.carr(ii,jj) = uicontrol('Style', 'edit',...
                                         'Position', [x(jj) y(ii) 30 20],...
-                                        'String',num2str(vals(ii,jj)));
+                                        'String',num2str(vals(ii,jj)),...
+                                        'TooltipString',tooltip{jj});
     end
   end
   
   hPrm.sine.reset.carr = uicontrol('Style', 'pushbutton',...
                                    'String', 'Reset',...
                                    'FontSize',8,...
-                                   'Position', [20 lines(19) 50 20],...
-                                   'Callback', {@resetPrm,hPrm.sine.carr,'sine','carr'});
+                                   'Position', [20 lines(20) 50 20],...
+                                   'Callback', {@resetPrm,hPrm.sine.carr,'sine','carr'},...
+                                   'TooltipString','Reset to default values.');
   
   
   hPrm.sine.header(2) = uicontrol('Style','text',...
-                                  'Position',[20 lines(22) 200 20],...
+                                  'Position',[20 lines(23) 200 20],...
                                   'HorizontalAlignment','left',...
                                   'String','Modulator parameters');
-  y = lines(24);
+  y = lines(25);
   for ii = 1:length(labels)
     hPrm.sine.label(2,ii) = uicontrol('Style','text',...
                                       'Position',[x(ii) y 30 20],...
                                       'FontSize',8,...
-                                      'String',labels{ii});
+                                      'String',labels{ii},...
+                                      'TooltipString',tooltip{ii});
   end  
   vals = [0 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0];
-  y = lines(26:3:32);
+  y = lines(27:3:33);
   for ii = 1:size(vals,1)
     for jj = 1:size(vals,2)
       hPrm.sine.mod(ii,jj) = uicontrol('Style', 'edit',...
                                        'Position', [x(jj) y(ii) 30 20],...
-                                       'String',num2str(vals(ii,jj)));
+                                       'String',num2str(vals(ii,jj)),...
+                                       'TooltipString',tooltip{jj});
     end
   end
   
   hPrm.sine.reset.mod = uicontrol('Style', 'pushbutton',...
                                   'String', 'Reset',...
                                   'FontSize',8,...
-                                  'Position', [20 lines(34) 50 20],...
-                                  'Callback', {@resetPrm,hPrm.sine.mod,'sine','mod'});
+                                  'Position', [20 lines(36) 50 20],...
+                                  'Callback', {@resetPrm,hPrm.sine.mod,'sine','mod'},...
+                                  'TooltipString','Reset to default values.');
   
   set(hPrm.sine.header,'Visible','Off');
   set(hPrm.sine.label,'Visible','Off');
@@ -135,12 +160,16 @@ function objDesigner()
                                   'String','Carrier parameters');
   x = [20 60 100 140 180 220];
   labels = {'Freq','BW','Ori','BW','Ampl','Grp'};
+  tooltip = {'Frequency','Frequency bandwidth',...
+             'Orientation','Orientation bandwidth',...
+             'Amplitude','Group'};
   y = lines(9);
   for ii = 1:length(labels)
     hPrm.noise.label(1,ii) = uicontrol('Style','text',...
                                       'Position',[x(ii) y 30 20],...
                                       'FontSize',8,...
-                                      'String',labels{ii});
+                                      'String',labels{ii},...
+                                       'TooltipString',tooltip{jj});
   end
   vals = [8 1 0 30 .1 0; 0 0 0 0 0 0; 0 0 0 0 0 0];
   y = lines(11:3:17);
@@ -148,44 +177,50 @@ function objDesigner()
     for jj = 1:size(vals,2)
       hPrm.noise.carr(ii,jj) = uicontrol('Style', 'edit',...
                                          'Position', [x(jj) y(ii) 30 20],...
-                                         'String',num2str(vals(ii,jj)));
+                                         'String',num2str(vals(ii,jj)),...
+                                         'TooltipString',tooltip{jj});
     end
   end
   
   hPrm.noise.reset.carr = uicontrol('Style', 'pushbutton',...
                                     'String', 'Reset',...
                                     'FontSize',8,...
-                                    'Position', [20 lines(19) 50 20],...
-                                    'Callback', {@resetPrm,hPrm.noise.carr,'noise','carr'});
+                                    'Position', [20 lines(20) 50 20],...
+                                    'Callback', {@resetPrm,hPrm.noise.carr,'noise','carr'},...
+                                    'TooltipString','Reset to default values.');
   
 
   hPrm.noise.header(2) = uicontrol('Style','text',...
-                                  'Position',[20 lines(22) 200 20],...
+                                  'Position',[20 lines(23) 200 20],...
                                   'HorizontalAlignment','left',...
                                   'String','Modulator parameters');
   labels = {'Freq','Ampl','Ph','Ori','Grp',''};
-  y = lines(24);
+  tooltip = {'Frequency','Amplitude','Phase','Orientation','Group',''};
+  y = lines(25);
   for ii = 1:length(labels)
     hPrm.noise.label(2,ii) = uicontrol('Style','text',...
                                       'Position',[x(ii) y 30 20],...
                                       'FontSize',8,...
-                                      'String',labels{ii});
+                                      'String',labels{ii},...
+                                       'TooltipString',tooltip{ii});
   end  
   vals = [0 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0];
-  y = lines(26:3:32);
+  y = lines(27:3:33);
   for ii = 1:size(vals,1)
     for jj = 1:size(vals,2)
       hPrm.noise.mod(ii,jj) = uicontrol('Style', 'edit',...
                                         'Position', [x(jj) y(ii) 30 20],...
-                                        'String',num2str(vals(ii,jj)));
+                                        'String',num2str(vals(ii,jj)),...
+                                        'TooltipString',tooltip{jj});
     end
   end
 
   hPrm.noise.reset.mod = uicontrol('Style', 'pushbutton',...
                                    'String', 'Reset',...
                                    'FontSize',8,...
-                                   'Position', [20 lines(34) 50 20],...
-                                   'Callback', {@resetPrm,hPrm.noise.mod,'noise','mod'});
+                                   'Position', [20 lines(36) 50 20],...
+                                   'Callback', {@resetPrm,hPrm.noise.mod,'noise','mod'},...
+                                   'TooltipString','Reset to default values.');
 
   set(hPrm.noise.header,'Visible','Off');
   set(hPrm.noise.label,'Visible','Off');
@@ -201,12 +236,17 @@ function objDesigner()
                                   'String','Bump parameters');
   x = [20 60 100];
   labels = {'N','Ampl','Size'};
+  tooltip = {'Number of bumps/dents',...
+             'Amplitude. Negative values give dents',...
+             'Size; space constant of Gaussian'};
+
   y = lines(9);
   for ii = 1:length(labels)
     hPrm.bump.label(1,ii) = uicontrol('Style','text',...
                                       'Position',[x(ii) y 30 20],...
                                       'FontSize',8,...
-                                      'String',labels{ii});
+                                      'String',labels{ii},...
+                                      'TooltipString',tooltip{ii});
   end 
   
   vals = [20 .1 pi/12; 0 0 0; 0 0 0];
@@ -215,16 +255,18 @@ function objDesigner()
     for jj = 1:length(x)
       hPrm.bump.prm(ii,jj) = uicontrol('Style', 'edit',...
                                        'Position', [x(jj) y(ii) 30 20],...
-                                       'String',num2str(vals(ii,jj)));
+                                       'String',num2str(vals(ii,jj)),...
+                                       'TooltipString',tooltip{jj});
     end
   end
     
   hPrm.bump.reset.prm = uicontrol('Style', 'pushbutton',...
                                   'String', 'Reset',...
                                   'FontSize',8,...
-                                  'Position', [20 lines(19) 50 20],...
-                                  'Callback', {@resetPrm,hPrm.bump.prm,'bump','prm'});
-  
+                                  'Position', [20 lines(20) 50 20],...
+                                  'Callback', {@resetPrm,hPrm.bump.prm,'bump','prm'},...
+                                  'TooltipString','Reset to default values');
+                                  
   set(hPrm.bump.header,'Visible','Off');
   set(hPrm.bump.label,'Visible','Off');
   set(hPrm.bump.reset.prm,'Visible','Off');
@@ -237,34 +279,50 @@ function objDesigner()
                                   'String','Custom parameters');
   x = 20;
   labels = {'Function from file',...
+            'Arguments';...
             'Anonymous function (@)',...
+            'Arguments';...
             'Matrix from workspace',...
-            'Image file'};
+            'Amplitude';...
+            'Image file',...
+            'Amplitude'};
+  tooltip = {'Name of the function',...
+             'Function input arguments as vector';...
+             'Define anonymous function',...
+             'Input arguments as a vector';...
+             sprintf('Name of matrix to use as height map.\nThe matrix variable has to be in current Matlab workspace.'),...
+             'Amplitude (scaling of height map)';...
+             'Name of image file to use as height map',...
+             'Amplitude (scaling of height map)'};
+  
   y = lines([9 17 25 33]);
   for ii = 1:length(labels)
     hPrm.custom.label(ii,1) = uicontrol('Style','text',...
                                         'Position',[x y(ii) 250 20],...
                                         'FontSize',8,...
                                         'HorizontalAlignment','left',...
-                                        'String',labels{ii});
+                                        'String',labels{ii,1},...
+                                        'TooltipString',tooltip{ii,1});
   end 
   
-  wdt = [250 250 250 165; 215 215 215 215];
-  x = [20 55];
+  wdt = [250 250 250 165; 155 155 155 155];
+  x = [20 105];
   y = lines([11 19 27 35]);
   for ii = 1:length(y)
     for jj = 1:2
       hPrm.custom.prm(ii,jj) = uicontrol('Style', 'edit',...
-                                      'Position', [x(jj) y(ii)-(jj-1)*25 wdt(jj,ii) 20],...
-                                      'HorizontalAlignment','left',...
-                                      'String','');
+                                         'Position', [x(jj) y(ii)-(jj-1)*25 wdt(jj,ii) 20],...
+                                         'HorizontalAlignment','left',...
+                                         'String','',...
+                                         'TooltipString',tooltip{ii,jj});
     end
     
     hPrm.custom.label(ii,2) = uicontrol('Style','text',...
-                                        'Position',[20 y(ii)-25 30 20],...
+                                        'Position',[20 y(ii)-25 80 20],...
                                         'FontSize',8,...
                                         'HorizontalAlignment','left',...
-                                        'String','Prm:');
+                                        'String',labels{ii,2},...
+                                        'TooltipString',tooltip{ii,2});
   end
   
   hPrm.custom.selectfile = uicontrol('Style', 'pushbutton',...
@@ -277,7 +335,8 @@ function objDesigner()
                                     'String', 'Reset',...
                                     'FontSize',8,...
                                     'Position', [20 lines(40) 50 20],...
-                                    'Callback', {@resetPrm,hPrm.custom.prm,'custom','prm'});
+                                    'Callback', {@resetPrm,hPrm.custom.prm,'custom','prm'},...
+                                    'TooltipString','Reset to default values (empty)');
   
   set(hPrm.custom.header,'Visible','Off');
   set(hPrm.custom.label,'Visible','Off');
@@ -285,34 +344,45 @@ function objDesigner()
   set(hPrm.custom.selectfile,'Visible','Off');
   set(hPrm.custom.prm,'Visible','Off');
   
+  % Checkboxes for combining perturbations
+  
+  hPrm.combine.label(ii,1) = uicontrol('Style','text',...
+                                       'Position',[20 lines(43) 250 20],...
+                                       'FontSize',10,...
+                                       'HorizontalAlignment','left',...
+                                       'String','Combine perturbations:',...
+                                       'TooltipString','Currently active perturbation always shown.');
+  % These HAVE TO BE IN THE SAME ORDER as in the pull-down menu.
+  % Don't fuck this up.
+  labels = {'sine','noise','bump','custom'};
+  y = lines([45 47 49 51]);
+  for ii = 1:length(labels)
+    hPrm.combine.box(ii) = uicontrol('Style','checkbox',...
+                                     'String',labels{ii},...
+                                     'Position',[20 y(ii) 80 18],...
+                                     'Value',0,...    
+                                     'FontSize',8,...
+                                     'TooltipString','');
+  end
+  
+  %------------------------------------------------------------
   %------------------------------------------------------------
   % Profiles for revolution and extrusion
+
+  figure(fhCurve);
   
   npoints = [64 64];
   
   xscale = 2;
-  yscale = 2*pi;
+  yscale = pi;
   connect = false;
   interp = 'spline';
-
-  fhCurve = figure('Color','white',...
-                   'Units','pixels',...
-                   'Menubar','no',...
-                   'NumberTitle','Off',...
-                   'Name','Profile');
-  % pos = get(fhCurve,'Position');
-  % pos(3:4) = siz(:)';
-  pos = [fposx(3) fposy(3) figsize(3,:)];
-  set(fhCurve,'Position',pos);
-  
-  ahCurve(1) = axes('Units','pixels','Position',[30 290 200 400]);
-  ahCurve(2) = axes('Units','pixels','Position',[30  30 200 200]);
 
   %------------------------------------------------------------
   % Set up things for the revolution curve
   axes(ahCurve(1));
   xlim = [-xscale xscale];
-  ylim = [0 yscale];
+  ylim = [-yscale yscale];
   axis equal
   set(ahCurve(1),'XLim',xlim,'YLim',ylim);
   title('Revolution profile');
@@ -321,7 +391,7 @@ function objDesigner()
   y = ylim;
   x = xscale/2*[1 1];
   
-  y1 = linspace(0,yscale,npoints(1));
+  y1 = linspace(-yscale,yscale,npoints(1));
   x1 = interp1(y,x,y1,'spline');
 
   hsmooth_orig(1,1) = plot(x1,y1,'Visible','Off');
@@ -337,7 +407,8 @@ function objDesigner()
   
   % End setting up for revolution  profile 
   %------------------------------------------------------------
-  % Extrusion
+  % Set up things for the revolution curve
+  
   axes(ahCurve(2));
   xlim = [-xscale xscale];
   ylim = [-xscale xscale];
@@ -397,7 +468,8 @@ function objDesigner()
 
   % End setting up for extrusion / polar profile
   %------------------------------------------------------------
-
+  % Set app data for the profiles
+  
   %setappdata(fhCurve,'profiletype',profiletype);
   setappdata(fhCurve,'h_orig',hdat_orig);
   setappdata(fhCurve,'hsmooth_orig',hsmooth_orig);
@@ -438,7 +510,8 @@ function objDesigner()
   
 
   %------------------------------------------------------------
-
+  % Set up other controls for profiles
+  
   figure(fhCurve);
   hUseCurve(1) = uicontrol('Style', 'checkbox',...
                            'Position', [250 630 100 20],...
@@ -447,6 +520,7 @@ function objDesigner()
                            'Value', 1,...
                            'Tag','1',...
                            'Enable','Off',...
+                           'TooltipString','Uncheck to ignore profile curve',...
                            'Callback', {@toggleCurve,fhPrm,fhCurve,fhPreview,hPrm,ahPreview});
   
   hUseCurve(2) = uicontrol('Style', 'checkbox',...
@@ -456,6 +530,7 @@ function objDesigner()
                            'Value', 1,...
                            'Tag','2',...
                            'Enable','Off',...
+                           'TooltipString','Uncheck to ignore profile curve',...
                            'Callback', {@toggleCurve,fhPrm,fhCurve,fhPreview,hPrm,ahPreview});
 
   hResetCurve(1) = uicontrol('Style', 'pushbutton',...
@@ -463,6 +538,7 @@ function objDesigner()
                              'Tag','1',...
                              'FontSize',8,...
                              'String','Reset',...
+                             'TooltipString','Reset the curve to default',...
                              'Callback', {@resetCurve,fhPrm,fhCurve,fhPreview,hPrm,ahPreview});
 
   hResetCurve(2) = uicontrol('Style', 'pushbutton',...
@@ -470,9 +546,13 @@ function objDesigner()
                              'Tag','2',...
                              'FontSize',8,...
                              'String','Reset',...
+                             'TooltipString','Reset the curve to default',...
                              'Callback', {@resetCurve,fhPrm,fhCurve,fhPreview,hPrm,ahPreview});  
 
   %------------------------------------------------------------
+  %------------------------------------------------------------
+  % Main controls for parameter window (perturbation parameter
+  % input set up further above).
   
   figure(fhPrm);
   setappdata(fhPrm,'shape','sphere');
@@ -488,12 +568,12 @@ function objDesigner()
             'HorizontalAlignment','left',...
             'String','Shape');  
   
-  hPerturbation = uicontrol('Style', 'popup',...
+  hPerturbation = uicontrol('Style', 'popupmenu',...
                             'String', {'none','sine','noise','bump','custom'},...
                             'Position', [120 lines(3) 100 20],...
                             'Callback', {@updatePerturbation,fhPrm,fhCurve,fhPreview,hPrm,ahPreview});
   
-  hShape = uicontrol('Style', 'popup',...
+  hShape = uicontrol('Style', 'popupmenu',...
                      'String', {'sphere','plane','cylinder','torus','disk','revolution','extrusion'},...
                      'Position', [20 lines(3) 100 20],...
                      'Callback', {@updateShape,fhPrm,fhCurve,fhPreview,hPrm,hUseCurve,ahPreview});
@@ -507,6 +587,8 @@ function objDesigner()
   %                      'Callback', {@updatePrm,hShape,hPerturbation,hPrm,ahPreview});
   
   %------------------------------------------------------------
+  %------------------------------------------------------------
+  % Controls for the preview window
   
   figure(fhPreview);
   
@@ -520,6 +602,7 @@ function objDesigner()
   
   bhResetView = uicontrol('Style', 'pushbutton',...
                           'String', 'Reset view',...
+                          'TooltipString','Reset to default view',...
                           'Position', [150 70 130 20],...
                           'Callback', {@resetView,fhPreview,ahPreview},...
                           'FontSize',fontsize);    
@@ -534,11 +617,13 @@ function objDesigner()
                        'Position',[85 45 60 20],...
                        'HorizontalAlignment','left',...
                        'String','model',...
+                       'TooltipString','Give a variable name for the model structure',...
                        'Callback', {@exportToWorkSpace,[],fhPreview},...
                        'FontSize',fontsize);
   
   bhExport = uicontrol('Style', 'pushbutton',...
                        'String', 'Export to workspace',...
+                       'TooltipString','Export the model structure to Matlab workspace',...
                        'Position', [150 45 130 20],...
                        'Callback', {@exportToWorkSpace,thExport,fhPreview},...
                        'FontSize',fontsize);  
@@ -553,77 +638,42 @@ function objDesigner()
                      'Position',[85 20 60 20],...
                      'HorizontalAlignment','left',...
                      'String','model',...
+                     'TooltipString','Give a file name to save to',...
                      'Callback', {@saveModel,[],fhPreview},...
                      'FontSize',fontsize);
   
   bhSave = uicontrol('Style', 'pushbutton',...
                      'String', 'Save .obj file',...
+                     'TooltipString','Save the model to a Wavefront obj file',...
                      'Position', [150 20 130 20],...
                      'Callback', {@saveModel,thSave,fhPreview},...
                      'FontSize',fontsize);  
 
   %------------------------------------------------------------
+  % Switch to the main window and update parameters, forcing the
+  % drawing of default shape.
   
-  figure(fhPrm);
   
   % updatePerturbation([],[],fhPrm,hPrm,ahPreview);
   updatePrm([],[],fhPrm,fhCurve,fhPreview,hPrm,ahPreview);
   % updatePrm([],[],hShape,hPerturbation,hPrm,ahPreview);
 
+  resetView([],[],fhPreview,ahPreview);
+  
+  
+  figure(fhPrm);
+    
   % m = objMakeNoise('sphere');
   % axes(ahPreview);
   % objShow(m); 
   
-end
+end % End main program
 
+%------------------------------------------------------------
+%------------------------------------------------------------
+% Functions hereafter
 
-function toggleCurve(src,event,fhPrm,fhCurve,fhPreview,hPrm,ahPreview)
-  usecurve = get(src,'Value');
-  which = str2num(get(src,'Tag'));
-  if which==1
-    setappdata(fhCurve,'usercurve',usecurve);
-  else
-    setappdata(fhCurve,'useecurve',usecurve);    
-  end
-  % if usecurve
-    
-  % end
-  updatePrm([],[],fhPrm,fhCurve,fhPreview,hPrm,ahPreview);
-  
-end
-
-function resetCurve(src,event,fhPrm,fhCurve,fhPreview,hPrm,ahPreview)
-  idx = str2num(get(src,'Tag'));
-
-  h0 = getappdata(fhCurve,'h_orig');
-  h1 = getappdata(fhCurve,'h');
-  
-  set(h1(idx,1),'xdata',get(h0(idx,1),'xdata'));
-  set(h1(idx,1),'ydata',get(h0(idx,1),'ydata'));
-  
-  if idx==1
-    set(h1(idx,2),'xdata',get(h0(idx,2),'xdata'));  
-    set(h1(idx,2),'ydata',get(h0(idx,2),'ydata'));  
-  else
-    rdata = getappdata(fhCurve,'rdata_orig');
-    setappdata(fhCurve,'rdata',rdata);
-  end
-  
-  h0 = getappdata(fhCurve,'hsmooth_orig');
-  h1 = getappdata(fhCurve,'hsmooth');
-
-  set(h1(idx,1),'xdata',get(h0(idx,1),'xdata'));
-  set(h1(idx,1),'ydata',get(h0(idx,1),'ydata'));
-
-  if idx==1
-    set(h1(idx,2),'xdata',get(h0(idx,2),'xdata'));  
-    set(h1(idx,2),'ydata',get(h0(idx,2),'ydata'));  
-  end
-  
-  updatePrm([],[],fhPrm,fhCurve,fhPreview,hPrm,ahPreview);
-  
-end
-
+% Callback functions sort of mainly pertaining to the main window
 
 function updatePerturbation(src,event,fhPrm,fhCurve,fhPreview,hPrm,ahPreview)
   
@@ -735,46 +785,6 @@ end
   
 function updatePrm(src,event,fhPrm,fhCurve,fhPreview,hPrm,ah)
   shape = getappdata(fhPrm,'shape');
-  perturbation = getappdata(fhPrm,'perturbation');
-  
-  switch perturbation
-    case {'sine','noise'}
-      for ii = 1:size(hPrm.(perturbation).carr,1)
-        for jj = 1:size(hPrm.(perturbation).carr,2)
-          prm(ii,jj) = str2num(get(hPrm.(perturbation).carr(ii,jj),'String'));
-        end
-      end
-      for ii = 1:size(hPrm.(perturbation).mod,1)
-        for jj = 1:size(hPrm.(perturbation).mod,2)
-          mprm(ii,jj) = str2num(get(hPrm.(perturbation).mod(ii,jj),'String'));
-        end
-      end
-      idx = all(prm==0,2);
-      if all(idx)
-        prm = zeros(1,size(prm,2));
-      else
-        prm(idx,:) = [];
-      end
-      idx = all(mprm==0,2);
-      mprm(idx,:) = [];
-    case 'bump'
-      for ii = 1:size(hPrm.(perturbation).prm,1)
-        for jj = 1:size(hPrm.(perturbation).prm,2)
-          prm(ii,jj) = str2num(get(hPrm.(perturbation).prm(ii,jj),'String'));
-        end
-      end
-    case 'custom'
-      prm = '';
-      customtype = 0;
-      for ii = 1:size(hPrm.(perturbation).prm,1)
-        f = get(hPrm.(perturbation).prm(ii,1),'String');
-        prm = str2num(get(hPrm.(perturbation).prm(ii,2),'String'));
-        if ~isempty(prm)
-          customtype = ii;
-          break
-        end
-      end
-  end
   
   args = {};
   switch shape
@@ -792,32 +802,94 @@ function updatePrm(src,event,fhPrm,fhCurve,fhPreview,hPrm,ah)
       end
   end
   
-  switch perturbation
-    case 'none'
-      m = objMakePlain(shape,args{:});
-    case 'sine'
-      m = objMakeSine(shape,prm,mprm,args{:});
-    case 'noise'
-      m = objMakeNoise(shape,prm,mprm,args{:});
-    case 'bump'
-      m = objMakeBump(shape,prm,args{:});
-    case 'custom'
-      switch customtype
-        case 1
-          m = objMakeCustom(shape,eval(sprintf('@%s',f)),prm,args{:});
-        case 2
-          m = objMakeCustom(shape,eval(f),prm,args{:});
-        case 3
-          M = evalin('base',f);
-          m = objMakeCustom(shape,M,prm,args{:});
-        case 4
-          m = objMakeCustom(shape,f,prm,args{:});
-        otherwise
-          m = objMakePlain(shape,args{:});
-      end
+  m = objMakePlain(shape,args{:});
+  
+  thisperturbation = getappdata(fhPrm,'perturbation');
+  perturbations = {};
+  
+  for pp = 1:length(hPrm.combine.box)
+    usepert = get(hPrm.combine.box(pp),'Value');
+    if usepert
+      perturbations = {perturbations{:},get(hPrm.combine.box(pp),'String')};
+    end
   end
+  
+  if ~strcmp(thisperturbation,'none') && ~ismember(thisperturbation,perturbations)
+    perturbations = {perturbations{:},thisperturbation};
+  end
+    
+  if ~isempty(perturbations)
+    for pp = 1:length(perturbations)
+      perturbation = perturbations{pp};
+      switch perturbation
+        case {'sine','noise'}
+          for ii = 1:size(hPrm.(perturbation).carr,1)
+            for jj = 1:size(hPrm.(perturbation).carr,2)
+              prm(ii,jj) = str2num(get(hPrm.(perturbation).carr(ii,jj),'String'));
+            end
+          end
+          for ii = 1:size(hPrm.(perturbation).mod,1)
+            for jj = 1:size(hPrm.(perturbation).mod,2)
+              mprm(ii,jj) = str2num(get(hPrm.(perturbation).mod(ii,jj),'String'));
+            end
+          end
+          idx = all(prm==0,2);
+          if all(idx)
+            prm = zeros(1,size(prm,2));
+          else
+            prm(idx,:) = [];
+          end
+          idx = all(mprm==0,2);
+          mprm(idx,:) = [];
+        case 'bump'
+          for ii = 1:size(hPrm.(perturbation).prm,1)
+            for jj = 1:size(hPrm.(perturbation).prm,2)
+              prm(ii,jj) = str2num(get(hPrm.(perturbation).prm(ii,jj),'String'));
+            end
+          end
+        case 'custom'
+          prm = '';
+          customtype = 0;
+          for ii = 1:size(hPrm.(perturbation).prm,1)
+            f = get(hPrm.(perturbation).prm(ii,1),'String');
+            prm = str2num(get(hPrm.(perturbation).prm(ii,2),'String'));
+            if ~isempty(prm)
+              customtype = ii;
+              break
+            end
+          end
+      end % switch
+      
+      switch perturbation
+        % case 'none'
+        %   m = objMakePlain(shape,args{:});
+        case 'sine'
+          m = objMakeSine(m,prm,mprm);
+        case 'noise'
+          m = objMakeNoise(m,prm,mprm);
+        case 'bump'
+          m = objMakeBump(m,prm);
+        case 'custom'
+          switch customtype
+            case 1
+              m = objMakeCustom(m,eval(sprintf('@%s',f)),prm);
+            case 2
+              m = objMakeCustom(m,eval(f),prm);
+            case 3
+              M = evalin('base',f);
+              m = objMakeCustom(m,M,prm);
+            case 4
+              m = objMakeCustom(m,f,prm);
+          end
+      end %switch
+    end % looping over perturbations
+  end % is perturbations not empty
   axes(ah);
-  objShow(m);
+  try
+    objShow(m,[],get(ah,'CameraPosition'));
+  catch
+    objShow(m);
+  end
   setappdata(fhPreview,'model',m);
 end
 
@@ -1114,6 +1186,56 @@ function plotpoint(src,event)
   drawnow
 end
 
+function toggleCurve(src,event,fhPrm,fhCurve,fhPreview,hPrm,ahPreview)
+  usecurve = get(src,'Value');
+  which = str2num(get(src,'Tag'));
+  if which==1
+    setappdata(fhCurve,'usercurve',usecurve);
+  else
+    setappdata(fhCurve,'useecurve',usecurve);    
+  end
+  % if usecurve
+    
+  % end
+  updatePrm([],[],fhPrm,fhCurve,fhPreview,hPrm,ahPreview);
+  
+end
+
+function resetCurve(src,event,fhPrm,fhCurve,fhPreview,hPrm,ahPreview)
+  idx = str2num(get(src,'Tag'));
+
+  h0 = getappdata(fhCurve,'h_orig');
+  h1 = getappdata(fhCurve,'h');
+  
+  set(h1(idx,1),'xdata',get(h0(idx,1),'xdata'));
+  set(h1(idx,1),'ydata',get(h0(idx,1),'ydata'));
+  
+  if idx==1
+    set(h1(idx,2),'xdata',get(h0(idx,2),'xdata'));  
+    set(h1(idx,2),'ydata',get(h0(idx,2),'ydata'));  
+  else
+    rdata = getappdata(fhCurve,'rdata_orig');
+    setappdata(fhCurve,'rdata',rdata);
+  end
+  
+  h0 = getappdata(fhCurve,'hsmooth_orig');
+  h1 = getappdata(fhCurve,'hsmooth');
+
+  set(h1(idx,1),'xdata',get(h0(idx,1),'xdata'));
+  set(h1(idx,1),'ydata',get(h0(idx,1),'ydata'));
+
+  if idx==1
+    set(h1(idx,2),'xdata',get(h0(idx,2),'xdata'));  
+    set(h1(idx,2),'ydata',get(h0(idx,2),'ydata'));  
+  end
+  
+  updatePrm([],[],fhPrm,fhCurve,fhPreview,hPrm,ahPreview);
+  
+end
+
+
+
+% Functions for preview window
 
 
 function exportToWorkSpace(src,event,th,fh)
