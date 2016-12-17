@@ -22,10 +22,10 @@ function objDesigner()
   
   figsize = [300 600; ...   % prm
              300 380; ...   % preview
-             330 720];      % profile
+             380 720];      % profile
 
   fposy = scrsize(2) - 100 - figsize(:,2)';
-  fposx = scrsize(1)/2 + [0 350 -380] - figsize(:,1)'/2;
+  fposx = scrsize(1)/2 + [0 350 -410] - figsize(:,1)'/2;
   
   lines = [560:-10:20];
   
@@ -384,8 +384,8 @@ function objDesigner()
   xlim = [-xscale xscale];
   ylim = [-yscale yscale];
   axis equal
-  set(ahCurve(1),'XLim',xlim,'YLim',ylim);
-  title('Revolution profile');
+  set(ahCurve(1),'XLim',xlim,'YLim',ylim,'Box','On');
+  title('Revolution profile','FontWeight','normal','Fontsize',10);
   hold on
 
   y = ylim;
@@ -464,7 +464,7 @@ function objDesigner()
     %keyboard
     
   end
-  title('Extrusion profile');  
+  title('Extrusion profile','FontWeight','normal','Fontsize',10);  
 
   % End setting up for extrusion / polar profile
   %------------------------------------------------------------
@@ -549,6 +549,36 @@ function objDesigner()
                              'TooltipString','Reset the curve to default',...
                              'Callback', {@resetCurve,fhPrm,fhCurve,fhPreview,hPrm,ahPreview});  
 
+  hExportCurve(1) = uicontrol('Style','edit',...
+                              'Position',[250 570 130 20],...
+                              'HorizontalAlignment','left',...
+                              'String','rcurve',...
+                              'TooltipString','Give a variable name for the curve',...
+                              'Callback', {@exportCurveToWorkSpace,'linear',[],fhCurve},...
+                              'FontSize',fontsize);
+  
+  hExportCurveLabel(1) = uicontrol('Style', 'pushbutton',...
+                                   'String', 'Export to workspace',...
+                                   'TooltipString','Export the curve',...
+                                   'Position', [250 545 130 20],...
+                                   'Callback', {@exportCurveToWorkSpace,'linear',hExportCurve(1),fhCurve},...
+                                   'FontSize',fontsize);    
+    
+  hExportCurve(2) = uicontrol('Style','edit',...
+                              'Position',[250 150 130 20],...
+                              'HorizontalAlignment','left',...
+                              'String','ecurve',...
+                              'TooltipString','Give a variable name for the curve',...
+                              'Callback', {@exportCurveToWorkSpace,'polar',[],fhCurve},...
+                              'FontSize',fontsize);
+  
+  hExportCurveLabel(2) = uicontrol('Style', 'pushbutton',...
+                                   'String', 'Export to workspace',...
+                                   'TooltipString','Export the curve',...
+                                   'Position', [250 125 130 20],...
+                                   'Callback', {@exportCurveToWorkSpace,'polar',hExportCurve(2),fhCurve},...
+                                   'FontSize',fontsize);    
+  
   %------------------------------------------------------------
   %------------------------------------------------------------
   % Main controls for parameter window (perturbation parameter
@@ -1153,7 +1183,7 @@ function endtrackmousepolar(src,data)
   % [x1,y1] = pol2cart(th1,r1);
   
   % Works now also:
-  th1 = [th1(1:end-1) 2*pi+th1 4*pi+th1(2:end)];
+  th1 = [th1(1:end-1) 2*pi+th1(1:end-1) 4*pi+th1];
   % r1 = interp1([thdat 2*pi+thdat 4*pi+thdat],...
   %              [rdat rdat rdat],...
   %              th1,...
@@ -1239,7 +1269,26 @@ function resetCurve(src,event,fhPrm,fhCurve,fhPreview,hPrm,ahPreview)
   
 end
 
-
+function exportCurveToWorkSpace(src,event,curvetype,th,fh)
+  if isempty(th)
+    h = src;
+  else
+    h = th;
+  end
+  bgcol = get(h,'BackgroundColor');
+  set(h,'BackgroundColor',[.2 .8 .2]);
+  varname = get(h,'String');
+  switch curvetype
+    case 'linear'
+      hdat = getappdata(fh,'hsmooth');
+      curve = get(hdat(1,1),'xdata');
+    case 'polar'
+      curve = getappdata(fh,'rdata'); 
+  end
+  assignin('base',varname,curve);
+  pause(.2);
+  set(h,'BackgroundColor',bgcol);
+end
 
 % Functions for preview window
 

@@ -26,7 +26,8 @@ switch model.shape
       Theta = reshape(Theta,[model.n model.m])';
       Phi = reshape(Phi,[model.n model.m])';
       
-      theta2 = linspace(-pi,pi-2*pi/model.prm(ii).nmap,model.prm(ii).nmap); % azimuth
+      % theta2 = linspace(-pi,pi-2*pi/model.prm(ii).nmap,model.prm(ii).nmap); % azimuth
+      theta2 = linspace(-pi,pi,model.prm(ii).nmap); % azimuth
       phi2 = linspace(-pi/2,pi/2,model.prm(ii).mmap); % elevation
       [Theta2,Phi2] = meshgrid(theta2,phi2);
       model.prm(ii).map = interp2(Theta2,Phi2,model.prm(ii).map,Theta,Phi);
@@ -56,7 +57,8 @@ switch model.shape
       Theta = reshape(Theta,[model.n model.m])';
       Y = reshape(Y,[model.n model.m])';
       
-      theta2 = linspace(-pi,pi-2*pi/model.prm(ii).nmap,model.prm(ii).nmap); % azimuth
+      % theta2 = linspace(-pi,pi-2*pi/model.prm(ii).nmap,model.prm(ii).nmap); % azimuth
+      theta2 = linspace(-pi,pi,model.prm(ii).nmap); % azimuth
       y2 = linspace(-model.height/2,model.height/2,model.prm(ii).mmap); % 
       [Theta2,Y2] = meshgrid(theta2,y2);
       model.prm(ii).map = interp2(Theta2,Y2,model.prm(ii).map,Theta,Y);
@@ -71,8 +73,10 @@ switch model.shape
       Theta = reshape(Theta,[model.n model.m])';
       Phi = reshape(Phi,[model.n model.m])';
       
-      theta2 = linspace(-pi,pi-2*pi/model.prm(ii).nmap,model.prm(ii).nmap); % azimuth
-      phi2 = linspace(-pi/2,pi/2,model.prm(ii).mmap); % elevation
+      % theta2 = linspace(-pi,pi-2*pi/model.prm(ii).nmap,model.prm(ii).nmap); % azimuth
+      % phi2 = linspace(-pi,pi-2*pi/model.prm(ii).mmap,model.prm(ii).mmap); % elevation
+      theta2 = linspace(-pi,pi,model.prm(ii).nmap); % azimuth
+      phi2 = linspace(-pi,pi,model.prm(ii).mmap); % elevation
       [Theta2,Phi2] = meshgrid(theta2,phi2);
       model.prm(ii).map = interp2(Theta2,Phi2,model.prm(ii).map,Theta,Phi);
     end
