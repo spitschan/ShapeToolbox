@@ -315,7 +315,7 @@ function objDesigner()
   ylim = [0 yscale];
   axis equal
   set(ahCurve(1),'XLim',xlim,'YLim',ylim);
-  title('Profile for revolution');
+  title('Revolution profile');
   hold on
 
   y = ylim;
@@ -377,7 +377,9 @@ function objDesigner()
     th(th<0) = th(th<0) + 2*pi;
     r = sqrt(x.^2+y.^2);
     th1 = linspace(0,2*pi,npoints(2)+1);
-    r1 = interp1([th 2*pi],[r r(1)],th1,'spline');
+    % r1 = interp1([th 2*pi],[r r(1)],th1,'spline');
+    r1 = interp1([th 2*pi],1./([r r(1)]).^2,th1,'spline');
+    r1 = 1 ./ r1.^.5;
     [x1,y1] = pol2cart(th1,r1);
     
 
@@ -391,7 +393,7 @@ function objDesigner()
     %keyboard
     
   end
-  title('Radial profile for extrusion');  
+  title('Extrusion profile');  
 
   % End setting up for extrusion / polar profile
   %------------------------------------------------------------
@@ -1074,10 +1076,15 @@ function endtrackmousepolar(src,data)
   
   % Works now also:
   th1 = [th1(1:end-1) 2*pi+th1 4*pi+th1(2:end)];
+  % r1 = interp1([thdat 2*pi+thdat 4*pi+thdat],...
+  %              [rdat rdat rdat],...
+  %              th1,...
+  %              'spline');  
   r1 = interp1([thdat 2*pi+thdat 4*pi+thdat],...
-               [rdat rdat rdat],...
+               1./([rdat rdat rdat]).^2,...
                th1,...
                'spline');  
+  r1 = real(1 ./ r1.^.5);
   th1 = th1(npts(2):(2*npts(2)));
   r1 = r1(npts(2):(2*npts(2)));
   
@@ -1111,26 +1118,36 @@ end
 
 function exportToWorkSpace(src,event,th,fh)
   if isempty(th)
-    varname = get(src,'String');
+    h = src;
   else
-    varname = get(th,'String');
+    h = th;
   end
+  bgcol = get(h,'BackgroundColor');
+  set(h,'BackgroundColor',[.2 .8 .2]);
+  varname = get(h,'String');
   m = getappdata(fh,'model');
   assignin('base',varname,m);
+  pause(.2);
+  set(h,'BackgroundColor',bgcol);
 end
 
 function saveModel(src,event,th,fh)
   if isempty(th)
-    filename = get(src,'String');
+    h = src;
   else
-    filename = get(th,'String');
-  end
+    h = th;
+  end  
+  filename = get(h,'String');
   if isempty(regexp(filename,'\.obj$'))
     filename = [filename,'.obj'];
   end
+  bgcol = get(h,'BackgroundColor');
+  set(h,'BackgroundColor',[.2 .8 .2]);
   m = getappdata(fh,'model');
   m.filename = filename;
   objSave(m);
+  pause(.2);
+  set(h,'BackgroundColor',bgcol);
 end
 
 function resetView(src,event,fh,ah)
