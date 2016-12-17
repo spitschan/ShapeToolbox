@@ -86,8 +86,8 @@ function objDesigner()
                                   'HorizontalAlignment','left',...
                                   'String','Carrier parameters');
   x = [20 60 100 140 180];
-  labels = {'Freq','Ampl','Ph','Ori','Grp'};
-  tooltip = {'Frequency','Amplitude','Phase','Orientation','Group'};
+  labels = {'Freq','Ori','Ph','Ampl','Grp'};
+  tooltip = {'Frequency','Orientation','Phase','Amplitude','Group'};
   y = lines(9);
   for ii = 1:length(labels)
     hPrm.sine.label(1,ii) = uicontrol('Style','text',...
@@ -96,7 +96,7 @@ function objDesigner()
                                       'String',labels{ii},...
                                       'TooltipString',tooltip{ii});
   end
-  vals = [8 .1 0 0 0; 0 0 0 0 0; 0 0 0 0 0];
+  vals = [8 0 0 .1 0; 0 0 0 0 0; 0 0 0 0 0];
   y = lines(11:3:17);
   for ii = 1:size(vals,1)
     for jj = 1:size(vals,2)
@@ -194,8 +194,8 @@ function objDesigner()
                                   'Position',[20 lines(23) 200 20],...
                                   'HorizontalAlignment','left',...
                                   'String','Modulator parameters');
-  labels = {'Freq','Ampl','Ph','Ori','Grp',''};
-  tooltip = {'Frequency','Amplitude','Phase','Orientation','Group',''};
+  labels = {'Freq','Ori','Ph','Ampl','Grp',''};
+  tooltip = {'Frequency','Orientation','Phase','Amplitude','Group',''};
   y = lines(25);
   for ii = 1:length(labels)
     hPrm.noise.label(2,ii) = uicontrol('Style','text',...
@@ -235,10 +235,10 @@ function objDesigner()
                                   'HorizontalAlignment','left',...
                                   'String','Bump parameters');
   x = [20 60 100];
-  labels = {'N','Ampl','Size'};
+  labels = {'N','Size','Ampl'};
   tooltip = {'Number of bumps/dents',...
-             'Amplitude. Negative values give dents',...
-             'Size; space constant of Gaussian'};
+             'Size; space constant of Gaussian',...
+             'Amplitude. Negative values give dents'};
 
   y = lines(9);
   for ii = 1:length(labels)
@@ -249,7 +249,7 @@ function objDesigner()
                                       'TooltipString',tooltip{ii});
   end 
   
-  vals = [20 .1 pi/12; 0 0 0; 0 0 0];
+  vals = [20 pi/12 .1; 0 0 0; 0 0 0];
   y = lines(11:3:17);
   for ii = 1:length(y)
     for jj = 1:length(x)
@@ -821,6 +821,8 @@ function updatePrm(src,event,fhPrm,fhCurve,fhPreview,hPrm,ah)
   if ~isempty(perturbations)
     for pp = 1:length(perturbations)
       perturbation = perturbations{pp};
+      prm = [];
+      mprm = [];
       switch perturbation
         case {'sine','noise'}
           for ii = 1:size(hPrm.(perturbation).carr,1)
@@ -848,14 +850,16 @@ function updatePrm(src,event,fhPrm,fhCurve,fhPreview,hPrm,ah)
             end
           end
         case 'custom'
-          prm = '';
-          customtype = 0;
+          customprm = {};
+          f = {};
+          customtype = [];
+          n = 1;
           for ii = 1:size(hPrm.(perturbation).prm,1)
-            f = get(hPrm.(perturbation).prm(ii,1),'String');
-            prm = str2num(get(hPrm.(perturbation).prm(ii,2),'String'));
-            if ~isempty(prm)
-              customtype = ii;
-              break
+            f{n} = get(hPrm.(perturbation).prm(ii,1),'String');
+            customprm{n} = str2num(get(hPrm.(perturbation).prm(ii,2),'String'));
+            if ~isempty(customprm{n})
+              customtype = [customtype ii];
+              n = n + 1;
             end
           end
       end % switch
@@ -870,16 +874,18 @@ function updatePrm(src,event,fhPrm,fhCurve,fhPreview,hPrm,ah)
         case 'bump'
           m = objMakeBump(m,prm);
         case 'custom'
-          switch customtype
-            case 1
-              m = objMakeCustom(m,eval(sprintf('@%s',f)),prm);
-            case 2
-              m = objMakeCustom(m,eval(f),prm);
-            case 3
-              M = evalin('base',f);
-              m = objMakeCustom(m,M,prm);
-            case 4
-              m = objMakeCustom(m,f,prm);
+          for ii = 1:length(customtype)
+            switch customtype(ii)
+              case 1
+                m = objMakeCustom(m,eval(sprintf('@%s',f{ii})),customprm{ii});
+              case 2
+                m = objMakeCustom(m,eval(f{ii}),customprm{ii});
+              case 3
+                M = evalin('base',f{ii});
+                m = objMakeCustom(m,M,customprm{ii});
+              case 4
+                m = objMakeCustom(m,f{ii},customprm{ii});
+            end
           end
       end %switch
     end % looping over perturbations

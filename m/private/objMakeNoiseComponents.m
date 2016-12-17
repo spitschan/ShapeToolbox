@@ -24,6 +24,7 @@ function Z = objMakeNoiseComponents(nprm,mprm,X,Y,use_rms,w,h)
 % 2015-06-03 - ts - envelopes that share a group index are multiplied,
 %                    not added
 % 2015-06-10 - ts - added width and height parameters
+% 2016-12-17 - ts - new arg order in prm vectors
 
 if nargin<6 || isempty(w)
   w = 1;
@@ -223,4 +224,5 @@ theta(theta<-pi) = 2*pi+theta(theta<-pi);
 function C = makeComp(prm,X,Y)
 
 %C = prm(2) * sin(prm(1)*(X*cos(prm(4))-2*Y*sin(prm(4)))+prm(3));
-C = prm(2) * sin(prm(1)*(X*cos(prm(4))-Y*sin(prm(4)))+prm(3));
+%C = prm(2) * sin(prm(1)*(X*cos(prm(4))-Y*sin(prm(4)))+prm(3));
+C = prm(4) * sin(prm(1)*(X*cos(prm(2))-Y*sin(prm(2)))+prm(3));

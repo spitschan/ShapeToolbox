@@ -11,7 +11,8 @@ function model = objAddPerturbation(model)
 % 2016-02-19 - ts - function handle moved from model.opts.f 
 %                   to model.prm(model.idx).f
 % 2016-04-14 - ts - small bug fix related to the change above
-
+% 2016-12-17 - ts - new arg order in prm vector
+  
 % TODO: objRemCaps for worm
 
 switch model.shape
@@ -23,7 +24,7 @@ switch model.shape
     if ~isempty(model.opts.rprm)
       rprm = model.opts.rprm;
       for ii = 1:size(rprm,1)
-        model.R = model.R + rprm(ii,2) * sin(rprm(ii,1)*model.Theta + rprm(ii,3));
+        model.R = model.R + rprm(ii,1) * sin(rprm(ii,2)*model.Theta + rprm(ii,3));
       end
     end
 end
@@ -38,7 +39,7 @@ switch model.prm(ii).perturbation
     if strcmp(model.shape,'plane')
       model.prm(model.idx).cprm(:,1) = model.prm(model.idx).cprm(:,1)*2*pi;
     end
-    model.prm(model.idx).cprm(:,3:4) = pi * model.prm(model.idx).cprm(:,3:4)/180;
+    model.prm(model.idx).cprm(:,2:3) = pi * model.prm(model.idx).cprm(:,2:3)/180;
     if ncol==4
       model.prm(model.idx).cprm(:,5) = 0; 
     end
@@ -47,7 +48,7 @@ switch model.prm(ii).perturbation
       if strcmp(model.shape,'plane')
         model.prm(model.idx).mprm(:,1) = model.prm(model.idx).mprm(:,1)*2*pi;
       end
-      model.prm(model.idx).mprm(:,3:4) = pi * model.prm(model.idx).mprm(:,3:4)/180;
+      model.prm(model.idx).mprm(:,2:3) = pi * model.prm(model.idx).mprm(:,2:3)/180;
       if ncol==4
         model.prm(model.idx).mprm(:,5) = 0; 
       end
@@ -89,7 +90,7 @@ switch model.prm(ii).perturbation
       if strcmp(model.shape,'plane')
         model.prm(model.idx).mprm(:,1) = model.prm(model.idx).mprm(:,1)*2*pi;
       end
-      model.prm(model.idx).mprm(:,3:4) = pi * model.prm(model.idx).mprm(:,3:4)/180;
+      model.prm(model.idx).mprm(:,2:3) = pi * model.prm(model.idx).mprm(:,2:3)/180;
       if ncol==4
         model.prm(model.idx).mprm(:,5) = 0; 
       end
@@ -184,7 +185,7 @@ switch model.prm(ii).perturbation
     model.prm(ii).nbumps = nbumps;
     
     % Create a function for making the Gaussian profile
-    model.prm(ii).f = @(d,prm) prm(1)*exp(-d.^2/(2*prm(2)^2));
+    model.prm(ii).f = @(d,prm) prm(2)*exp(-d.^2/(2*prm(1)^2));
     
     model = objPlaceBumps(model);
 

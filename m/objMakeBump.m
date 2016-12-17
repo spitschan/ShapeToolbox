@@ -1,5 +1,7 @@
 function model = objMakeBump(shape,prm,varargin)
 
+% HELP OUTDATED
+% 
 % OBJMAKEBUMP
 % 
 % Usage:          objMakeBump(SHAPE)

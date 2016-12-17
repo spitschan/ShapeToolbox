@@ -1,5 +1,7 @@
 function model = objMakeNoise(shape,nprm,varargin)
 
+% HELP OUTDATED
+% 
 % OBJMAKENOISE
 %
 % Usage:           objMakeNoise(SHAPE)

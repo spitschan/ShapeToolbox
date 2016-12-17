@@ -1,5 +1,7 @@
 function model = objMakeSine(shape,cprm,varargin)
 
+% HELP OUTDATED
+% 
 % OBJMAKESINE
 %
 % Usage:          objMakeSine(SHAPE) 

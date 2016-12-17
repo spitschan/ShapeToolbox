@@ -12,6 +12,7 @@ function Z = objMakeSineComponents(cprm,mprm,X,Y)
 %                    allowed by Matlab)
 % 2015-06-03 - ts - envelopes that share a group index are multiplied,
 %                    not added
+% 2016-12-17 - ts - new arg order in prm vectors
 
 [m,n] = size(X);
 
@@ -123,4 +124,5 @@ end % if modulators defined
 function C = makeComp(prm,X,Y)
 
 %C = prm(2) * sin(prm(1)*(X*cos(prm(4))-2*Y*sin(prm(4)))+prm(3));
-C = prm(2) * sin(prm(1)*(X*cos(prm(4))-Y*sin(prm(4)))+prm(3));
+%C = prm(2) * sin(prm(1)*(X*cos(prm(4))-Y*sin(prm(4)))+prm(3));
+C = prm(4) * sin(prm(1)*(X*cos(prm(2))-Y*sin(prm(2)))+prm(3));
