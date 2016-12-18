@@ -41,6 +41,7 @@ function s = objSave(s)
 % 2016-05-28 - ts - info about (face) groups written to comments
 % 2016-06-12 - ts - don't return anything if no output argumets set
 % 2016-10-23 - ts - rewrote documenting the function call stack info
+% 2016-12-18 - ts - new order or perturbation parameters 
   
 m = s.m;
 n = s.n;
@@ -252,16 +253,16 @@ nccomp = size(cprm,1);
 nmcomp = size(mprm,1);
 
 fprintf(fid,'#\n# Modulation carrier parameters (each row is one component):\n');
-fprintf(fid,'#  Frequency | Amplitude | Phase | Angle | Group\n');
+fprintf(fid,'#  Frequency | Phase | Angle | Amplitude | Group\n');
 for ii = 1:nccomp
-  fprintf(fid,'#     %6.2f      %6.2f  %6.2f  %6.2f       %d\n',cprm(ii,:));
+  fprintf(fid,'#  %9.2f   %5.2f   %5.2f   %9.2f   %5d\n',cprm(ii,:));
 end
 
 if ~isempty(mprm)
   fprintf(fid,'#\n# Modulator parameters (each row is one component):\n');
-  fprintf(fid,'#  Frequency | Amplitude | Phase | Angle | Group\n');
+  fprintf(fid,'#  Frequency | Phase | Angle | Amplitude | Group\n');
   for ii = 1:nmcomp
-    fprintf(fid,'#     %6.2f      %6.2f  %6.2f  %6.2f       %d\n',mprm(ii,:));
+    fprintf(fid,'#  %9.2f   %5.2f   %5.2f   %9.2f   %5d\n',mprm(ii,:));
   end
 end
 
@@ -270,9 +271,9 @@ function writeSpecsBumpy(fid,prm)
 nbumptypes = size(prm,1);
 
 fprintf(fid,'#\n# Gaussian bump parameters (each row is bump type):\n');
-fprintf(fid,'#  # of bumps | Amplitude | Sigma\n');
+fprintf(fid,'#  # of bumps | Sigma | Amplitude\n');
 for ii = 1:nbumptypes
-  fprintf(fid,'#  %10d   %9.2f   %5.2f\n',prm(ii,:));
+  fprintf(fid,'#  %10d   %5.2f   %9.2f\n',prm(ii,:));
 end
 
 function writeSpecsNoisy(fid,nprm,mprm)
@@ -283,14 +284,14 @@ nmcomp = size(mprm,1);
 fprintf(fid,'#\n# Noise carrier parameters (each row is one component):\n');
 fprintf(fid,'#  Frequency | FWHH | Angle | FWHH | Amplitude | Group\n');
 for ii = 1:nncomp
-  fprintf(fid,'#  %9.2f   %4.2f   %5.2f   %4.2f   %9.2f       %d\n',nprm(ii,:));
+  fprintf(fid,'#  %9.2f   %4.2f   %5.2f   %4.2f   %9.2f   %5d\n',nprm(ii,:));
 end
 
 if ~isempty(mprm)
   fprintf(fid,'#\n# Modulator parameters (each row is one component):\n');
-  fprintf(fid,'#  Frequency | Amplitude | Phase | Angle | Group\n');
+  fprintf(fid,'#  Frequency | Phase | Angle | Amplitude | Group\n');
   for ii = 1:nmcomp
-    fprintf(fid,'#     %6.2f      %6.2f  %6.2f  %6.2f       %d\n',mprm(ii,:));
+    fprintf(fid,'#  %9.2f   %5.2f   %5.2f   %9.2f   %5d\n',mprm(ii,:));
   end
 end
 
