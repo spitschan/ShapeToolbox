@@ -599,75 +599,55 @@ function objDesigner(nmeshpoints)
   % Set up other controls for profiles
   
   figure(h.curve.f);
-  h.curve.use(1) = uicontrol('Style', 'checkbox',...
-                           'Position', [250 630 100 20],...
-                           'String','Use profile',...
-                           'FontSize',8,...
-                           'Value', 0,...
-                           'Tag','1',...
-                           'Enable','Off',...
-                           'TooltipString','Uncheck to ignore profile curve',...
-                           'Callback', {@toggleCurve,h.prm.f,h.curve.f,h.spine.f,h.preview.f,h.prm,h.preview.ax});
   
-  h.curve.use(2) = uicontrol('Style', 'checkbox',...
-                           'Position', [250 210 100 20],...
-                           'String','Use profile',...
-                           'FontSize',8,...
-                           'Value', 0,...
-                           'Tag','2',...
-                           'Enable','Off',...
-                           'TooltipString','Uncheck to ignore profile curve',...
-                           'Callback', {@toggleCurve,h.prm.f,h.curve.f,h.spine.f,h.preview.f,h.prm,h.preview.ax});
-
-  h.curve.reset(1) = uicontrol('Style', 'pushbutton',...
-                             'Position', [250 600 60 20],...
-                             'Tag','1',...
-                             'FontSize',8,...
-                             'String','Reset',...
-                             'TooltipString','Reset the curve to default',...
-                             'Callback', {@resetCurve,h.prm.f,h.curve.f,h.spine.f,h.preview.f,h.prm,h.preview.ax});
-
-  h.curve.reset(2) = uicontrol('Style', 'pushbutton',...
-                             'Position', [250 180 60 20],...
-                             'Tag','2',...
-                             'FontSize',8,...
-                             'String','Reset',...
-                             'TooltipString','Reset the curve to default',...
-                             'Callback', {@resetCurve,h.prm.f,h.curve.f,h.spine.f,h.preview.f,h.prm,h.preview.ax});  
-
-  h.curve.export.box(1) = uicontrol('Style','edit',...
-                              'Position',[250 570 130 20],...
-                              'HorizontalAlignment','left',...
-                              'String','rcurve',...
-                              'TooltipString','Give a variable name for the curve',...
-                              'Callback', {@exportCurveToWorkSpace,'linear',[],h.curve.f},...
-                              'FontSize',fontsize);
   
-  h.curve.export.lab(1) = uicontrol('Style', 'pushbutton',...
-                                   'String', 'Export to workspace',...
-                                   'TooltipString','Export the curve',...
-                                   'Position', [250 545 130 20],...
-                                   'Callback', {@exportCurveToWorkSpace,'linear',h.curve.export.box(1),h.curve.f},...
-                                   'FontSize',fontsize);    
+  y = [630 210
+       600 180
+       570 150
+       545 125];
+  
+  str1 = {'rcurve','ecurve'};
+  str2 = {'linear','polar'};
+  for ii = 1:2
+  
+  
+    h.curve.use(ii) = uicontrol('Style', 'checkbox',...
+                               'Position', [250 y(1,ii) 100 20],...
+                               'String','Use profile',...
+                               'FontSize',8,...
+                               'Value', 0,...
+                               'Tag',num2str(ii),...
+                               'Enable','Off',...
+                               'TooltipString','Uncheck to ignore profile curve',...
+                               'Callback', {@toggleCurve,h.prm,h.preview,h.curve,h.spine});
     
-  h.curve.export.box(2) = uicontrol('Style','edit',...
-                              'Position',[250 150 130 20],...
-                              'HorizontalAlignment','left',...
-                              'String','ecurve',...
-                              'TooltipString','Give a variable name for the curve',...
-                              'Callback', {@exportCurveToWorkSpace,'polar',[],h.curve.f},...
-                              'FontSize',fontsize);
+    h.curve.reset(ii) = uicontrol('Style', 'pushbutton',...
+                                 'Position', [250 y(2,ii) 60 20],...
+                                 'Tag',num2str(ii),...
+                                 'FontSize',8,...
+                                 'String','Reset',...
+                                 'TooltipString','Reset the curve to default',...
+                                 'Callback', {@resetCurve,h.prm,h.preview,h.curve,h.spine});
   
-  h.curve.export.lab(2) = uicontrol('Style', 'pushbutton',...
-                                   'String', 'Export to workspace',...
-                                   'TooltipString','Export the curve',...
-                                   'Position', [250 125 130 20],...
-                                   'Callback', {@exportCurveToWorkSpace,'polar',h.curve.export.box(2),h.curve.f},...
-                                   'FontSize',fontsize);    
+    h.curve.export.box(ii) = uicontrol('Style','edit',...
+                                      'Position',[250 y(3,ii) 130 20],...
+                                      'HorizontalAlignment','left',...
+                                      'String',str1{ii},...
+                                      'TooltipString','Give a variable name for the curve',...
+                                      'Callback', {@exportCurveToWorkSpace,h.curve.f,[],str2{ii}},...
+                                      'FontSize',fontsize);
+  
+    h.curve.export.lab(ii) = uicontrol('Style', 'pushbutton',...
+                                       'String', 'Export to workspace',...
+                                       'TooltipString','Export the curve',...
+                                       'Position', [250 y(4,ii) 130 20],...
+                                       'Callback', {@exportCurveToWorkSpace,h.curve.f,h.curve.export.box(ii),str2{ii}},...
+                                       'FontSize',fontsize);    
+  end
   
   %------------------------------------------------------------
   % Other controls for spine curves
-
+  
   figure(h.spine.f);
   
   x = [30 330];
@@ -675,43 +655,43 @@ function objDesigner(nmeshpoints)
   for ii = 1:2
 
 
-  h.spine.use(ii) = uicontrol('Style', 'checkbox',...
-                              'Position', [x(ii) 80 60 20],...
-                              'String','Use curve',...
-                              'Value',0,...
-                              'Tag',num2str(ii),...
-                              'FontSize',8,...
-                              'Enable','On',...
-                              'TooltipString','Uncheck to ignore the curve in model',...
-                              'Callback', {@toggleSpineCurve,h.prm.f,h.curve.f,h.spine.f,h.preview.f,h.prm,h.preview.ax});
-  
-    h.spine.reset(ii) = uicontrol('Style', 'pushbutton',...
-                                 'Position', [x(ii)+150 80 60 20],...
-                                 'Tag',num2str(ii),...
-                                 'FontSize',8,...
-                                 'String','Reset',...
-                                 'TooltipString','Reset the curve to default',...
-                                  'Callback', {@resetSpineCurve,h.prm.f,h.curve.f,h.spine.f,h.preview.f,h.prm,h.preview.ax});
-  
+    h.spine.use(ii) = uicontrol('Style', 'checkbox',...
+                                'Position', [x(ii) 80 60 20],...
+                                'String','Use curve',...
+                                'Value',0,...
+                                'Tag',num2str(ii),...
+                                'FontSize',8,...
+                                'Enable','On',...
+                                'TooltipString','Uncheck to ignore the curve in model',...
+                                'Callback', {@toggleSpineCurve,h.prm,h.preview,h.curve,h.spine});
     
-  h.spine.export.box(ii) = uicontrol('Style','edit',...
-                                     'Position',[x(ii) 55 130 20],...
-                                     'HorizontalAlignment','left',...
-                                     'String',str{ii},...
-                                     'TooltipString','Give a variable name for the curve',...
-                                     'Callback', {@exportSpineCurveToWorkSpace,str{ii},[],h.spine.f},...
-                                     'FontSize',fontsize);
-  
-  h.spine.export.btn(ii) = uicontrol('Style', 'pushbutton',...
-                                   'String', 'Export to workspace',...
-                                   'TooltipString','Export the curve',...
-                                   'Position', [x(ii) 33 130 20],...
-                                   'Callback', {@exportSpineCurveToWorkSpace,str{ii},h.spine.export.box(ii),h.spine.f},...
-                                   'FontSize',fontsize);    
+    h.spine.reset(ii) = uicontrol('Style', 'pushbutton',...
+                                  'Position', [x(ii)+150 80 60 20],...
+                                  'Tag',num2str(ii),...
+                                  'FontSize',8,...
+                                  'String','Reset',...
+                                  'TooltipString','Reset the curve to default',...
+                                  'Callback', {@resetSpineCurve,h.prm,h.preview,h.curve,h.spine});
+    
+    
+    h.spine.export.box(ii) = uicontrol('Style','edit',...
+                                       'Position',[x(ii) 55 130 20],...
+                                       'HorizontalAlignment','left',...
+                                       'String',str{ii},...
+                                       'TooltipString','Give a variable name for the curve',...
+                                       'Callback', {@exportSpineCurveToWorkSpace,h.spine.f,[],str{ii}},...
+                                       'FontSize',fontsize);
+    
+    h.spine.export.btn(ii) = uicontrol('Style', 'pushbutton',...
+                                       'String', 'Export to workspace',...
+                                       'TooltipString','Export the curve',...
+                                       'Position', [x(ii) 33 130 20],...
+                                       'Callback', {@exportSpineCurveToWorkSpace,h.spine.f,h.spine.export.box(ii),str{ii}},...
+                                       'FontSize',fontsize);    
 
     
   end
-    
+  
   %------------------------------------------------------------
   %------------------------------------------------------------
   % Main controls for parameter window (perturbation parameter
@@ -735,18 +715,18 @@ function objDesigner(nmeshpoints)
   hPerturbation = uicontrol('Style', 'popupmenu',...
                             'String', {'none','sine','noise','bump','custom'},...
                             'Position', [120 lines(3) 100 20],...
-                            'Callback', {@updatePerturbation,h.prm.f,h.curve.f,h.spine.f,h.preview.f,h.prm,h.preview.ax});
+                            'Callback', {@updatePerturbation,h.prm,h.preview,h.curve,h.spine});
   
   hShape = uicontrol('Style', 'popupmenu',...
                      'String', {'sphere','plane','cylinder','torus','disk','revolution','extrusion','worm'},...
                      'Position', [20 lines(3) 100 20],...
-                     'Callback', {@updateShape,h.prm.f,h.curve.f,h.spine.f,h.preview.f,h.prm,h.curve.use,h.preview.ax});
+                     'Callback', {@updateShape,h.prm,h.preview,h.curve,h.spine});
   
   hUpdate = uicontrol('Style', 'pushbutton',...
                       'String', 'Update',...
                       'FontSize',8,...
                       'Position', [20 lines(end) 50 20],...
-                      'Callback', {@updatePrm,h.prm.f,h.curve.f,h.spine.f,h.preview.f,h.prm,h.preview.ax});
+                      'Callback', {@updatePrm,h.prm,h.preview,h.curve,h.spine});
   
   %------------------------------------------------------------
   %------------------------------------------------------------
@@ -809,13 +789,13 @@ function objDesigner(nmeshpoints)
                      'TooltipString','Save the model to a Wavefront obj file',...
                      'Position', [150 20 130 20],...
                      'Callback', {@saveModel,thSave,h.preview.f},...
-                     'FontSize',fontsize);  
+                     'FontSize',fontsize);
 
   %------------------------------------------------------------
   % Switch to the main window and update parameters, forcing the
   % drawing of default shape.
   
-  updatePrm([],[],h.prm.f,h.curve.f,h.spine.f,h.preview.f,h.prm,h.preview.ax);
+  updatePrm([],[],h.prm,h.preview,h.curve,h.spine);
 
   resetView([],[],h.preview.f,h.preview.ax);
   
@@ -834,9 +814,9 @@ end % End main program
 
 % Callback functions sort of mainly pertaining to the main window
 
-function updatePerturbation(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview)
+function updatePerturbation(src,event,hPrm,hPreview,hCurve,hSpine)
   
-  shape = getappdata(fhPrm,'shape');
+  shape = getappdata(hPrm.f,'shape');
   
   p = get(src,'value');
   perturbations = get(src,'String');
@@ -869,9 +849,9 @@ function updatePerturbation(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPre
   
   switch perturbation
     case 'none'
-      setappdata(fhPrm,'perturbation','none');
+      setappdata(hPrm.f,'perturbation','none');
     case 'sine'
-      setappdata(fhPrm,'perturbation','sine');
+      setappdata(hPrm.f,'perturbation','sine');
       set(hPrm.sine.header,'Visible','On');
       set(hPrm.sine.label,'Visible','On');
       set(hPrm.sine.reset.carr,'Visible','On');
@@ -879,7 +859,7 @@ function updatePerturbation(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPre
       set(hPrm.sine.carr,'Visible','On');
       set(hPrm.sine.mod,'Visible','On');
     case 'noise'
-      setappdata(fhPrm,'perturbation','noise');
+      setappdata(hPrm.f,'perturbation','noise');
       set(hPrm.noise.header,'Visible','On');
       set(hPrm.noise.label,'Visible','On');
       set(hPrm.noise.reset.carr,'Visible','On');
@@ -888,14 +868,14 @@ function updatePerturbation(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPre
       set(hPrm.noise.mod,'Visible','On');   
     case 'bump'
       if ~strcmp(shape,'torus')
-        setappdata(fhPrm,'perturbation','bump');
+        setappdata(hPrm.f,'perturbation','bump');
         set(hPrm.bump.header,'Visible','On');
         set(hPrm.bump.label,'Visible','On');
         set(hPrm.bump.reset.prm,'Visible','On');
         set(hPrm.bump.prm,'Visible','On');
       end
     case 'custom'
-      setappdata(fhPrm,'perturbation','custom');
+      setappdata(hPrm.f,'perturbation','custom');
       set(hPrm.custom.header,'Visible','On');
       set(hPrm.custom.label,'Visible','On');
       set(hPrm.custom.reset.prm,'Visible','On');
@@ -903,51 +883,51 @@ function updatePerturbation(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPre
       set(hPrm.custom.prm,'Visible','On');
   end
   
-  updatePrm([],[],fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview);
+  updatePrm([],[],hPrm,hPreview,hCurve,hSpine);
   
 end
   
-function updateShape(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,hUseCurve,ah)
+function updateShape(src,event,hPrm,hPreview,hCurve,hSpine)
   s = get(src,'value');
   shapes = get(src,'String');
   shape = shapes{s};
-  setappdata(fhPrm,'shape',shape);
+  setappdata(hPrm.f,'shape',shape);
   
   switch shape
     case 'revolution'
-      setappdata(fhCurve,'usercurve',true);
-      set(hUseCurve(1),'Value',1);
-      set(hUseCurve(1),'Enable','Off');
-      set(hUseCurve(2),'Enable','On');
+      setappdata(hCurve.f,'usercurve',true);
+      set(hCurve.use(1),'Value',1);
+      set(hCurve.use(1),'Enable','Off');
+      set(hCurve.use(2),'Enable','On');
     case 'extrusion'
-      setappdata(fhCurve,'useecurve',true);
-      set(hUseCurve(2),'Value',1);
-      set(hUseCurve(1),'Enable','On');
-      set(hUseCurve(2),'Enable','Off');
+      setappdata(hCurve.f,'useecurve',true);
+      set(hCurve.use(2),'Value',1);
+      set(hCurve.use(1),'Enable','On');
+      set(hCurve.use(2),'Enable','Off');
     case 'worm'
-      setappdata(fhCurve,'usercurve',true);
-      setappdata(fhCurve,'usercurve',true);
-      set(hUseCurve,'Value',1);
-      set(hUseCurve,'Enable','On');
+      setappdata(hCurve.f,'usercurve',true);
+      setappdata(hCurve.f,'usercurve',true);
+      set(hCurve.use,'Value',1);
+      set(hCurve.use,'Enable','On');
     otherwise
-      setappdata(fhCurve,'usercurve',false);
-      setappdata(fhCurve,'usercurve',false);
-      set(hUseCurve,'Value',0);
-      set(hUseCurve,'Enable','Off');
+      setappdata(hCurve.f,'usercurve',false);
+      setappdata(hCurve.f,'usercurve',false);
+      set(hCurve.use,'Value',0);
+      set(hCurve.use,'Enable','Off');
       
       % setappdata(h.spine.f,'usercurve',[false false false]);
       % set(h.spine.use,'Value',0);
       % set(h.spine.use,'Enable','Off');
       
   end  
-  updatePrm([],[],fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ah);
+  updatePrm([],[],hPrm,hPreview,hCurve,hSpine);
 end
 
   
-function updatePrm(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ah)
-  shape = getappdata(fhPrm,'shape');
-  thisperturbation = getappdata(fhPrm,'perturbation');
-  npoints = getappdata(fhPrm,'npoints');
+function updatePrm(src,event,hPrm,hPreview,hCurve,hSpine)
+  shape = getappdata(hPrm.f,'shape');
+  thisperturbation = getappdata(hPrm.f,'perturbation');
+  npoints = getappdata(hPrm.f,'npoints');
   
   args = {};
   switch shape
@@ -956,14 +936,14 @@ function updatePrm(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ah)
     case {'cylinder','revolution','extrusion','worm'}
       args = {'npoints',[npoints npoints],args{:}};
 
-      usespine = getappdata(fhSpine,'usespine');
+      usespine = getappdata(hSpine.f,'usespine');
       if usespine(1)
-        hsmooth = getappdata(fhSpine,'hsmooth');
+        hsmooth = getappdata(hSpine.f,'hsmooth');
         spine = get(hsmooth(1),'xdata');
         args = {'spinex',spine,args{:}};          
       end
       if usespine(2)
-        hsmooth = getappdata(fhSpine,'hsmooth');
+        hsmooth = getappdata(hSpine.f,'hsmooth');
         spine = get(hsmooth(2),'xdata');
         args = {'spinez',spine,args{:}};          
       end
@@ -973,15 +953,15 @@ function updatePrm(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ah)
       end
 
       if ~strcmp(shape,'cylinder')
-        usercurve = getappdata(fhCurve,'usercurve');
-        useecurve = getappdata(fhCurve,'useecurve');
+        usercurve = getappdata(hCurve.f,'usercurve');
+        useecurve = getappdata(hCurve.f,'useecurve');
         if usercurve
-          hsmooth = getappdata(fhCurve,'hsmooth');
+          hsmooth = getappdata(hCurve.f,'hsmooth');
           rcurve = get(hsmooth(1,1),'xdata');
           args = {'rcurve',rcurve,args{:}};
         end
         if useecurve
-          ecurve = getappdata(fhCurve,'rdata');
+          ecurve = getappdata(hCurve.f,'rdata');
           args = {'ecurve',ecurve(1:end-1),args{:}};
         end
       end
@@ -1076,13 +1056,13 @@ function updatePrm(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ah)
       end %switch
     end % looping over perturbations
   end % is perturbations not empty
-  axes(ah);
+  axes(hPreview.ax);
   try
-    objShow(m,[],get(ah,'CameraPosition'));
+    objShow(m,[],get(hPreview.ax,'CameraPosition'));
   catch
     objShow(m);
   end
-  setappdata(fhPreview,'model',m);
+  setappdata(hPreview.f,'model',m);
 end
 
 function selectFile(src,event,hPrm)
@@ -1378,26 +1358,27 @@ function plotpoint(src,event)
   drawnow
 end
 
-function toggleCurve(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview)
+function toggleCurve(src,event,hPrm,hPreview,hCurve,hSpine)
   usecurve = get(src,'Value');
   which = str2num(get(src,'Tag'));
   if which==1
-    setappdata(fhCurve,'usercurve',usecurve);
+    setappdata(hCurve.f,'usercurve',usecurve);
   else
-    setappdata(fhCurve,'useecurve',usecurve);    
+    setappdata(hCurve.f,'useecurve',usecurve);    
   end
   % if usecurve
     
   % end
-  updatePrm([],[],fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview);
+  updatePrm([],[],hPrm,hPreview,hCurve,hSpine);
   
 end
 
-function resetCurve(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview)
+function resetCurve(src,event,hPrm,hPreview,hCurve,hSpine)
+
   idx = str2num(get(src,'Tag'));
 
-  h0 = getappdata(fhCurve,'h_orig');
-  h1 = getappdata(fhCurve,'h');
+  h0 = getappdata(hCurve.f,'h_orig');
+  h1 = getappdata(hCurve.f,'h');
   
   set(h1(idx,1),'xdata',get(h0(idx,1),'xdata'));
   set(h1(idx,1),'ydata',get(h0(idx,1),'ydata'));
@@ -1406,12 +1387,12 @@ function resetCurve(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview)
     set(h1(idx,2),'xdata',get(h0(idx,2),'xdata'));  
     set(h1(idx,2),'ydata',get(h0(idx,2),'ydata'));  
   else
-    rdata = getappdata(fhCurve,'rdata_orig');
-    setappdata(fhCurve,'rdata',rdata);
+    rdata = getappdata(hCurve.f,'rdata_orig');
+    setappdata(hCurve.f,'rdata',rdata);
   end
   
-  h0 = getappdata(fhCurve,'hsmooth_orig');
-  h1 = getappdata(fhCurve,'hsmooth');
+  h0 = getappdata(hCurve.f,'hsmooth_orig');
+  h1 = getappdata(hCurve.f,'hsmooth');
 
   set(h1(idx,1),'xdata',get(h0(idx,1),'xdata'));
   set(h1(idx,1),'ydata',get(h0(idx,1),'ydata'));
@@ -1421,11 +1402,11 @@ function resetCurve(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview)
     set(h1(idx,2),'ydata',get(h0(idx,2),'ydata'));  
   end
   
-  updatePrm([],[],fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview);
+  updatePrm([],[],hPrm,hPreview,hCurve,hSpine);
   
 end
 
-function exportCurveToWorkSpace(src,event,curvetype,th,fh)
+function exportCurveToWorkSpace(src,event,fh,th,curvetype)
   if isempty(th)
     h = src;
   else
@@ -1611,40 +1592,40 @@ function spineplotpoint(src,event)
   drawnow
 end
 
-function toggleSpineCurve(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview)
+function toggleSpineCurve(src,event,hPrm,hPreview,hCurve,hSpine)
   usecurve = get(src,'Value');
   which = str2num(get(src,'Tag'));
    
-  usespine = getappdata(fhSpine,'usespine');
+  usespine = getappdata(hSpine.f,'usespine');
   usespine(which) = usecurve;
-  setappdata(fhSpine,'usespine',usespine);
+  setappdata(hSpine.f,'usespine',usespine);
 
-  updatePrm([],[],fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview);
+  updatePrm([],[],hPrm,hPreview,hCurve,hSpine);
   
 end
 
 
-function resetSpineCurve(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview)
+function resetSpineCurve(src,event,hPrm,hPreview,hCurve,hSpine)
   
   idx = str2num(get(src,'Tag'));
   
-  h0 = getappdata(fhSpine,'hdat_orig');
-  h1 = getappdata(fhSpine,'hdat');
+  h0 = getappdata(hSpine.f,'hdat_orig');
+  h1 = getappdata(hSpine.f,'hdat');
   
   set(h1(idx),'xdata',get(h0(idx),'xdata'));
   set(h1(idx),'ydata',get(h0(idx),'ydata'));
   
-  h0 = getappdata(fhSpine,'hsmooth_orig');
-  h1 = getappdata(fhSpine,'hsmooth');
+  h0 = getappdata(hSpine.f,'hsmooth_orig');
+  h1 = getappdata(hSpine.f,'hsmooth');
 
   set(h1(idx),'xdata',get(h0(idx),'xdata'));
   set(h1(idx),'ydata',get(h0(idx),'ydata'));
 
-  updatePrm([],[],fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview);
+  updatePrm([],[],hPrm,hPreview,hCurve,hSpine)
   
 end
 
-function exportSpineCurveToWorkSpace(src,event,curvetype,th,fh)
+function exportSpineCurveToWorkSpace(src,event,fh,th,curvetype)
   if isempty(th)
     h = src;
   else
