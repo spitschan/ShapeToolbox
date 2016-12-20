@@ -88,7 +88,8 @@ function m1 = objBlend(m1,m2,varargin)
 % 2016-03-26 - ts - calls the renamed objSave (formerly objSaveModel)
 % 2016-06-20 - ts - fixed handling empty weight vector
 % 2016-09-23 - ts - allow blending worm with cylinder-like things
-
+% 2016-12-20 - ts - also average the direction values in worm shapes
+  
 % TODO:
 % - Better parsing of input arguments.
 % - Check that number of vertices matches.  Add option for
@@ -169,6 +170,7 @@ switch m1.shape
     m1.spine.X = w(1)*m1.spine.X + w(2)*m2.spine.X;
     m1.spine.Y = w(1)*m1.spine.Y + w(2)*m2.spine.Y;
     m1.spine.Z = w(1)*m1.spine.Z + w(2)*m2.spine.Z;
+    m1.spine.D = w(1)*m1.spine.D + w(2)*m2.spine.D;
   case 'torus'
     m1.R = w(1)*m1.R + w(2)*m2.R;
     m1.r = w(1)*m1.r + w(2)*m2.r;

@@ -589,7 +589,7 @@ function objDesigner(nmeshpoints)
     
   setappdata(h.spine.f,'npoints',npoints);
   setappdata(h.spine.f,'interp',interp);
-  setappdata(h.spine.f,'usespine',[true true true]);
+  setappdata(h.spine.f,'usespine',[false false false]);
 
   set(h.spine.f,'windowbuttondownfcn',@spinestarttrackmouse);
   set(h.spine.f,'keypressfcn',@spinekeyfunc);
@@ -603,7 +603,7 @@ function objDesigner(nmeshpoints)
                            'Position', [250 630 100 20],...
                            'String','Use profile',...
                            'FontSize',8,...
-                           'Value', 1,...
+                           'Value', 0,...
                            'Tag','1',...
                            'Enable','Off',...
                            'TooltipString','Uncheck to ignore profile curve',...
@@ -613,7 +613,7 @@ function objDesigner(nmeshpoints)
                            'Position', [250 210 100 20],...
                            'String','Use profile',...
                            'FontSize',8,...
-                           'Value', 1,...
+                           'Value', 0,...
                            'Tag','2',...
                            'Enable','Off',...
                            'TooltipString','Uncheck to ignore profile curve',...
@@ -673,8 +673,20 @@ function objDesigner(nmeshpoints)
   x = [30 330];
   str = {'spinex','spinez'};
   for ii = 1:2
+
+
+  h.spine.use(ii) = uicontrol('Style', 'checkbox',...
+                              'Position', [x(ii) 80 60 20],...
+                              'String','Use curve',...
+                              'Value',0,...
+                              'Tag',num2str(ii),...
+                              'FontSize',8,...
+                              'Enable','On',...
+                              'TooltipString','Uncheck to ignore the curve in model',...
+                              'Callback', {@toggleSpineCurve,h.prm.f,h.curve.f,h.spine.f,h.preview.f,h.prm,h.preview.ax});
+  
     h.spine.reset(ii) = uicontrol('Style', 'pushbutton',...
-                                 'Position', [x(ii) 80 60 20],...
+                                 'Position', [x(ii)+150 80 60 20],...
                                  'Tag',num2str(ii),...
                                  'FontSize',8,...
                                  'String','Reset',...
@@ -803,7 +815,6 @@ function objDesigner(nmeshpoints)
   % Switch to the main window and update parameters, forcing the
   % drawing of default shape.
   
-  
   updatePrm([],[],h.prm.f,h.curve.f,h.spine.f,h.preview.f,h.prm,h.preview.ax);
 
   resetView([],[],h.preview.f,h.preview.ax);
@@ -905,19 +916,29 @@ function updateShape(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,hUseCurve,ah
   switch shape
     case 'revolution'
       setappdata(fhCurve,'usercurve',true);
+      set(hUseCurve(1),'Value',1);
       set(hUseCurve(1),'Enable','Off');
       set(hUseCurve(2),'Enable','On');
     case 'extrusion'
       setappdata(fhCurve,'useecurve',true);
+      set(hUseCurve(2),'Value',1);
       set(hUseCurve(1),'Enable','On');
       set(hUseCurve(2),'Enable','Off');
     case 'worm'
       setappdata(fhCurve,'usercurve',true);
-      set(hUseCurve(1),'Enable','On');
-      set(hUseCurve(2),'Enable','On');
+      setappdata(fhCurve,'usercurve',true);
+      set(hUseCurve,'Value',1);
+      set(hUseCurve,'Enable','On');
     otherwise
-      set(hUseCurve(1),'Enable','Off');
-      set(hUseCurve(2),'Enable','Off');
+      setappdata(fhCurve,'usercurve',false);
+      setappdata(fhCurve,'usercurve',false);
+      set(hUseCurve,'Value',0);
+      set(hUseCurve,'Enable','Off');
+      
+      % setappdata(h.spine.f,'usercurve',[false false false]);
+      % set(h.spine.use,'Value',0);
+      % set(h.spine.use,'Enable','Off');
+      
   end  
   updatePrm([],[],fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ah);
 end
@@ -932,30 +953,36 @@ function updatePrm(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ah)
   switch shape
     case 'sphere'
       args = {'npoints',[round(npoints/2) npoints],args{:}};
-    case {'revolution','extrusion','worm'}
+    case {'cylinder','revolution','extrusion','worm'}
       args = {'npoints',[npoints npoints],args{:}};
-      usercurve = getappdata(fhCurve,'usercurve');
-      useecurve = getappdata(fhCurve,'useecurve');
-      if usercurve
-        hsmooth = getappdata(fhCurve,'hsmooth');
-        rcurve = get(hsmooth(1,1),'xdata');
-        args = {'rcurve',rcurve,args{:}};
+
+      usespine = getappdata(fhSpine,'usespine');
+      if usespine(1)
+        hsmooth = getappdata(fhSpine,'hsmooth');
+        spine = get(hsmooth(1),'xdata');
+        args = {'spinex',spine,args{:}};          
       end
-      if useecurve
-        ecurve = getappdata(fhCurve,'rdata');
-        args = {'ecurve',ecurve(1:end-1),args{:}};
+      if usespine(2)
+        hsmooth = getappdata(fhSpine,'hsmooth');
+        spine = get(hsmooth(2),'xdata');
+        args = {'spinez',spine,args{:}};          
       end
-      if strcmp(shape,'worm')
-        usespine = getappdata(fhSpine,'usespine');
-        if usespine(1)
-          hsmooth = getappdata(fhSpine,'hsmooth');
-          spine = get(hsmooth(1),'xdata');
-          args = {'spinex',spine,args{:}};          
+      if strcmp(shape,'worm') && usespine(3)
+        % TODO: y-spine for worms
+        ; 
+      end
+
+      if ~strcmp(shape,'cylinder')
+        usercurve = getappdata(fhCurve,'usercurve');
+        useecurve = getappdata(fhCurve,'useecurve');
+        if usercurve
+          hsmooth = getappdata(fhCurve,'hsmooth');
+          rcurve = get(hsmooth(1,1),'xdata');
+          args = {'rcurve',rcurve,args{:}};
         end
-        if usespine(2)
-          hsmooth = getappdata(fhSpine,'hsmooth');
-          spine = get(hsmooth(2),'xdata');
-          args = {'spinez',spine,args{:}};          
+        if useecurve
+          ecurve = getappdata(fhCurve,'rdata');
+          args = {'ecurve',ecurve(1:end-1),args{:}};
         end
       end
     otherwise 
@@ -1583,6 +1610,19 @@ function spineplotpoint(src,event)
   set(h(sidx),'xdata',pos(1,1),'ydata',pos(1,2));
   drawnow
 end
+
+function toggleSpineCurve(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview)
+  usecurve = get(src,'Value');
+  which = str2num(get(src,'Tag'));
+   
+  usespine = getappdata(fhSpine,'usespine');
+  usespine(which) = usecurve;
+  setappdata(fhSpine,'usespine',usespine);
+
+  updatePrm([],[],fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview);
+  
+end
+
 
 function resetSpineCurve(src,event,fhPrm,fhCurve,fhSpine,fhPreview,hPrm,ahPreview)
   

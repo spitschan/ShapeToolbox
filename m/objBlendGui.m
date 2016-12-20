@@ -262,47 +262,53 @@ end
 
 function exportToWorkSpace(src,event,th,fh)
   if isempty(th)
-    varname = get(src,'String');
+    h = src;
   else
-    varname = get(th,'String');
+    h = th;
   end
+  bgcol = get(h,'BackgroundColor');
+  set(h,'BackgroundColor',[.2 .8 .2]);
+  varname = get(h,'String');
   m = getappdata(fh,'mblend');
   assignin('base',varname,m);
+  pause(.2);
+  set(h,'BackgroundColor',bgcol);  
 end
 
 function saveModel(src,event,th,fh)
   if isempty(th)
-    filename = get(src,'String');
+    h = src;
   else
-    filename = get(th,'String');
+    h = th;
   end
+  bgcol = get(h,'BackgroundColor');
+  set(h,'BackgroundColor',[.2 .8 .2]);
+  filename = get(h,'String');
   if isempty(regexp(filename,'\.obj$'))
     filename = [filename,'.obj'];
   end
   m = getappdata(fh,'mblend');
   m.filename = filename;
   objSave(m);
+  pause(.2);
+  set(h,'BackgroundColor',bgcol);  
 end
 
 function importFromWorkSpace(src,event,th,idx,fh,thw,ah)
   if isempty(th)
-    varname = get(src,'String');
+    h = src;
   else
-    varname = get(th,'String');
+    h = th;
   end
+  bgcol = get(h,'BackgroundColor');
+  set(h,'BackgroundColor',[.2 .8 .2]);
+  varname = get(h,'String');
+  
   m = evalin('base',varname);
   setappdata(fh,sprintf('m%d',idx),m);
-  %updateModel(idx,fh,ah);
   updateBlend([],[],fh,thw,ah);
   resetView([],[],fh,ah);
+  pause(.2);
+  set(h,'BackgroundColor',bgcol);  
 end
 
-function updateModel(idx,fh,ah)
-  m = getappdata(fh,sprintf('m%d',idx));
-  if idx == 1
-    axes(ah(1));
-  elseif idx == 2
-    axes(ah(3));
-  end
-  objShow(m);
-end

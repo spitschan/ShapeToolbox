@@ -12,7 +12,8 @@ function model = objMakeHeightMap(model)
 % 2016-05-30 - ts - uses params from model.prm(model.idx) instead of
 %                    model.opts, to make it work with the "new"
 %                    objParseCustomParams
-
+% 2016-12-20 - ts - handle worm separately from cylinder et al to
+%                    make interpolation of height map work
 
 
 ii = model.idx;
@@ -49,7 +50,7 @@ switch model.shape
     end
     Z = Z + model.prm(ii).ampl * model.prm(ii).map;
     Z = Z'; model.Z = Z(:);
-  case {'cylinder','revolution','extrusion','worm'}
+  case {'cylinder','revolution','extrusion'}
     R = reshape(model.R,[model.n model.m])';
     if model.prm(ii).mmap~=model.m || model.prm(ii).nmap~=model.n
       Theta = model.Theta;
@@ -59,6 +60,21 @@ switch model.shape
       
       % theta2 = linspace(-pi,pi-2*pi/model.prm(ii).nmap,model.prm(ii).nmap); % azimuth
       theta2 = linspace(-pi,pi,model.prm(ii).nmap); % azimuth
+      y2 = linspace(-model.height/2,model.height/2,model.prm(ii).mmap); % 
+      [Theta2,Y2] = meshgrid(theta2,y2);
+      model.prm(ii).map = interp2(Theta2,Y2,model.prm(ii).map,Theta,Y);
+    end
+    R = R + model.prm(ii).ampl * model.prm(ii).map;
+    R = R'; model.R = R(:);
+  case 'worm'
+    R = reshape(model.R,[model.n model.m])';
+    if model.prm(ii).mmap~=model.m || model.prm(ii).nmap~=model.n
+      theta = linspace(-pi,pi-2*pi/model.n,model.n); % azimuth
+      y = linspace(-model.height/2,model.height/2,model.m)'; %  
+      [Theta,Y] = meshgrid(theta,y);
+      
+      % theta2 = linspace(-pi,pi-2*pi/model.prm(ii).nmap,model.prm(ii).nmap); % azimuth
+      theta2 = linspace(-pi,pi,model.prm(ii).nmap); % azimuth      
       y2 = linspace(-model.height/2,model.height/2,model.prm(ii).mmap); % 
       [Theta2,Y2] = meshgrid(theta2,y2);
       model.prm(ii).map = interp2(Theta2,Y2,model.prm(ii).map,Theta,Y);
