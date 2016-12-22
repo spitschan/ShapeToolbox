@@ -8,6 +8,7 @@ function objDesigner(nmeshpoints)
 % 2016-12-13 - ts - second first version
 % 2016-12-14 - ts - included the revolution/extrusion profiles
 %                   included more perturbation types
+% 2016-12-20 - ts - oops, several, several changes between then and now
   
 % TODO
 % print current parameters / command to produce the shape
@@ -24,10 +25,10 @@ function objDesigner(nmeshpoints)
   scrsize = get(0,'ScreenSize');
   scrsize = scrsize(3:4) - scrsize(1:2) + 1;
   
-  figsize = [300 600; ...   % prm
+  figsize = [300 700; ...   % prm
              300 380; ...   % preview
              380 720;...    % profile
-             600 500];      % spine
+             900 500];      % spine
 
   fposy = scrsize(2) - 100 - figsize(:,2)';
   fposy(end) = fposy(end) - 200; % spine
@@ -42,7 +43,8 @@ function objDesigner(nmeshpoints)
                        'Units','pixels',...
                        'Menubar','none',...
                        'NumberTitle','Off',...
-                       'Name','Preview');
+                       'Name','Preview',...
+                       'Visible','Off');
   pos = [fposx(2) fposy(2) figsize(2,:)];
   set(h.preview.f,'Position',pos);
   
@@ -50,24 +52,14 @@ function objDesigner(nmeshpoints)
 
   
   %------------------------------------------------------------
-  % Shape / parameter window
-
-  h.prm.f = figure('Color','white',...
-                 'Units','pixels',...
-                 'Menubar','none',...
-                 'NumberTitle','Off',...
-                 'Name','objDesigner');
-  pos = [fposx(1) fposy(1) figsize(1,:)];
-  set(h.prm.f,'Position',pos);
-
-  %------------------------------------------------------------
   % Revolution / extrusion profile window
   
   h.curve.f = figure('Color','white',...
                      'Units','pixels',...
                      'Menubar','none',...
                      'NumberTitle','Off',...
-                     'Name','Profile');
+                     'Name','Profile',...
+                     'Visible','Off');
   pos = [fposx(3) fposy(3) figsize(3,:)];
   set(h.curve.f,'Position',pos);
   
@@ -81,18 +73,32 @@ function objDesigner(nmeshpoints)
                      'Units','pixels',...
                      'Menubar','none',...
                      'NumberTitle','Off',...
-                     'Name','Spine');
+                     'Name','Spine',...
+                     'Visible','Off');
   pos = [fposx(4) fposy(4) figsize(4,:)];
   set(h.spine.f,'Position',pos);
   
   h.spine.ax(1) = axes('Units','pixels','Position',[ 30 120 230 310]);
   h.spine.ax(2) = axes('Units','pixels','Position',[330 120 230 310]);
+  h.spine.ax(3) = axes('Units','pixels','Position',[630 120 230 310]);
   
+  %------------------------------------------------------------
+  % Shape / parameter window
+
+  h.prm.f = figure('Color','white',...
+                 'Units','pixels',...
+                 'Menubar','none',...
+                 'NumberTitle','Off',...
+                 'Name','objDesigner');
+  pos = [fposx(1) fposy(1) figsize(1,:)];
+  set(h.prm.f,'Position',pos);
+
   %------------------------------------------------------------
   %------------------------------------------------------------
   % Default values for perturbation parameters and input boxes
   
-  figure(h.prm.f);
+  % figure(h.prm.f);
+  set(0,'CurrentFigure',h.prm.f);
   
   % Sine
   h.prm.sine.header(1) = uicontrol('Style','text',...
@@ -383,7 +389,9 @@ function objDesigner(nmeshpoints)
   %------------------------------------------------------------
   % Profiles for revolution and extrusion
 
-  figure(h.curve.f);
+  % figure(h.curve.f);
+  pause(1)
+  set(0,'CurrentFigure',h.curve.f);
   
   npoints = [nmeshpoints nmeshpoints];
   
@@ -394,12 +402,14 @@ function objDesigner(nmeshpoints)
 
   %------------------------------------------------------------
   % Set up things for the revolution curve
-  axes(h.curve.ax(1));
+  %axes(h.curve.ax(1));
+  set(h.curve.f,'CurrentAxes',h.curve.ax(1));
   xlim = [-xscale xscale];
   ylim = [-yscale yscale];
   axis equal
   set(h.curve.ax(1),'XLim',xlim,'YLim',ylim,'Box','On');
-  title('Revolution profile','FontWeight','normal','Fontsize',10);
+  %title('Revolution profile','FontWeight','normal','Fontsize',10);  
+  set(get(gca,'Title'),'String','Revolution profile','FontWeight','normal','Fontsize',10);
   hold on
 
   y = ylim;
@@ -423,7 +433,11 @@ function objDesigner(nmeshpoints)
   %------------------------------------------------------------
   % Set up things for the revolution curve
   
-  axes(h.curve.ax(2));
+  set(0,'CurrentFigure',h.curve.f);
+  
+  % axes(h.curve.ax(2));
+  set(h.curve.f,'CurrentAxes',h.curve.ax(2));
+  
   xlim = [-xscale xscale];
   ylim = [-xscale xscale];
   th = [0 pi/2 pi 3*pi/2];
@@ -431,14 +445,18 @@ function objDesigner(nmeshpoints)
   [x,y] = pol2cart(th,r);
   %hsmooth = [];
   
+  %set(get(gca,'Title'),'String','Extrusion profile','FontWeight','normal','Fontsize',10);
+
+  
   if false % isoctave
-    hdat = polar(y,x,'ob');
-    ah = gca;
-    set(hdat,'MarkerFaceColor','b');
-    set(ahCurve,'XLim',xlim,'YLim',ylim);
-    set(ahCurve,'RTick',xscale);
-    axis equal
-    hold on      
+    % hdat = polar(y,x,'ob');
+    % ah = gca;
+    % set(hdat,'MarkerFaceColor','b');
+    % set(ahCurve,'XLim',xlim,'YLim',ylim);
+    % set(ahCurve,'RTick',xscale);
+    % axis equal
+    % hold on    
+    
   else
     % polarplot exists only in Matlab 2016a and later Put here code that
     % works in older versions.  This is similar to Octave code, but
@@ -478,7 +496,8 @@ function objDesigner(nmeshpoints)
     %keyboard
     
   end
-  title('Extrusion profile','FontWeight','normal','Fontsize',10);  
+  %title('Extrusion profile','FontWeight','normal','Fontsize',10);  
+  set(get(h.curve.ax(2),'Title'),'String','Extrusion profile','FontWeight','normal','Fontsize',10);
 
   % End setting up for extrusion / polar profile
   %------------------------------------------------------------
@@ -494,17 +513,17 @@ function objDesigner(nmeshpoints)
   setappdata(h.curve.ax(1),'profiletype','linear');
   setappdata(h.curve.ax(2),'profiletype','polar');
 
-  axes(h.curve.ax(1));
+  set(h.curve.f,'CurrentAxes',h.curve.ax(1));
   hlate(1) = plot(-100,-100,'ob','MarkerFaceColor','b');
-  axes(h.curve.ax(2));
+  set(h.curve.f,'CurrentAxes',h.curve.ax(2));
   hlate(2) = plot(-100,-100,'ob','MarkerFaceColor','b');
   setappdata(h.curve.f,'hlatest',hlate);
 
-  axes(h.curve.ax(1));
+  set(h.curve.f,'CurrentAxes',h.curve.ax(1));
   hmove(1) = plot(-100,-100,'o','MarkerSize',8,...
                   'MarkerEdgeColor',[.7 .7 .7],...
                   'MarkerFaceColor',[.7 .7 .7]);
-  axes(h.curve.ax(2));
+  set(h.curve.f,'CurrentAxes',h.curve.ax(2));
   hmove(2) = plot(-100,-100,'o','MarkerSize',8,...
                   'MarkerEdgeColor',[.7 .7 .7],...
                   'MarkerFaceColor',[.7 .7 .7]);
@@ -520,13 +539,13 @@ function objDesigner(nmeshpoints)
 
   set(h.curve.f,'windowbuttondownfcn',@starttrackmouse);
   set(h.curve.f,'keypressfcn',@keyfunc);
-  
-  
+
   %------------------------------------------------------------
   %------------------------------------------------------------
   % Profiles for spines
 
-  figure(h.spine.f);
+  % figure(h.spine.f);
+  set(0,'CurrentFigure',h.spine.f);
   
   npoints = [nmeshpoints nmeshpoints];
   
@@ -537,14 +556,14 @@ function objDesigner(nmeshpoints)
   %------------------------------------------------------------
   % Set up things for the spine spine
   
-  titles = {'Along x-axis','Along z-axis'};
+  titles = {'Along x-axis','Along z-axis','y'};
   for ii = 1:2
-    axes(h.spine.ax(ii));
+    set(h.spine.f,'CurrentAxes',h.spine.ax(ii));
     xlim = [-xscale xscale];
     ylim = [1 yscale];
     %axis equal
     set(h.spine.ax(ii),'XLim',xlim,'YLim',ylim,'Box','On');
-    title(titles{ii},'FontWeight','normal','Fontsize',10);
+    set(get(gca,'Title'),'String',titles{ii},'FontWeight','normal','Fontsize',10);
     hold on
     
     y = ylim;
@@ -561,6 +580,29 @@ function objDesigner(nmeshpoints)
     drawnow
   end
   
+  ii = 3;
+  
+  set(h.spine.f,'CurrentAxes',h.spine.ax(ii));
+  xlim = [1 nmeshpoints];
+  ylim = [-pi pi];
+  %axis equal
+  set(h.spine.ax(ii),'XLim',xlim,'YLim',ylim,'Box','On');
+  set(get(gca,'Title'),'String',titles{ii},'FontWeight','normal','Fontsize',10);
+  hold on
+  
+  y = ylim;
+  x = xlim;
+  
+  x1 = linspace(1,nmeshpoints,npoints(1));
+  y1 = interp1(x,y,x1,'spline');
+  
+  hsmooth_orig(ii) = plot(x1,y1,'Visible','Off');
+  hdat_orig(ii) = plot(x,y,'Visible','Off');
+  
+  hsmooth(ii) = plot(x1,y1,'r-');
+  hdat(ii) = plot(x,y,'ob','MarkerFaceColor','b');
+  drawnow  
+  
   %------------------------------------------------------------
   % Set app data for spine profiles
   
@@ -575,11 +617,10 @@ function objDesigner(nmeshpoints)
     
     setappdata(h.spine.ax(ii),'spinetype',spinetype{ii});
     
-    axes(h.spine.ax(ii));
+    set(h.spine.f,'CurrentAxes',h.spine.ax(ii));
     hlate(ii) = plot(-100,-100,'ob','MarkerFaceColor','b');
     setappdata(h.spine.f,'hlatest',hlate);
 
-    axes(h.spine.ax(ii));
     hmove(ii) = plot(-100,-100,'o','MarkerSize',8,...
                     'MarkerEdgeColor',[.7 .7 .7],...
                     'MarkerFaceColor',[.7 .7 .7]);
@@ -594,11 +635,11 @@ function objDesigner(nmeshpoints)
   set(h.spine.f,'windowbuttondownfcn',@spinestarttrackmouse);
   set(h.spine.f,'keypressfcn',@spinekeyfunc);
   
-
   %------------------------------------------------------------
   % Set up other controls for profiles
   
-  figure(h.curve.f);
+  % figure(h.curve.f);
+  set(0,'CurrentFigure',h.curve.f);
   
   
   y = [630 210
@@ -648,11 +689,12 @@ function objDesigner(nmeshpoints)
   %------------------------------------------------------------
   % Other controls for spine curves
   
-  figure(h.spine.f);
+  % figure(h.spine.f);
+  set(0,'CurrentFigure',h.spine.f);
   
-  x = [30 330];
-  str = {'spinex','spinez'};
-  for ii = 1:2
+  x = [30 330 630];
+  str = {'spinex','spinez','spiney'};
+  for ii = 1:3
 
 
     h.spine.use(ii) = uicontrol('Style', 'checkbox',...
@@ -697,7 +739,9 @@ function objDesigner(nmeshpoints)
   % Main controls for parameter window (perturbation parameter
   % input set up further above).
   
-  figure(h.prm.f);
+  % figure(h.prm.f);
+  set(0,'CurrentFigure',h.prm.f);
+  
   setappdata(h.prm.f,'shape','sphere');
   setappdata(h.prm.f,'perturbation','none');
   setappdata(h.prm.f,'npoints',nmeshpoints);
@@ -727,12 +771,35 @@ function objDesigner(nmeshpoints)
                       'FontSize',8,...
                       'Position', [20 lines(end) 50 20],...
                       'Callback', {@updatePrm,h.prm,h.preview,h.curve,h.spine});
+
+  % window show/hide checkboxes
+  
+  windows = {'Preview','Curves','Spine'};
+  tags = {'preview','curve','spine'};
+  values = [1 0 0];
+  y = [650 625 600];
+  for ii = 1:3
+    h.prm.showwin(ii) = uicontrol('Style', 'checkbox',...
+                                  'Position', [20 y(ii) 115 20],...
+                                  'String',sprintf('Show %s',windows{ii}),...
+                                  'FontSize',fontsize,...
+                                  'Tag',tags{ii},...
+                                  'Enable','On',...
+                                  'Value', values(ii),...
+                                  'Callback', {@toggleWindow,h});    
+  end
+  
+  set(h.preview.f,'CloseRequestFcn',{@closeapp,h,'preview'});
+  set(h.curve.f,'CloseRequestFcn',{@closeapp,h,'curve'});
+  set(h.spine.f,'CloseRequestFcn',{@closeapp,h,'spine'});  
+  set(h.prm.f,'CloseRequestFcn',{@closeapp,h,'main'});
   
   %------------------------------------------------------------
   %------------------------------------------------------------
   % Controls for the preview window
   
-  figure(h.preview.f);
+  % figure(h.preview.f);
+  set(0,'CurrentFigure',h.preview.f);
   
   hToggleAxes = uicontrol('Style', 'checkbox',...
                           'Position', [20 70 115 20],...
@@ -791,6 +858,13 @@ function objDesigner(nmeshpoints)
                      'Callback', {@saveModel,thSave,h.preview.f},...
                      'FontSize',fontsize);
 
+  %------------------------------------------------------------
+  % Show all/some windows
+  
+  set(h.preview.f,'Visible','On');
+  set(h.curve.f,'Visible','Off');
+  set(h.spine.f,'Visible','Off');
+  
   %------------------------------------------------------------
   % Switch to the main window and update parameters, forcing the
   % drawing of default shape.
@@ -940,7 +1014,7 @@ function updatePrm(src,event,hPrm,hPreview,hCurve,hSpine)
       if usespine(1)
         hsmooth = getappdata(hSpine.f,'hsmooth');
         spine = get(hsmooth(1),'xdata');
-        args = {'spinex',spine,args{:}};          
+        args = {'spinex',spine,args{:}};
       end
       if usespine(2)
         hsmooth = getappdata(hSpine.f,'hsmooth');
@@ -948,8 +1022,11 @@ function updatePrm(src,event,hPrm,hPreview,hCurve,hSpine)
         args = {'spinez',spine,args{:}};          
       end
       if strcmp(shape,'worm') && usespine(3)
-        % TODO: y-spine for worms
-        ; 
+        if usespine(3)
+          hsmooth = getappdata(hSpine.f,'hsmooth');
+          spine = get(hsmooth(3),'ydata');
+          args = {'spiney',spine,args{:}};          
+        end
       end
 
       if ~strcmp(shape,'cylinder')
@@ -1507,7 +1584,11 @@ function spinestarttrackmouse(src,data)
   y = get(hdat(sidx),'ydata');
   pos = get(gca,'currentpoint');
   % dist = abs([x-pos(1,1) y-pos(1,2)]); % 
-  dist = sqrt((x-pos(1,1)).^2+(y/32-pos(1,2)/32).^2);
+  if sidx==3
+    dist = sqrt((x/32-pos(1,1)/32).^2+(y-pos(1,2)).^2);
+  else
+    dist = sqrt((x-pos(1,1)).^2+(y/32-pos(1,2)/32).^2);
+  end
   if min(dist)<.2
     idx = find(dist==min(dist));
     xtmp = x(idx);
@@ -1548,6 +1629,18 @@ function spineendtrackmouse(src,data)
   if (x<xlim(1) || x>xlim(2)) || (y<ylim(1) || y>ylim(2))
     offlimits = true;
   end
+  
+  if sidx==3
+    tmp = xdat;
+    xdat = ydat;
+    ydat = tmp;
+    
+    tmp = x;
+    x = y;
+    y = tmp;
+    
+  end  
+  
   if getappdata(src,'newpoint') && ~offlimits
     [ydat,idx] = sort([ydat y]);
     xdat = [xdat x];
@@ -1566,6 +1659,15 @@ function spineendtrackmouse(src,data)
       xdat(idx) = x;
     end
   end
+
+  clear x y
+  
+  if sidx==3
+    tmp = xdat;
+    xdat = ydat;
+    ydat = tmp;
+  end
+    
   set(hdat(sidx),'xdata',xdat,'ydata',ydat);
   
   h = getappdata(src,'hsmooth');
@@ -1574,10 +1676,14 @@ function spineendtrackmouse(src,data)
   x1 = get(h(sidx),'xdata');
   y1 = get(h(sidx),'ydata');
   
-  x1 = interp1(ydat,xdat,y1,interp);
+  if sidx==3
+    y1 = interp1(xdat,ydat,x1,interp);
+    set(h(sidx),'ydata',y1);
+  else
+    x1 = interp1(ydat,xdat,y1,interp);
+    set(h(sidx),'xdata',x1);
+  end
   
-  set(h(sidx),'xdata',x1);
-
   drawnow; drawnow; drawnow
 
 end
@@ -1642,9 +1748,38 @@ function exportSpineCurveToWorkSpace(src,event,fh,th,curvetype)
       curve = get(hdat(1),'xdata');
     case 'spinez',
       curve = get(hdat(2),'xdata');
+    case 'spiney',
+      curve = get(hdat(3),'ydata');
   end
   assignin('base',varname,curve);
   pause(.2);
   set(h,'BackgroundColor',bgcol);
 end
 
+% Close
+
+function closeapp(src,event,h,which)
+  % closeall = strcmp(get(src,'Name'),'objDesigner');
+  % if ~isempty(h)
+  if strcmp(which,'main')
+    delete(h.spine.f);
+    delete(h.curve.f);
+    delete(h.preview.f);
+    delete(h.prm.f);
+  else
+    idx = strmatch(which,{'preview','curve','spine'});
+    set(h.prm.showwin(idx),'Value',0);
+    set(h.(which).f,'Visible','Off');
+    fprintf('Close the main window to exit.\n');
+  end
+end
+
+function toggleWindow(src,event,h)
+  doshow = get(src,'Value');
+  which = get(src,'Tag');
+  if doshow
+    set(h.(which).f,'Visible','On');
+  else
+    set(h.(which).f,'Visible','Off');
+  end  
+end
