@@ -9,6 +9,8 @@ function objDesigner(nmeshpoints)
 % 2016-12-14 - ts - included the revolution/extrusion profiles
 %                   included more perturbation types
 % 2016-12-20 - ts - oops, several, several changes between then and now
+% 2016-12-29 - ts - improved hiding / showing windows,
+%                    enabling/disabling curves
   
 % TODO
 % print current parameters / command to produce the shape
@@ -746,6 +748,24 @@ function objDesigner(nmeshpoints)
   setappdata(h.prm.f,'perturbation','none');
   setappdata(h.prm.f,'npoints',nmeshpoints);
   
+
+  % window show/hide checkboxes
+  
+  windows = {'Preview','Curves','Spine'};
+  tags = {'preview','curve','spine'};
+  values = [1 0 0];
+  y = [650 625 600];
+  for ii = 1:3
+    h.prm.showwin(ii) = uicontrol('Style', 'checkbox',...
+                                  'Position', [20 y(ii) 115 20],...
+                                  'String',sprintf('Show %s',windows{ii}),...
+                                  'FontSize',fontsize,...
+                                  'Tag',tags{ii},...
+                                  'Enable','On',...
+                                  'Value', values(ii),...
+                                  'Callback', {@toggleWindow,h});    
+  end
+  
   uicontrol('Style','text',...
             'Position',[120 lines(1) 100 20],...
             'HorizontalAlignment','left',...
@@ -772,23 +792,6 @@ function objDesigner(nmeshpoints)
                       'Position', [20 lines(end) 50 20],...
                       'Callback', {@updatePrm,h.prm,h.preview,h.curve,h.spine});
 
-  % window show/hide checkboxes
-  
-  windows = {'Preview','Curves','Spine'};
-  tags = {'preview','curve','spine'};
-  values = [1 0 0];
-  y = [650 625 600];
-  for ii = 1:3
-    h.prm.showwin(ii) = uicontrol('Style', 'checkbox',...
-                                  'Position', [20 y(ii) 115 20],...
-                                  'String',sprintf('Show %s',windows{ii}),...
-                                  'FontSize',fontsize,...
-                                  'Tag',tags{ii},...
-                                  'Enable','On',...
-                                  'Value', values(ii),...
-                                  'Callback', {@toggleWindow,h});    
-  end
-  
   set(h.preview.f,'CloseRequestFcn',{@closeapp,h,'preview'});
   set(h.curve.f,'CloseRequestFcn',{@closeapp,h,'curve'});
   set(h.spine.f,'CloseRequestFcn',{@closeapp,h,'spine'});  
@@ -973,16 +976,24 @@ function updateShape(src,event,hPrm,hPreview,hCurve,hSpine)
       set(hCurve.use(1),'Value',1);
       set(hCurve.use(1),'Enable','Off');
       set(hCurve.use(2),'Enable','On');
+      set(hCurve.f,'Visible','On');
+      set(hPrm.showwin(2),'Value',1);
     case 'extrusion'
       setappdata(hCurve.f,'useecurve',true);
       set(hCurve.use(2),'Value',1);
       set(hCurve.use(1),'Enable','On');
       set(hCurve.use(2),'Enable','Off');
+      set(hCurve.f,'Visible','On');
+      set(hPrm.showwin(2),'Value',1);
     case 'worm'
       setappdata(hCurve.f,'usercurve',true);
       setappdata(hCurve.f,'usercurve',true);
       set(hCurve.use,'Value',1);
       set(hCurve.use,'Enable','On');
+      set(hCurve.f,'Visible','On');
+      set(hSpine.f,'Visible','On');
+      set(hPrm.showwin(2),'Value',1);
+      set(hPrm.showwin(3),'Value',1);      
     otherwise
       setappdata(hCurve.f,'usercurve',false);
       setappdata(hCurve.f,'usercurve',false);
