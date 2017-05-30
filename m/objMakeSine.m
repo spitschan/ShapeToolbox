@@ -1,7 +1,5 @@
 function model = objMakeSine(shape,cprm,varargin)
 
-% HELP OUTDATED
-% 
 % OBJMAKESINE
 %
 % Usage:          objMakeSine(SHAPE) 
@@ -24,32 +22,35 @@ function model = objMakeSine(shape,cprm,varargin)
 %
 % Either an existing model returned by one of the objMake*-functions,
 % or a string defining a new shape.  If a string, has to be one of
-% 'sphere', 'plane', 'cylinder', 'torus', 'revolution', 'extrusion' or
-% 'worm'.  See details in the help for objSave.  Example: 
+% 'sphere', 'plane', 'disk','cylinder', 'torus', 'revolution',
+% 'extrusion' or 'worm'.  See details in the help for objMakePlain.
+% Example: 
 %   objMakeSine('sphere')
 %
 % CPAR:
 % =====
 %
 % Parameters for the modulation "carriers".  The parameters are the
-% frequency, amplitude, phase, and angle (orientation):
-%   CPAR = [FREQ AMPL PH ANGLE]
+% frequency, angle (orientation), phase, and amplitude:
+%   CPAR = [FREQ ANGLE PH AMPL]
 %
 % The sinusoidal modulation is added to the base shape: to the radius
 % for spheres, cylinder, surfaces of revolution, and extrusions; to
-% the "tube" radius for tori; and to the z-component of planes.
+% the "tube" radius for tori; and to the z-component of planes and
+% disks.
 %
 % Frequency is radial (in cycle/(2*pi)) for the sphere, cylinder,
 % torus, surface of revolution, and extrusion shapes; and spatial
 % frequency for the plane shape.  Phase and angle/orientation are
 % given in degrees.  Modulations are in sine phase (phase 0 is sine
-% phase).  Angle 0 is "vertical", parallel to the y-axis.
+% phase).  Angle 0 is "vertical", parallel to the y-axis (z-axis
+% for planes and disks).
 %
 % Several carriers are defined in rows of CPAR:
-%   CPAR = [FREQ1 AMPL1 PH1 ANGLE1 
-%           FREQ2 AMPL2 PH2 ANGLE2 
+%   CPAR = [FREQ1 ANGLE1 PH1 AMPL1 
+%           FREQ2 ANGLE2 PH2 AMPL2 
 %           ... 
-%           FREQN AMPLN PHN ANGLEN]
+%           FREQN ANGLEN PHN AMPLN]
 %
 % MPAR:
 % =====
@@ -65,14 +66,14 @@ function model = objMakeSine(shape,cprm,varargin)
 % two carriers), additional group indices can be defined.  Carriers
 % with the same index are added together, and the amplitude of the
 % compound is multiplied with the corresponding envelope.  The group
-% inde is the (optional) fifth entry of the parameter vector:
-%   CPAR = [FREQ1 AMPL1 PH1 ANGLE1 GROUP1
+% index is the (optional) fifth entry of the parameter vector:
+%   CPAR = [FREQ1 ANGLE1 PH1 AMPL1 GROUP1
 %           ...
-%           FREQN AMPLN PHN ANGLEN GROUPN]
+%           FREQN ANGLEN PHN AMPLN GROUPN]
 % 
-%   MPAR = [FREQ1 AMPL1 PH1 ANGLE1 GROUP1
+%   MPAR = [FREQ1 ANGLE1 PH1 AMPL1 GROUP1
 %           ...
-%           FREQM AMPLM PHM ANGLEM GROUPM]
+%           FREQM ANGLEM PHM AMPLM GROUPM]
 % 
 % Group index is a non-negative integer.  Group index 0 (the default
 % group index) is special: All carriers with index zero are added to
@@ -82,31 +83,28 @@ function model = objMakeSine(shape,cprm,varargin)
 % modulators.  Gets confusing, right?  See examples below and in the
 % online help.
 %
-% COORDS:
-% Can be used with the 'disk' shape to select the coordinate system in
-% which the perturbations are added.  Either 'polar' (default) or
-% 'cartesian'.
-%
 % OPTIONS:
 % ========
 %
-% All the same options as in objMake.  See objMake documentation:
-%  help objMake;
+% All the same options as in objMakePlain.  See objMakePlain
+% documentation: 
+%   help objMakePlain;
 % 
 % RETURNS:
 % ========
+%
 % A structure holding all the information about the model.  This
 % structure can be given as input to another objMake*-function to
-% perturb the shape, or it can be given as input to objSaveModel to
-% save it to file (but the saving to file is a default behavior of
-% objMake, so unless the option 'save' is set to false, it is not
-% necessary to save the model manually).
+% perturb the shape, or it can be given as input to objSave to save it
+% to file (although, unless the option 'save' is set to false when
+% calling an objMake*-function, it is not necessary to save the model
+% manually).
 % 
 % EXAMPLES:
 % =========
 % TODO
 
-% Copyright (C) 2015,2016 Toni Saarela
+% Copyright (C) 2015, 2016, 2017 Toni Saarela
 % 2015-05-31 - ts - first version, based on objmakeSphere and others
 % 2015-06-03 - ts - wrote help
 % 2015-06-05 - ts - added option for "caps" for cylinder-type shapes

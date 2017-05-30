@@ -23,8 +23,9 @@ function model = objMakeCustom(shape,f,prm,varargin)
 %
 % Either an existing model returned by one of the objMake*-functions,
 % or a string defining a new shape.  If a string, has to be one of
-% 'sphere', 'plane', 'cylinder', 'torus', 'revolution', 'extrusion',
-% or 'worm'.  See details in the help for objSave.  Example: 
+% 'sphere', 'plane', 'disk', 'cylinder', 'torus', 'revolution',
+% 'extrusion', or 'worm'.  See details in the help for objMakePlain.
+% Example:
 %   objMakeCustom('sphere',...)
 %
 % PERTURBATION BY USER-DEFINED FUNCTION
@@ -72,9 +73,9 @@ function model = objMakeCustom(shape,f,prm,varargin)
 % OPTIONS:
 % ========
 %
-% All the same options as in objMake plus the ones listed below.  
-% See objMake documentation:
-%  help objMake;
+% All the same options as in objMakePlain plus the ones listed below.  
+% See objMakePlain documentation:
+%  help objMakePlain;
 %
 % MINDIST
 % Minimum distance between the locations at which the user-defined
@@ -96,7 +97,12 @@ function model = objMakeCustom(shape,f,prm,varargin)
 % for a single perturbation type.  For several types: 
 %   {{[x11 x12 ...],[x21 x22 ...],...},{[y11 y12 ...],[y21 y22 ...],...}}
 % 
-% TODO: MAX
+% MAX
+% Usually you add the new bump values to the existing
+% perturbation. When given the option 'max', the new perturbation
+% value is the maximum of the existing perturbation and the new
+% one. Example:
+%   objMakeBump('plane',...,'max',...)
 %
 % RETURNS:
 % ========
@@ -111,7 +117,7 @@ function model = objMakeCustom(shape,f,prm,varargin)
 % =========
 % TODO
 
-% Copyright (C) 2015,2016 Toni Saarela
+% Copyright (C) 2015, 2016, 2017 Toni Saarela
 % 2015-06-01 - ts - first version, based on objMakeBumpy and
 %                    others
 % 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
@@ -137,6 +143,7 @@ function model = objMakeCustom(shape,f,prm,varargin)
 %                   added (finally) torus major radius modulation
 % 2016-03-26 - ts - is now a wrapper for the new objMake
 % 2016-04-08 - ts - re-enabled batch mode
+% 2017-05-26 - ts - help
 
 % TODO
 
@@ -170,7 +177,6 @@ if iscell(shape) && narg==1
   end
   shape = shape{1};
 end
-
 
 varargin = {'custom',f,'custompar',prm,varargin{:}};
 model = objMake(shape,'custom',varargin{:});

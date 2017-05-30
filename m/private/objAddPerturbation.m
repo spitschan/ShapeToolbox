@@ -12,6 +12,10 @@ function model = objAddPerturbation(model)
 %                   to model.prm(model.idx).f
 % 2016-04-14 - ts - small bug fix related to the change above
 % 2016-12-17 - ts - new arg order in prm vector
+% 2017-05-26 - ts - fixed a bug in polar/cart conversion when
+%                    switching between coord systems
+% 2017-05-26 - ts - changed the order of parameters for torus
+%                     radius modulation
   
 % TODO: objRemCaps for worm
 
@@ -24,7 +28,7 @@ switch model.shape
     if ~isempty(model.opts.rprm)
       rprm = model.opts.rprm;
       for ii = 1:size(rprm,1)
-        model.R = model.R + rprm(ii,1) * sin(rprm(ii,2)*model.Theta + rprm(ii,3));
+        model.R = model.R + rprm(ii,3) * sin(rprm(ii,1)*model.Theta + rprm(ii,2));
       end
     end
 end
@@ -73,7 +77,7 @@ switch model.prm(ii).perturbation
           [model.X, model.Z] = pol2cart(model.Theta,model.R);
         elseif strcmp(model.opts.coords,'cartesian')
           model.Y = model.Y + objMakeSineComponents(cprm,mprm,model.X,model.Z);
-          [model.Theta, model.R] = pol2cart(model.X,model.Z);
+          [model.Theta, model.R] = cart2pol(model.X,model.Z);
         end
       otherwise
         error('Unknown shape.');

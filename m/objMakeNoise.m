@@ -1,7 +1,5 @@
 function model = objMakeNoise(shape,nprm,varargin)
 
-% HELP OUTDATED
-% 
 % OBJMAKENOISE
 %
 % Usage:           objMakeNoise(SHAPE)
@@ -23,8 +21,9 @@ function model = objMakeNoise(shape,nprm,varargin)
 %
 % Either an existing model returned by one of the objMake*-functions,
 % or a string defining a new shape.  If a string, has to be one of
-% 'sphere', 'plane', 'cylinder', 'torus', 'revolution', 'extrusion' or
-% 'worm'.  See details in the help for objSave.  Example: 
+% 'sphere', 'plane', 'disk', 'cylinder', 'torus', 'revolution',
+% 'extrusion' or 'worm'.  See details in the help for objMakePlain.
+% Example: 
 %   objMakeNoise('sphere')
 %
 % NPAR:
@@ -41,7 +40,8 @@ function model = objMakeNoise(shape,nprm,varargin)
 %   AMPL    - amplitude
 %
 % Set the orientation bandwidt to Inf to get isotropic (non-oriented)
-% noise.  
+% noise.
+%
 % Several modulation components can be defined in the rows of NPAR.
 % The components are added.
 %   NPAR = [FREQ1 FREQWDT1 OR1 ORWDT1 AMPL1
@@ -55,7 +55,7 @@ function model = objMakeNoise(shape,nprm,varargin)
 % Parameters for the modulation "envelopes".  The envelope modulates
 % the amplitude of the noise.  The format of the parameter vector is
 % the same as as in objMakeSine:
-%   MPAR = [FREQ AMPL PH ANGLE]
+%   MPAR = [FREQ ANGLE PH AMPL]
 %
 % Envelope contrast 0 means no modulation of noise amplitude, contrast
 % 1 means the amplitude varies between 0 and the noise amplitude set
@@ -65,14 +65,16 @@ function model = objMakeNoise(shape,nprm,varargin)
 % two noise samples), additional group indices can be defined.  Noises
 % with the same index are added together, and the amplitude of the
 % compound is multiplied with the corresponding envelope.  The group
-% inde is the (optional) fifth entry of the parameter vector:
+% index is the (optional) sixth (for carriers) or fifth (envelopes)
+% entry of the parameter vector: 
+%
 %   NPAR = [FREQ1 FREQWDT1 OR1 ORWDT1 AMPL1 GROUP1
 %           ...
 %           FREQN FREQWDTN ORN ORWDTN AMPLN GROUPN]
 % 
-%   MPAR = [FREQ1 AMPL1 PH1 ANGLE1 GROUP1
+%   MPAR = [FREQ1 ANGLE1 PH1 AMPL1 GROUP1
 %           ...
-%           FREQM AMPLM PHM ANGLEM GROUPM]
+%           FREQM ANGLEM PHM AMPLM GROUPM]
 % 
 % Group index is a non-negative integer.  Group index 0 (the default
 % group index) is special: All noises with index zero are added to
@@ -84,9 +86,9 @@ function model = objMakeNoise(shape,nprm,varargin)
 % OPTIONS:
 % ========
 %
-% All the same options as in objMake plus the ones listed below.  
-% See objMake documentation:
-%  help objMake;
+% All the same options as in objMakePlain plus the ones listed below.
+% See objMakePlain documentation: 
+%   help objMakePlain;
 %
 % RMS
 % Boolean.  If true, the amplitude parameter sets the root mean square
@@ -96,19 +98,20 @@ function model = objMakeNoise(shape,nprm,varargin)
 %
 % RETURNS:
 % ========
+%
 % A structure holding all the information about the model.  This
 % structure can be given as input to another objMake*-function to
-% perturb the shape, or it can be given as input to objSaveModel to
-% save it to file (but the saving to file is a default behavior of
-% objMake, so unless the option 'save' is set to false, it is not
-% necessary to save the model manually).
+% perturb the shape, or it can be given as input to objSave to save it
+% to file (although, unless the option 'save' is set to false when
+% calling an objMake*-function, it is not necessary to save the model
+% manually).
 % 
 % EXAMPLES:
 % =========
 % TODO
 
 
-% Copyright (C) 2015,2016 Toni Saarela
+% Copyright (C) 2015, 2016, 2017 Toni Saarela
 % 2015-05-31 - ts - first version, based on objMakeSphereNoisy and
 %                    others
 % 2015-06-03 - ts - envelope parameter scaling for planes
@@ -137,7 +140,8 @@ function model = objMakeNoise(shape,nprm,varargin)
 %                   added the disk shape
 % 2016-03-25 - ts - is now a wrapper for the new objMake
 % 2016-04-08 - ts - re-enabled batch mode
-
+% 2017-05-26 - ts - help
+  
 %------------------------------------------------------------
 
 narg = nargin;

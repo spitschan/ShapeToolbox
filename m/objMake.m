@@ -11,9 +11,9 @@ function model = objMake(shape,perturbation,varargin)
 % holds the model information.
 %
 % Normally you would not call this function directly but would use one
-% of the objMake* wrappers, such as objMake, objMakeSine, etc.
+% of the objMake* wrappers, such as objMakePlain, objMakeSine, etc.
 
-% Copyright (C) 2016 Toni Saarela
+% Copyright (C) 2016, 2017 Toni Saarela
 % 2016-01-22 - ts - first version, based on objMake*-functions
 % 2016-01-28 - ts - minor changes
 % 2016-02-19 - ts - handles custom perturbations
@@ -24,7 +24,7 @@ function model = objMake(shape,perturbation,varargin)
 %                    to objDefaultStruct
 % 2016-10-23 - ts - changed saving calling function names from
 %                    dbstack
-  
+% 2017-05-26 - ts - minor change to help. or well, "help"
   
 %------------------------------------------------------------
 

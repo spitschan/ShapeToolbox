@@ -15,7 +15,8 @@ function model = objMakePlain(shape,varargin)
 % ======
 %
 % One of 'sphere', 'plane', 'disk', 'cylinder', 'torus', 'revolution', 
-% 'extrusion', and 'worm'.  Example: m = objMakePlain('sphere')
+% 'extrusion', and 'worm'.  Example: 
+%   m = objMakePlain('sphere')
 %
 % The shapes use a coordinate system where the y-direction is "up" and
 % the x-z plane is the reference plane.
@@ -83,16 +84,15 @@ function model = objMakePlain(shape,varargin)
 %  objMakePlain(...,'npoints',[64 64],...)
 % 
 % MATERIAL
-% Name of the material library (.mtl) file and the name of the
-% material for the model.  Given as a cell array of length two.  The
-% elements of the cell array are two strings, the first one for the
-% material library file and the second for the material name.  This
-% option forces the option uvcoords (see below) to true.  Example:
-%  objMakePlain(...,'material',{'matfile.mtl','mymaterial'},...)
-%
-% Alternatively, you can give the material name only, without the
-% material library name:
-%  objMakePlain(...,'material','mymaterial',...)
+% Name of the material for the model and optionally the name of the
+% material library (.mtl) file.  Given as a string (material only)
+% or a cell array of length two (material and file), in which case
+% the elements of the cell array are two strings, the first one for
+% the material name and the second for the material library file.
+% This option forces the option uvcoords (see below) to true.
+% Example:
+% objMakePlain(...,'material','mymaterial',...)
+% objMakePlain(...,'material',{'mymaterial','matfile.mtl'},...)
 %
 % UVCOORDS
 % Boolean, toggles the computation of texture (uv) coordinates
@@ -173,8 +173,8 @@ function model = objMakePlain(shape,varargin)
 % When the shape is 'torus', the optional parameter vector RPAR
 % defines the modulation for the major radius---the distance from the
 % center of the tube to the center of the torus.  The parameter vector
-% is [freq amplitude phase].  Example:
-%  objMakePlain('torus','rpar',[4 .1 0])
+% is [freq phase amplitude].  Example:
+%  objMakePlain('torus','rpar',[4 0 .1])
 %
 % CAPS
 % Boolean.  Set this to true to put "caps" at the end of cylinders, 
@@ -194,6 +194,10 @@ function model = objMakePlain(shape,varargin)
 % radius of a torus.  Default is 1.  Example:
 %  objMakePlain('sphere','radius',1.5);
 %
+% COORDS:
+% Can be used with the 'disk' shape to select the coordinate system in
+% which the perturbations are added.  Either 'polar' (default) or
+% 'cartesian'.
 % 
 % RETURNS:
 % ========
@@ -232,7 +236,7 @@ function model = objMakePlain(shape,varargin)
 % basic shapes (sphere, cylinder...) can be usually produced with a
 % single command in a graphics/rendering program.
 
-% Copyright (C) 2015,2016 Toni Saarela
+% Copyright (C) 2015, 2016, 2017 Toni Saarela
 % 2015-06-01 - ts - first version, based on objMakeSine
 % 2015-06-02 - ts - wrote help
 % 2015-06-05 - ts - added option for "caps" for cylinder-type shapes
@@ -253,7 +257,8 @@ function model = objMakePlain(shape,varargin)
 % 2016-03-25 - ts - renamed objMakePlain, is now a wrapper
 % 2016-04-08 - ts - re-enabled batch mode
 % 2016-04-14 - ts - help
-
+% 2017-05-26 - ts - help
+  
 %------------------------------------------------------------
 
 narg = nargin;

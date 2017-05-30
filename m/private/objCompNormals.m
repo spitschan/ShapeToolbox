@@ -11,6 +11,8 @@ function s = objCompNormals(s)
 
 %------------------------------------------------------------
 
+%  tic
+  
 m = s.m;
 n = s.n;
 
@@ -20,11 +22,15 @@ if ~isfield(s,'faces')
   fprintf('Done.\n');
 end
 
+%toc
+
 %------------------------------------------------------------
 
 % Surface normals for the faces
 fn = cross([s.vertices(s.faces(:,2),:)-s.vertices(s.faces(:,1),:)],...
            [s.vertices(s.faces(:,3),:)-s.vertices(s.faces(:,1),:)]);
+
+%toc
 
 % Vertex normals
 s.normals = zeros(m*n,3);
@@ -49,6 +55,11 @@ end
 for ii = 1:nfaces
   s.normals(s.faces(ii,:),:) = s.normals(s.faces(ii,:),:) + [1 1 1]'*fn(ii,:);
 end
+
+%toc
+
 s.normals = s.normals./sqrt(sum(s.normals.^2,2)*[1 1 1]);
 
 %normals = s.normals;
+
+%toc

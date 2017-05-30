@@ -89,7 +89,10 @@ function objBlendGui(m1,m2)
 % 2016-03-26 - ts - calls the renamed objSave (formerly objSaveModel)
 % 2016-06-20 - ts - fixed handling empty weight vector
 % 2016-09-23 - ts - allow blending worm with cylinder-like things
-
+% 2017-05-28 - ts - fixed a bug in model importing: send only the
+%                    relevant handle to the importing function, not
+%                    both
+  
 % Copyright (C) 2016 Toni Saarela
 % 2016-12-16 - ts - first version
   
@@ -169,7 +172,7 @@ function objBlendGui(m1,m2)
   bhImport(1) = uicontrol('Style', 'pushbutton',...
                           'String', 'Import from workspace',...
                           'Position', [140 45 150 20],...
-                          'Callback', {@importFromWorkSpace,thImport,1,fh,th,ah},...
+                          'Callback', {@importFromWorkSpace,thImport(1),1,fh,th,ah},...
                           'FontSize',fontsize);  
   
   thImport(2) = uicontrol('Style','edit',...
@@ -182,7 +185,7 @@ function objBlendGui(m1,m2)
   bhImport(2) = uicontrol('Style', 'pushbutton',...
                           'String', 'Import from workspace',...
                           'Position', [720 45 150 20],...
-                          'Callback', {@importFromWorkSpace,thImport,2,fh,th,ah},...
+                          'Callback', {@importFromWorkSpace,thImport(2),2,fh,th,ah},...
                           'FontSize',fontsize);  
   
   
@@ -303,7 +306,7 @@ function importFromWorkSpace(src,event,th,idx,fh,thw,ah)
   bgcol = get(h,'BackgroundColor');
   set(h,'BackgroundColor',[.2 .8 .2]);
   varname = get(h,'String');
-  
+
   m = evalin('base',varname);
   setappdata(fh,sprintf('m%d',idx),m);
   updateBlend([],[],fh,thw,ah);

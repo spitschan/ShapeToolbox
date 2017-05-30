@@ -52,7 +52,6 @@ function m1 = objBlend(m1,m2,varargin)
 % for example 'plane_080_020.obj' for a plane where the two weights
 % are 0.8 and 0.2.
 % 
-%
 % EXAMPLES:
 % =========
 %

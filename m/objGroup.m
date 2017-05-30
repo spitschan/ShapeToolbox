@@ -22,8 +22,10 @@ function [model,groups] = objGroup(model,groups,names,materials)
 % matrix does not match in size to the number of faces in the model,
 % it will be scaled.  At its simplest, the matrix might be [0 1], in
 % which case there would be two face groups with indices 0 and 1.
+%
+% See the online help for more information and examples.
   
-% Copyright (C) 2016 Toni Saarela
+% Copyright (C) 2016, 2017 Toni Saarela
 % 2016-05-27 - ts - first version
 % 2016-05-28 - ts - handles all shapes (first version did only spheres
 %                    et al.)
@@ -33,6 +35,7 @@ function [model,groups] = objGroup(model,groups,names,materials)
 % 2016-06-30 - ts - fixed a bug with checking group matrix size for tori
 % 2016-09-23 - ts - wrote help
 % 2016-11-04 - ts - added the above comment
+% 2017-05-26 - ts - help
   
 [m,n] = size(groups);
 

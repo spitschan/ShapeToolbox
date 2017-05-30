@@ -73,8 +73,8 @@ if ~isempty(par)
              model.flags.comp_uv = true;
            elseif ii<length(par) && iscell(par{ii+1}) && length(par{ii+1})==2
              ii = ii + 1;
-             model.mtlfilename = par{ii}{1};
-             model.mtlname = par{ii}{2};
+             model.mtlname = par{ii}{1};
+             model.mtlfilename = par{ii}{2};
              model.flags.comp_uv = true;
            else
              error('No value or a bad value given for option ''material''.');

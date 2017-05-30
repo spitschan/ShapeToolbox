@@ -1,7 +1,5 @@
 function model = objMakeBump(shape,prm,varargin)
 
-% HELP OUTDATED
-% 
 % OBJMAKEBUMP
 % 
 % Usage:          objMakeBump(SHAPE)
@@ -22,8 +20,9 @@ function model = objMakeBump(shape,prm,varargin)
 %
 % Either an existing model returned by one of the objMake*-functions,
 % or a string defining a new shape.  If a string, has to be one of
-% 'sphere', 'plane', 'cylinder', 'torus', 'revolution', 'extrusion' or
-% 'worm'.  See details in the help for objSave.  Example: 
+% 'sphere', 'plane', 'disk', 'cylinder', 'torus', 'revolution',
+% 'extrusion' or 'worm'.  See details in the help for objMakePlain.
+% Example: 
 %   objMakeBump('sphere')
 %
 % PAR:
@@ -31,7 +30,7 @@ function model = objMakeBump(shape,prm,varargin)
 %
 % Parameters for the Gaussian bumps.  The vector PAR defines the
 % number of bumps, their amplitude, and the space constant:
-%   PAR = [NBUMPS AMPL SD]
+%   PAR = [NBUMPS SD AMPL]
 % 
 % Amplitude can be negative to produce dents.  Units for the space
 % constant are radians for spheres, tori, cylinder, surfaces of
@@ -39,23 +38,24 @@ function model = objMakeBump(shape,prm,varargin)
 %
 % To have different types of bump in the same model, define several
 % sets of parameters in the rows of PAR:
-%   PAR = [NBUMPS1 AMPL1 SD1
-%          NBUMPS2 AMPL2 SD2
+%   PAR = [NBUMPS1 SD1 AMPL1
+%          NBUMPS2 SD2 AMPL2
 %          ...
-%          NBUMPSN AMPLN SDN]
+%          NBUMPSN SDN AMPLN]
 %
 % OPTIONS:
 % ========
 %
-% All the same options as in objMake plus the ones listed below.  
-% See objMake documentation:
-%  help objMake;
+% All the same options as in objMakePlain plus the ones listed below.
+% See objMakePlain documentation: 
+%   help objMakePlain;
 %
 % MINDIST
 % Minimum distance between bumps.  A scalar of a vector the length of
 % which equals the number of bump types.  Note: The minimum distance
 % only applies to bumps of the same type, it is not applied across
-% bump types.  Example: objMakeBump('plane',[20 .05 .06],'mindist',.3)
+% bump types.  Example: 
+%   objMakeBump('plane',[20 .05 .06],'mindist',.3)
 %
 % LOCATIONS
 % Locations of the bumps in a cell array.  The locations are given as
@@ -70,22 +70,28 @@ function model = objMakeBump(shape,prm,varargin)
 %   objMakeBump('plane',[2 .1 .1; 2 -.1 .1],'locations',...
 %               {{[-.5 .5],[-.5 .5]},{[-.5 .5],[.5 -.5]}})
 % 
-% TODO: MAX
+% MAX
+% Usually you add the new bump values to the existing
+% perturbation. When given the option 'max', the new perturbation
+% value is the maximum of the existing perturbation and the new
+% one. Example:
+%   objMakeBump('plane',...,'max',...)
 %
 % RETURNS:
 % ========
+%
 % A structure holding all the information about the model.  This
 % structure can be given as input to another objMake*-function to
-% perturb the shape, or it can be given as input to objSaveModel to
-% save it to file (but the saving to file is a default behavior of
-% objMake, so unless the option 'save' is set to false, it is not
-% necessary to save the model manually).
+% perturb the shape, or it can be given as input to objSave to save it
+% to file (although, unless the option 'save' is set to false when
+% calling an objMake*-function, it is not necessary to save the model
+% manually).
 % 
 % EXAMPLES:
 % =========
 % TODO
 
-% Copyright (C) 2015,2016 Toni Saarela
+% Copyright (C) 2015, 2016, 2017 Toni Saarela
 % 2015-05-31 - ts - first version, based on objMakeSphereBumpy and
 %                    others
 % 2015-06-01 - ts - does planes, cylinders, and other shapes
@@ -109,7 +115,7 @@ function model = objMakeBump(shape,prm,varargin)
 %                   to model.prm(model.idx).f
 % 2016-03-26 - ts - is now a wrapper for the new objMake
 % 2016-04-08 - ts - re-enabled batch mode
-
+% 2017-05-26 - ts - help
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
@@ -141,7 +147,6 @@ if iscell(shape) && narg==1
   end
   shape = shape{1};
 end
-
 
 if nargin>1 && ~isempty(prm)
   varargin = {'par',prm,varargin{:}};
