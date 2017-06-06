@@ -1,100 +1,21 @@
 function objBlendGui(m1,m2)
 
-% OBJBLEND
+% OBJBLENDGUI
   
+% Usage: OBJBLENDGUI([MODEL1],[MODEL2])
 %
-% Usage: MODEL = OBJBLEND(MODEL1,MODEL2,[W],[OPTIONS])
-%                OBJBLEND(MODEL1,MODEL2,[W],[OPTIONS])
+% Blend (compute a weighted average of) two model
+% objects---rudimentary GUI version.
 %
-% Blend (compute a weighted average of) two model objects.  
-%
-% INPUT MODELS AND WEIGHTS:
-% =========================
-% 
-% With a scalar weight W (which has to be in 0-1), give weight W to
-% MODEL1 and weight 1-W to MODEL2.
-%
-% With a two-vector weight W=[W1 W2], weight the models in proportions
-% W1/(W1+W2) and W2/(W1+W2).
-%
-% If the weight is omitted, average the models (weights 0.5 and 0.5).
-% 
-% The input models (MODEL1 and MODEL2) are structures returned by the
-% objMake*-functions.  Models with the same base shape (sphere, plane,
-% torus...) can be blended.  Additionally, cylinders, surfaces of
-% revolution, and extrusions can be blended.  The mesh resolution of
-% the two models has to match.
-%
-% RETURNS:
-% ========
-% 
-% A new model structure.  NOTE: At the moment, the returned model only
-% contains the parameters of the first model.  These are also written
-% into the obj-file comments.
-% 
-% OPTIONS:
-% ========
-% 
-% FILENAME
-% A single string giving the name of the file in which to
-% save the model.  If a filename is set, the option 'save' (see below)
-% is set to true.  Example: 
-%   objBlend(m1,m2,.5,'blended.obj',...)
-%
-% SAVE
-% Boolean, toggle saving the model to a file.  Default is false, the
-% model is not saved.  You might want to keep this as false if you just
-% want to make the model structure and modify it with another
-% objMake*-function or with objBlend.  Set to true to save the model
-% you want to keep.  Example: 
-%   m = objBlend(...,'save',false,...)
-% saves the model with the default filename.  The default filename is
-% the shape of the first model, followed by the weight for each model,
-% for example 'plane_080_020.obj' for a plane where the two weights
-% are 0.8 and 0.2.
-% 
-%
-% EXAMPLES:
-% =========
-%
-% % Make models:
-% m1 = objMakeNoise('sphere',[]);
-% m2 = objMakeBump('sphere',[]);
-%
-% % Blend 50-50, save in 'sphere_050_050.obj':
-% objBlend(m1,m2,'save',true)
-%
-% % Save the same model in 'blob.obj':
-% objBlend(m1,m2,'blob.obj')
-%
-% % Weights 0.2 and 0.8, not saved:
-% m = objBlend(m1,m2,0.2);
-%
-% % Weights again 0.2 and 0.8, save in 'blob.obj':
-% m = objBlend(m1,m2,[4 16],'blob.obj');
-
-% Copyright (C) 2015,2016 Toni Saarela
-% 2015-04-03 - ts - first version
-% 2015-05-14 - ts - eats cylinders; other minor tweaks
-% 2015-05-14 - ts - devours tori, surfaces of revolution
-%                   wrote help, added options, saving of model
-% 2015-06-02 - ts - updated help; fixed a bug in setting default weights
-% 2015-06-16 - ts - added handling of extrusions.  cylinders,
-%                   revolutions, and extrusions can be blended.
-%                   updated help
-% 2016-01-21 - ts - append filename extension if needed
-%                   improved handling of input args (weight)
-%                   blend also model size, not only modulation
-%                   calls objMakeVertices
-% 2016-03-26 - ts - calls the renamed objSave (formerly objSaveModel)
-% 2016-06-20 - ts - fixed handling empty weight vector
-% 2016-09-23 - ts - allow blending worm with cylinder-like things
+% SEE ALSO:
+% objBlend
+  
+% Copyright (C) 2016, 2017 Toni Saarela
+% 2016-12-16 - ts - first version
 % 2017-05-28 - ts - fixed a bug in model importing: send only the
 %                    relevant handle to the importing function, not
 %                    both
-  
-% Copyright (C) 2016 Toni Saarela
-% 2016-12-16 - ts - first version
+% 2017-06-04 - ts - cleaned help (was basically the objBlend help).
   
 % TODO:
 % - reset view button
