@@ -23,78 +23,87 @@ function model = objDefaultStruct(shape)
 % 2016-01-22 - ts - added index for the number of "layers"
 % 2016-05-27 - ts - groups
 % 2016-05-30 - ts - flags for uv and normals are saved when resetting
-
+% 2017-06-09 - ts - new flags for using perturbation, perturbation
+%                    along normal direction
+  
 % if nargin<2 || isempty(reset)
 %   reset = false;
 % end
 
 % Check if we're creating a new model or resetting and updating an
 % existing one:
-if ischar(shape)
-  % Create a new model
-  shape = lower(shape);
-  switch shape
-    case 'sphere'
-      model.m = 64;
-      model.n = 128;
-      model.radius = 1;
-    case 'plane'
-      model.m = 128;
-      model.n = 128;
-      model.width = 1;
-      model.height = 1;
-    case {'cylinder','revolution','extrusion','worm'}
-      model.m = 128;
-      model.n = 128;
-      model.radius = 1;
-      model.height = 2*pi*model.radius;
-      model.spine.x = zeros(1,model.m);
-      model.spine.y = linspace(-model.height/2,model.height/2,model.m);
-      model.spine.z = zeros(1,model.m);
-    case 'torus'
-      model.m = 128;
-      model.n = 128;
-      model.tube_radius = 0.4;
-      model.radius = 1;
-      model.opts.rprm = [];
-    case {'disk','disc'}
-      shape = 'disk';
-      model.m = 128; 
-      model.n = 128;
-      model.radius = 1;
-      model.opts.coords = 'polar';
-    otherwise
-      error('Unknown shape.');
+  if ischar(shape)
+    % Create a new model
+    shape = lower(shape);
+    switch shape
+      case 'sphere'
+        model.m = 64;
+        model.n = 128;
+        model.radius = 1;
+      case 'plane'
+        model.m = 128;
+        model.n = 128;
+        model.width = 1;
+        model.height = 1;
+      case {'cylinder','revolution','extrusion','worm'}
+        model.m = 128;
+        model.n = 128;
+        model.radius = 1;
+        model.height = 2*pi*model.radius;
+        model.spine.x = zeros(1,model.m);
+        model.spine.y = linspace(-model.height/2,model.height/2,model.m);
+        model.spine.z = zeros(1,model.m);
+      case 'torus'
+        model.m = 128;
+        model.n = 128;
+        model.tube_radius = 0.4;
+        model.radius = 1;
+        model.opts.rprm = [];
+      case {'disk','disc'}
+        shape = 'disk';
+        model.m = 128; 
+        model.n = 128;
+        model.radius = 1;
+        model.opts.coords = 'polar';
+      otherwise
+        error('Unknown shape.');
+    end
+    model.shape = shape;
+    model.filename = [model.shape,'.obj'];
+    model.flags.new_model = true;
+    model.flags.caps = false;
+    model.flags.comp_uv = false;
+    model.flags.comp_normals = false;
+    model.idx = 1;
+  elseif isstruct(shape)
+    % We got a structure as input, so we reset and update an existing model
+    model = shape;
+    model.flags.new_model = false;
+    model.flags.oldcaps = model.flags.caps;
+    % model.idx = length(model.prm)+1;
+    model.idx = model.idx + 1;
+  else
+    error('Argument ''shape'' has to be a string or a model structure.');
   end
-  model.shape = shape;
-  model.filename = [model.shape,'.obj'];
-  model.flags.new_model = true;
-  model.flags.caps = false;
-  model.flags.comp_uv = false;
-  model.flags.comp_normals = false;
-  model.idx = 1;
-elseif isstruct(shape)
-  % We got a structure as input, so we reset and update an existing model
-  model = shape;
-  model.flags.new_model = false;
-  model.flags.oldcaps = model.flags.caps;
-  model.idx = length(model.prm)+1;
-else
-  error('Argument ''shape'' has to be a string or a model structure.');
+
+  model.mtlfilename = '';
+  model.mtlname = '';
+  model.normals = [];
+  model.opts.mindist = 0;
+  model.opts.locations = {};
+
+  model.flags.dosave = false;
+  model.flags.use_rms = false;
+  model.flags.use_map = false;
+  model.flags.custom_locations = false;
+  model.flags.scaley = false;
+  model.flags.max = false;
+  
+  model.flags.normal_dir(model.idx) = false;
+  model.flags.use_perturbation(model.idx) = true;
+
+  % Should these be inside the first if?
+  model.group.idx = 1;
+  model.flags.write_groups = false;
+
 end
-
-model.mtlfilename = '';
-model.mtlname = '';
-model.normals = [];
-model.opts.mindist = 0;
-model.opts.locations = {};
-
-model.flags.dosave = false;
-model.flags.use_rms = false;
-model.flags.use_map = false;
-model.flags.custom_locations = false;
-model.flags.scaley = false;
-model.flags.max = false;
-
-model.group.idx = 1;
-model.flags.write_groups = false;

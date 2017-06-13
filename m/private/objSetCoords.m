@@ -16,7 +16,11 @@ function model = objSetCoords(model)
 % 2016-01-19 - ts - added disk shape
 % 2016-09-23 - ts - include spiney in cylinder-like shapes to allow
 %                    blending with worms
-
+% 2017-06-08 - ts - renamed the perturbation dimension (R, Z, r
+%                    ...) to Rbase etc. to keep the original and
+%                    just add the perturbations to it; allows
+%                    "recovering" the original; see also objAddPerturbation
+  
 switch model.shape
   case 'sphere'
     theta = linspace(-pi,pi-2*pi/model.n,model.n); % azimuth
@@ -25,7 +29,7 @@ switch model.shape
     Theta = Theta'; Phi   = Phi';
     model.Theta = Theta(:);
     model.Phi   = Phi(:);
-    model.R = model.radius*ones(model.m*model.n,1);
+    model.Rbase = model.radius*ones(model.m*model.n,1);
   case 'plane'
     model.x = linspace(-model.width/2,model.width/2,model.n); % 
     model.y = linspace(-model.height/2,model.height/2,model.m)'; % 
@@ -33,7 +37,7 @@ switch model.shape
     X = X'; Y = Y'; 
     model.X = X(:);
     model.Y = Y(:);
-    model.Z = zeros(model.m*model.n,1);
+    model.Zbase = zeros(model.m*model.n,1);
   case {'cylinder','revolution','extrusion'}
     model.theta = linspace(-pi,pi-2*pi/model.n,model.n); % azimuth
     if ~isfield(model,'y')
@@ -45,21 +49,21 @@ switch model.shape
     model.Y = Y(:);
     switch model.shape
       case 'cylinder'
-        model.R = model.radius * ones(model.m*model.n,1);
+        model.Rbase = model.radius * ones(model.m*model.n,1);
       case 'revolution'
         if isfield(model,'ecurve')
           R = model.radius * model.ecurve' * model.rcurve;
         else
           R = model.radius * repmat(model.rcurve,[model.n 1]);
         end
-        model.R = R(:);
+        model.Rbase = R(:);
       case 'extrusion'
         if isfield(model,'rcurve')
           R = model.radius * model.ecurve' * model.rcurve;
         else
           R = model.radius * repmat(model.ecurve',[1 model.m]);
         end
-        model.R = R(:);
+        model.Rbase = R(:);
     end
     model.spine.X = ones(model.n,1) * model.spine.x;
     model.spine.X = model.spine.X(:);
@@ -77,15 +81,15 @@ switch model.shape
 
     if isfield(model,'ecurve') && isfield(model,'rcurve')
       R = model.radius * model.ecurve' * model.rcurve;
-      model.R = R(:);
+      model.Rbase = R(:);
     elseif isfield(model,'rcurve')
       R = model.radius * repmat(model.rcurve,[model.n 1]);
-      model.R = R(:);
+      model.Rbase = R(:);
     elseif isfield(model,'ecurve')
       R = model.radius * repmat(model.ecurve',[1 model.m]);
-      model.R = R(:);
+      model.Rbase = R(:);
     else
-      model.R = model.radius * ones(model.m*model.n,1);
+      model.Rbase = model.radius * ones(model.m*model.n,1);
     end
 
     if model.flags.scaley
@@ -111,7 +115,7 @@ switch model.shape
     model.Theta = Theta(:);
     model.Phi   = Phi(:);
     model.R = model.radius*ones(model.m*model.n,1);
-    model.r = model.tube_radius*ones(model.m*model.n,1);
+    model.rbase = model.tube_radius*ones(model.m*model.n,1);
   case 'disk'
     %model.theta = linspace(-pi,pi-2*pi/model.n,model.n);
     model.theta = linspace(-pi,pi,model.n);
@@ -121,7 +125,7 @@ switch model.shape
     model.Theta = Theta(:);
     model.R     = R(:);
     [model.X, model.Z] = pol2cart(model.Theta,model.R);
-    model.Y = zeros(model.m*model.n,1);
+    model.Ybase = zeros(model.m*model.n,1);
 end
 
 

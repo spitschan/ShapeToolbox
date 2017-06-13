@@ -14,8 +14,14 @@ function model = objMakeHeightMap(model)
 %                    objParseCustomParams
 % 2016-12-20 - ts - handle worm separately from cylinder et al to
 %                    make interpolation of height map work
+% 2017-06-08 - ts - make the perturbation profiles but don't add
+%                    them to the model yet
 
 
+% TODO:
+% - you now use both model.idx and ii to index the current
+%   parameter set. unify.
+  
 ii = model.idx;
 
 switch model.shape
@@ -34,7 +40,9 @@ switch model.shape
       model.prm(ii).map = interp2(Theta2,Phi2,model.prm(ii).map,Theta,Phi);
     end
     R = R + model.prm(ii).ampl * model.prm(ii).map;
-    R = R'; model.R = R(:);
+    R = R'; 
+    % model.R = R(:);
+    model.P(:,model.idx) = R(:);
   case 'plane'
     Z = reshape(model.Z,[model.n model.m])';
     if model.prm(ii).mmap~=model.m || model.prm(ii).nmap~=model.n
@@ -49,7 +57,9 @@ switch model.shape
       model.prm(ii).map = interp2(X2,Y2,model.prm(ii).map,X,Y);
     end
     Z = Z + model.prm(ii).ampl * model.prm(ii).map;
-    Z = Z'; model.Z = Z(:);
+    Z = Z'; 
+    % model.Z = Z(:);
+    model.P(:,model.idx) = Z(:);
   case {'cylinder','revolution','extrusion'}
     R = reshape(model.R,[model.n model.m])';
     if model.prm(ii).mmap~=model.m || model.prm(ii).nmap~=model.n
@@ -65,7 +75,9 @@ switch model.shape
       model.prm(ii).map = interp2(Theta2,Y2,model.prm(ii).map,Theta,Y);
     end
     R = R + model.prm(ii).ampl * model.prm(ii).map;
-    R = R'; model.R = R(:);
+    R = R'; 
+    % model.R = R(:);
+    model.P(:,model.idx) = R(:);
   case 'worm'
     R = reshape(model.R,[model.n model.m])';
     if model.prm(ii).mmap~=model.m || model.prm(ii).nmap~=model.n
@@ -80,7 +92,9 @@ switch model.shape
       model.prm(ii).map = interp2(Theta2,Y2,model.prm(ii).map,Theta,Y);
     end
     R = R + model.prm(ii).ampl * model.prm(ii).map;
-    R = R'; model.R = R(:);
+    R = R'; 
+    % model.R = R(:);
+    model.P(:,model.idx) = R(:);
   case 'torus'
     r = reshape(model.r,[model.n model.m])';
     if model.prm(ii).mmap~=model.m || model.prm(ii).nmap~=model.n
@@ -97,5 +111,7 @@ switch model.shape
       model.prm(ii).map = interp2(Theta2,Phi2,model.prm(ii).map,Theta,Phi);
     end
     r = r + model.prm(ii).ampl * model.prm(ii).map;
-    r = r'; model.r = r(:);
+    r = r'; 
+    % model.r = r(:);
+    model.P(:,model.idx) = r(:);
 end

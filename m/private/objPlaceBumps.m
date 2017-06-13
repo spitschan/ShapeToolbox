@@ -21,7 +21,10 @@ function model = objPlaceBumps(model)
 %                   uses the function handle model.prm(model.idx).f
 %                   instead of the old model.opts.f
 % 2016-06-20 - ts - minor restructuring
-%
+% 2017-06-06 - ts - make the perturbation profiles but don't add
+%                    them to the model yet;
+%                   bug fix with torus---multiple bump types were
+%                   not added, only the last one was used; fixed
 
 ii = length(model.prm);
 prm = model.prm(ii).prm;
@@ -119,10 +122,12 @@ switch model.shape
       end % loop over bumps of this type
     end % over bump types
 
-    model.R = model.R + Rtmp;
+    % model.R = model.R + Rtmp;
 
+    model.P(:,model.idx) = Rtmp;
+    
   case 'plane'
-
+    Ztmp = zeros(size(model.Z));
     for jj = 1:nbumptypes
 
       if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
@@ -190,13 +195,16 @@ switch model.shape
         %model.Z(idx) = model.Z(idx) + prm(jj,2)*exp(-d(idx).^2/(2*prm(jj,3)^2));
         idx = find(d<prm(jj,2));
         if model.flags.max
-          model.Z(idx) = max(model.Z(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
+          Ztmp(idx) = max(Ztmp(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
         else
-          model.Z(idx) = model.Z(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
+          Ztmp(idx) = Ztmp(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
         end
-      end
+      end % for over bumps of this type
 
-    end
+    end % for over bump types
+    
+    model.P(:,model.idx) = Ztmp;
+
 
   case {'cylinder','revolution','extrusion','worm'}
 
@@ -281,11 +289,13 @@ switch model.shape
       
     end % loop over bump types
 
-    model.R = model.R + Rtmp;
+    % model.R = model.R + Rtmp;
+    
+    model.P(:,model.idx) = Rtmp;
 
   case 'torus'
+    rtmp = zeros(size(model.r));
     for jj = 1:nbumptypes
-      rtmp = zeros(size(model.r));
       if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
 
         theta0 = model.opts.locations{1}{jj};
@@ -353,10 +363,12 @@ switch model.shape
           % model.r(idx) = model.r(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
           rtmp(idx) = rtmp(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
         end
-      end
-    end
+      end % bumps of this type
+    end % bump types
 
-    model.r = model.r + rtmp;
+    % model.r = model.r + rtmp;
+
+    model.P(:,model.idx) = rtmp;
 
     % if ~isempty(model.opts.rprm)
     %   rprm = model.opts.rprm;
@@ -366,7 +378,7 @@ switch model.shape
     % end
 
   case 'disk'
-
+    Ytmp = zeros(size(model.Y));
     if strcmp(model.opts.coords,'polar')
       error('Bumps in polar coordinates not implemented for shape ''disk''.');
     % [model.X, model.Z] = pol2cart(model.Theta,model.R);
@@ -441,14 +453,18 @@ switch model.shape
 
           idx = find(d<prm(jj,2));
           if model.flags.max
-            model.Y(idx) = max(model.Y(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
+            Ytmp(idx) = max(Ytmp(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
           else
-            model.Y(idx) = model.Y(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
+            Ytmp(idx) = Ytmp(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
           end
         end
 
       end
+      
+      model.P(:,model.idx) = Ytmp;
 
+      % Why the f**k is this here? Is it really needed? Should't
+      % be. Shouldn't hurt, either, but really shouldn't be needed.
       [model.Theta, model.R] = pol2cart(model.X,model.Z);           
     end
 
