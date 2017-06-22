@@ -30,6 +30,7 @@ function model = objParseArgs(model,par)
 % 2016-03-26 - ts - bump parms moved from opts to prm
 %                   custom option names now 'custom' and 'custompar'
 % 2016-04-12 - ts - minor fixes
+% 2017-06-22 - ts - allow only changing the coord system of disk
 
 % Flag to indicate whether uv-coordinate computation was set to false
 % explicitly.  This is used so that the option 'uvcoords' can be used
@@ -296,9 +297,12 @@ if ~isempty(par)
              error('No value or a bad value given for option ''max''.');
            end
         case 'coords'
+          if isempty(strmatch(model.shape,{'disk','disc'},'exact'))
+            error(sprintf('Cannot change the coordinate system of %s.',model.shape));
+          end
           if ii<length(par) && ischar(par{ii+1})
              ii = ii+1;
-             stmp = {'polar','cartesian'};
+             stmp = {'polar','cartesian'}; % ,'spherical','cylindrical','torus'};
              idx = strmatch(par{ii},stmp);
              if isempty(idx)
                error('Bad value given for option ''coords''.');
@@ -327,7 +331,6 @@ end
 if save_explicit_false
   model.flags.dosave = false;
 end
-
 
 % Add file name extension if needed
 if isempty(regexp(model.filename,'\.obj$'))

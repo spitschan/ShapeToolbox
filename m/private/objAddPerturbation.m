@@ -18,6 +18,8 @@ function model = objAddPerturbation(model)
 %                     radius modulation
 % 2017-06-08 - ts - don't add the perturbations immediately but
 %                     stack them, add at the end for more flexibility
+% 2017-06-22 - ts - bug fix: plane+noise handled same way as others
+%                   cleaned up sine, noise computation
   
 % TODO: 
 % - objRemCaps for worm
@@ -44,7 +46,8 @@ function model = objAddPerturbation(model)
   switch model.prm(ii).perturbation
     case 'none'
       model.P(:,model.idx) = zeros(model.m*model.n,1);
-      %------------------------------------------------------------
+      
+    %------------------------------------------------------------
     case 'sine'
       [model.prm(model.idx).nccomp,ncol] = size(model.prm(model.idx).cprm);
       if strcmp(model.shape,'plane')
@@ -67,36 +70,25 @@ function model = objAddPerturbation(model)
 
       cprm = model.prm(model.idx).cprm;
       mprm = model.prm(model.idx).mprm;
-      switch model.shape
-        case 'sphere'
-          % model.R = model.R + objMakeSineComponents(cprm,mprm,model.Theta,model.Phi);
-          model.P(:,model.idx) = objMakeSineComponents(cprm,mprm,model.Theta,model.Phi);
-        case 'plane'
-          % model.Z = model.Z + objMakeSineComponents(cprm,mprm,model.X,model.Y);
-          model.P(:,model.idx) = objMakeSineComponents(cprm,mprm,model.X,model.Y);
-        case {'cylinder','revolution','extrusion'}
-          % model.R = model.R + objMakeSineComponents(cprm,mprm,model.Theta,model.Y);
-          model.P(:,model.idx) = objMakeSineComponents(cprm,mprm,model.Theta,model.Y);
-        case 'worm'
-          % model.R = model.R + objMakeSineComponents(cprm,mprm,model.Theta,model.Y);
-          model.P(:,model.idx) = objMakeSineComponents(cprm,mprm,model.Theta,model.Y);
-        case 'torus'
-          % model.r = model.r + objMakeSineComponents(cprm,mprm,model.Theta,model.Phi);
-          model.P(:,model.idx) = objMakeSineComponents(cprm,mprm,model.Theta,model.Phi);
-        case 'disk'
-          if strcmp(model.opts.coords,'polar')
-            % model.Y = model.Y + objMakeSineComponents(cprm,mprm,model.Theta,model.R);
-            model.P(:,model.idx) = objMakeSineComponents(cprm,mprm,model.Theta,model.R);
-            [model.X, model.Z] = pol2cart(model.Theta,model.R);
-          elseif strcmp(model.opts.coords,'cartesian')
-            % model.Y = model.Y + objMakeSineComponents(cprm,mprm,model.X,model.Z);
-            model.P(:,model.idx) = objMakeSineComponents(cprm,mprm,model.X,model.Z);
-            [model.Theta, model.R] = cart2pol(model.X,model.Z);
-          end
-        otherwise
-          error('Unknown shape.');
+      
+      switch model.opts.coords
+        case {'spherical','torus'}
+          X = model.Theta;
+          Y = model.Phi;
+        case 'cartesian'
+          X = model.X;
+          Y = model.Y;
+        case 'polar'
+          X = model.Theta;
+          Y = model.R;
+        case 'cylindrical'
+          X = model.Theta;
+          Y = model.Y;
       end
-      %------------------------------------------------------------
+
+      model.P(:,model.idx) = objMakeSineComponents(cprm,mprm,X,Y);
+      
+    %------------------------------------------------------------
     case 'noise'
       [model.prm(model.idx).nncomp,ncol] = size(model.prm(model.idx).nprm);
       model.prm(model.idx).nprm(:,3:4) = pi * model.prm(model.idx).nprm(:,3:4)/180;
@@ -118,87 +110,35 @@ function model = objAddPerturbation(model)
 
       nprm = model.prm(model.idx).nprm;
       mprm = model.prm(model.idx).mprm;
-      switch model.shape
-        case 'sphere'
-          % For the 2D noise sample, reshape the coordinate vectors to temp 2D matrices
-          Theta = reshape(model.Theta,[model.n model.m])';
-          Phi = reshape(model.Phi,[model.n model.m])';
-          % R = reshape(model.R,[model.n model.m])';
-          % R = R + objMakeNoiseComponents(nprm,mprm,Theta,Phi,model.flags.use_rms,1,1);
-          R = objMakeNoiseComponents(nprm,mprm,Theta,Phi,model.flags.use_rms,1,1);
-          
-          % Reshape the radius matrix to a vector again
-          R = R'; 
-          % model.R = R(:);
-          model.P(:,model.idx) = R(:);
-        case 'plane'
-          % For the 2D noise sample, reshape the coordinate vectors to temp 2D matrices
+      
+      switch model.opts.coords
+        case {'spherical','torus'}
+          X = reshape(model.Theta,[model.n model.m])';
+          Y = reshape(model.Phi,[model.n model.m])';
+          w = 1;
+          h = 1;
+        case 'cartesian'
           X = reshape(model.X,[model.n model.m])';
           Y = reshape(model.Y,[model.n model.m])';
-          Z = reshape(model.Z,[model.n model.m])';
-          Z = Z + objMakeNoiseComponents(nprm,mprm,X,Y,model.flags.use_rms,model.width,model.height);
-
-          % Reshape Z matrix to a vector again
-          Z = Z'; 
-          model.Z = Z(:);
-        case {'cylinder','revolution','extrusion'}
-          Theta = reshape(model.Theta,[model.n model.m])';
+          w = model.width;
+          h = model.height;
+        case 'polar'
+          X = reshape(model.Theta,[model.n model.m])';
+          Y = reshape(model.R,[model.n model.m])';
+          w = 1;
+          h = 1;
+        case 'cylindrical'
+          X = reshape(model.Theta,[model.n model.m])';
           Y = reshape(model.Y,[model.n model.m])';
-          % R = reshape(model.R,[model.n model.m])';
-          % R = R + objMakeNoiseComponents(nprm,mprm,Theta,Y,model.flags.use_rms,1,model.height/(2*pi*model.radius));
-          R = objMakeNoiseComponents(nprm,mprm,Theta,Y,model.flags.use_rms,1,model.height/(2*pi*model.radius));
-
-          R = R';
-          % model.R = R(:);
-          model.P(:,model.idx) = R(:);
-
-        case 'worm'
-          Theta = reshape(model.Theta,[model.n model.m])';
-          Y = reshape(model.Y,[model.n model.m])';
-          % R = reshape(model.R,[model.n model.m])';
-          % R = R + objMakeNoiseComponents(nprm,mprm,Theta,Y,model.flags.use_rms,1,model.height/(2*pi*model.radius));
-          R = objMakeNoiseComponents(nprm,mprm,Theta,Y,model.flags.use_rms,1,model.height/(2*pi*model.radius));
-
-          R = R';
-          % model.R = R(:);
-          model.P(:,model.idx) = R(:);
-        case 'torus'
-          if ~isempty(nprm)
-            Theta = reshape(model.Theta,[model.n model.m])';
-            Phi = reshape(model.Phi,[model.n model.m])';
-            % r = reshape(model.r,[model.n model.m])';
-
-            % r = r + objMakeNoiseComponents(nprm,mprm,Theta,Phi,model.flags.use_rms,1,1);
-            r = objMakeNoiseComponents(nprm,mprm,Theta,Phi,model.flags.use_rms,1,1);
-            
-            r = r';
-            % model.r = r(:);
-            model.P(:,model.idx) = r(:);
-          end
-        case 'disk'
-          if strcmp(model.opts.coords,'polar')
-            % For the 2D noise sample, reshape the coordinate vectors to temp 2D matrices
-            Theta = reshape(model.Theta,[model.n model.m])';
-            R = reshape(model.R,[model.n model.m])';
-            % Y = reshape(model.Y,[model.n model.m])';
-            % Y = Y + objMakeNoiseComponents(nprm,mprm,Theta,R,model.flags.use_rms,1,1);
-            Y = objMakeNoiseComponents(nprm,mprm,Theta,R,model.flags.use_rms,1,1);
-            
-            % Reshape the radius matrix to a vector again
-            Y = Y'; 
-            % model.Y = Y(:);
-            model.P(:,model.idx) = Y(:);
-
-            [model.X, model.Z] = pol2cart(model.Theta,model.R);
-          elseif strcmp(model.opts.coords,'cartesian')
-            error('Noise in cartesian coordinates not implemented for shape ''disk''.');
-          end
-        otherwise
-          error('Unknown shape.');
+          w = 1;
+          h = model.height/(2*pi*model.radius);
       end
+      
+      P = objMakeNoiseComponents(nprm,mprm,X,Y,model.flags.use_rms,w,h);
+      P = P';       
+      model.P(:,model.idx) = P(:);
 
-
-      %------------------------------------------------------------
+    %------------------------------------------------------------
     case 'bump'
 
       prm =  model.prm(ii).prm;
@@ -221,7 +161,7 @@ function model = objAddPerturbation(model)
       % Set the parameter vector back to what it was.  This is horrible.
       model.prm(ii).prm = prm;
 
-      %------------------------------------------------------------
+    %------------------------------------------------------------
     case 'custom'
       if ~model.flags.use_map
         model = objPlaceBumps(model);
@@ -230,7 +170,6 @@ function model = objAddPerturbation(model)
       end
   end
 
-  
   % ------------------------------------------------------------
   % Finally, actually add the perturbations
   

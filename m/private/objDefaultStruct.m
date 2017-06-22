@@ -25,6 +25,7 @@ function model = objDefaultStruct(shape)
 % 2016-05-30 - ts - flags for uv and normals are saved when resetting
 % 2017-06-09 - ts - new flags for using perturbation, perturbation
 %                    along normal direction
+% 2017-06-22 - ts - explicitly set coord system for all shapes
   
 % if nargin<2 || isempty(reset)
 %   reset = false;
@@ -40,11 +41,13 @@ function model = objDefaultStruct(shape)
         model.m = 64;
         model.n = 128;
         model.radius = 1;
+        model.opts.coords = 'spherical';
       case 'plane'
         model.m = 128;
         model.n = 128;
         model.width = 1;
         model.height = 1;
+        model.opts.coords = 'cartesian';
       case {'cylinder','revolution','extrusion','worm'}
         model.m = 128;
         model.n = 128;
@@ -53,12 +56,14 @@ function model = objDefaultStruct(shape)
         model.spine.x = zeros(1,model.m);
         model.spine.y = linspace(-model.height/2,model.height/2,model.m);
         model.spine.z = zeros(1,model.m);
+        model.opts.coords = 'cylindrical';        
       case 'torus'
         model.m = 128;
         model.n = 128;
         model.tube_radius = 0.4;
         model.radius = 1;
         model.opts.rprm = [];
+        model.opts.coords = 'torus';
       case {'disk','disc'}
         shape = 'disk';
         model.m = 128; 

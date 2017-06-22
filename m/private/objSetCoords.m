@@ -20,6 +20,8 @@ function model = objSetCoords(model)
 %                    ...) to Rbase etc. to keep the original and
 %                    just add the perturbations to it; allows
 %                    "recovering" the original; see also objAddPerturbation
+% 2017-06-22 - ts - disk is in the same plane as, well, the plane
+%                     (xy plane, perturbation along z; instead of xz, y)
   
 switch model.shape
   case 'sphere'
@@ -124,8 +126,8 @@ switch model.shape
     Theta = Theta'; R = R';
     model.Theta = Theta(:);
     model.R     = R(:);
-    [model.X, model.Z] = pol2cart(model.Theta,model.R);
-    model.Ybase = zeros(model.m*model.n,1);
+    [model.X, model.Y] = pol2cart(model.Theta,model.R);
+    model.Zbase = zeros(model.m*model.n,1);
 end
 
 

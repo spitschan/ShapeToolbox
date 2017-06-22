@@ -6,7 +6,7 @@ function model = objPlaceBumps(model)
 %
 % Called by objMakeBump, objMakeCustom
 
-% Copyright (C) 2015 Toni Saarela
+% Copyright (C) 2015,2016,2017 Toni Saarela
 % 2015-06-01 - ts - first version
 % 2015-06-03 - ts - fixed a bug in checking for user-defined locations
 % 2015-10-08 - ts - added support for the 'spinex' and 'spinez' options

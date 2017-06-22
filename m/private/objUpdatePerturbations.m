@@ -8,16 +8,18 @@ function model = objUpdatePerturbations(model)
   
 % Copyright (C) 2017 Toni Saarela
 % 2017-06-08 - ts - first version
+% 2017-06-22 - ts - disk modulation in z-dir
   
   if model.flags.normal_dir(model.idx)
+    switch model.shape
       case 'plane'
-
+        keyboard
         % NOT FINIsHED. Make sure normals are computed
         % first. Update to using model.P
         model.X = model.X + pert.*model.normals(:,1);
         model.Y = model.Y + pert.*model.normals(:,2);
         model.Z = model.Z + pert.*model.normals(:,3);
-    
+    end
   else
     switch model.shape
       case 'sphere'
@@ -31,11 +33,7 @@ function model = objUpdatePerturbations(model)
       case 'torus'
         model.r = model.rbase + sum(model.P(:,model.flags.use_perturbation),2);
       case 'disk'
-        if strcmp(model.opts.coords,'polar')
-          model.Y = model.Ybase + sum(model.P(:,model.flags.use_perturbation),2);
-        elseif strcmp(model.opts.coords,'cartesian')
-          model.Y = model.Ybase + sum(model.P(:,model.flags.use_perturbation),2);
-        end
+        model.Z = model.Zbase + sum(model.P(:,model.flags.use_perturbation),2);
       otherwise
         error('Unknown shape.');
     end
