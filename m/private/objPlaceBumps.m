@@ -25,7 +25,10 @@ function model = objPlaceBumps(model)
 %                    them to the model yet;
 %                   bug fix with torus---multiple bump types were
 %                   not added, only the last one was used; fixed
-
+% 2017-11-10 - ts - bug fix for sphere, cylinder: get size from
+%                    field Rbase instead of R (R will not exist yet
+%                    if this is the first perturbation added)
+  
 ii = length(model.prm);
 prm = model.prm(ii).prm;
 nbumptypes = model.prm(ii).nbumptypes;
@@ -39,7 +42,8 @@ end
 
 switch model.shape
   case 'sphere'
-    Rtmp = zeros(size(model.R));
+    % Rtmp = zeros(size(model.R));
+    Rtmp = zeros(size(model.Rbase));
     for jj = 1:nbumptypes
 
       if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
@@ -208,7 +212,8 @@ switch model.shape
 
   case {'cylinder','revolution','extrusion','worm'}
 
-    Rtmp = zeros(size(model.R));
+    % Rtmp = zeros(size(model.R));
+    Rtmp = zeros(size(model.Rbase));
 
     for jj = 1:nbumptypes
         

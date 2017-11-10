@@ -40,7 +40,6 @@ function model = objAddPerturbation(model)
         end
       end
   end
-
   
   ii = model.idx;
   switch model.prm(ii).perturbation
