@@ -29,7 +29,7 @@ function model = objPlaceBumps(model)
 %                    field Rbase instead of R (R will not exist yet
 %                    if this is the first perturbation added)
 % 2017-11-17 - ts - similar bug fix as above for torus (rbase
-%                    instead of r)
+%                    instead of r), plane, disk
   
 ii = length(model.prm);
 prm = model.prm(ii).prm;
@@ -133,7 +133,7 @@ switch model.shape
     model.P(:,model.idx) = Rtmp;
     
   case 'plane'
-    Ztmp = zeros(size(model.Z));
+    Ztmp = zeros(size(model.Zbase));
     for jj = 1:nbumptypes
 
       if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
@@ -385,7 +385,7 @@ switch model.shape
     % end
 
   case 'disk'
-    Ytmp = zeros(size(model.Y));
+    Ztmp = zeros(size(model.Zbase));
     if strcmp(model.opts.coords,'polar')
       error('Bumps in polar coordinates not implemented for shape ''disk''.');
     % [model.X, model.Z] = pol2cart(model.Theta,model.R);
@@ -403,14 +403,14 @@ switch model.shape
           % Pick candidate locations (more than needed):
           nvec = round(4/pi*30*prm(jj,1));
           xtmp = min(model.X(:)) + rand([nvec 1])*(max(model.X(:))-min(model.X(:)));
-          ztmp = min(model.Z(:)) + rand([nvec 1])*(max(model.Z(:))-min(model.Z(:)));
+          ytmp = min(model.Y(:)) + rand([nvec 1])*(max(model.Y(:))-min(model.Y(:)));
 
           idx = sqrt(xtmp.^2+ztmp.^2)<model.radius;
           xtmp = xtmp(idx);
-          ztmp = ztmp(idx);
+          ytmp = ytmp(idx);
           clear idx
 
-          d = sqrt((xtmp*ones([1 nvec])-ones([nvec 1])*xtmp').^2 + (ztmp*ones([1 nvec])-ones([nvec 1])*ztmp').^2);
+          d = sqrt((xtmp*ones([1 nvec])-ones([nvec 1])*xtmp').^2 + (ytmp*ones([1 nvec])-ones([nvec 1])*ytmp').^2);
 
           % Always accept the first vector
           idx_accepted = [1];
@@ -435,44 +435,44 @@ switch model.shape
           end
 
           x0 = xtmp(idx_accepted,:);
-          z0 = ztmp(idx_accepted,:);
+          y0 = ytmp(idx_accepted,:);
 
-          clear xtmp ztmp
+          clear xtmp ytmp
 
         else
           %- pick n random locations
           x0 = min(model.X(:)) + rand([prm(jj,1) 1])*(max(model.X(:))-min(model.X(:)));
-          z0 = min(model.Z(:)) + rand([prm(jj,1) 1])*(max(model.Z(:))-min(model.Z(:)));
+          y0 = min(model.Y(:)) + rand([prm(jj,1) 1])*(max(model.Y(:))-min(model.Y(:)));
 
         end
 
         % For saving the locations in the model structure
         model.opts.locations{1}{jj} = x0;
-        model.opts.locations{2}{jj} = z0;
+        model.opts.locations{2}{jj} = y0;
         
         %-------------------
         
         for ii = 1:prm(jj,1)
 
           deltax = model.X - x0(ii);
-          deltaz = model.Z - z0(ii);
-          d = sqrt(deltax.^2+deltaz.^2);
+          deltay = model.Y - y0(ii);
+          d = sqrt(deltax.^2+deltay.^2);
 
           idx = find(d<prm(jj,2));
           if model.flags.max
-            Ytmp(idx) = max(Ytmp(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
+            Ztmp(idx) = max(Ztmp(idx), model.prm(model.idx).f(d(idx),prm(jj,3:end)));
           else
-            Ytmp(idx) = Ytmp(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
+            Ztmp(idx) = Ztmp(idx) + model.prm(model.idx).f(d(idx),prm(jj,3:end));
           end
         end
 
       end
       
-      model.P(:,model.idx) = Ytmp;
+      model.P(:,model.idx) = Ztmp;
 
       % Why the f**k is this here? Is it really needed? Should't
       % be. Shouldn't hurt, either, but really shouldn't be needed.
-      [model.Theta, model.R] = pol2cart(model.X,model.Z);           
+      [model.Theta, model.R] = pol2cart(model.X,model.Y);           
     end
 
 end
