@@ -2,7 +2,7 @@ function objBlendGui(m1,m2)
 
 % OBJBLENDGUI
   
-% Usage: OBJBLENDGUI([MODEL1],[MODEL2])
+% Usage: objBlendGui([model1],[model2])
 %
 % Blend (compute a weighted average of) two model
 % objects---rudimentary GUI version.
@@ -16,10 +16,11 @@ function objBlendGui(m1,m2)
 %                    relevant handle to the importing function, not
 %                    both
 % 2017-06-04 - ts - cleaned help (was basically the objBlend help).
+% 2017-11-17 - ts - fixes in passing axes handles---no idea how it
+%                    actually worked in matlab with those bugs
   
 % TODO:
-% - reset view button
-  
+
   if ~nargin
     m1 = [];
   end
@@ -60,7 +61,7 @@ function objBlendGui(m1,m2)
   sh = uicontrol('Style', 'slider',...
                  'Min',0,'Max',1,'Value',w,...
                  'Position', [330 70 250 20],...
-                 'Callback', {@updateWeight,fh,th,ah(2)}); 
+                 'Callback', {@updateWeight,fh,th,ah}); 
   
 
   if ~isempty(m1) && ~isempty(m2)
@@ -152,9 +153,9 @@ function updateBlend(src,event,fh,th,ah)
   w = getappdata(fh,'weight');
   if ~isempty(m1) && ~isempty(m2)
     mblend = objBlend(m1,m2,1-w);
-    axes(ah);
+    axes(ah(2));
     try
-      objShow(mblend,[],get(ah,'CameraPosition'));
+      objShow(mblend,[],get(ah(2),'CameraPosition'));
     catch
       objShow(mblend);
     end
@@ -225,13 +226,17 @@ function importFromWorkSpace(src,event,th,idx,fh,thw,ah)
     h = th;
   end
   bgcol = get(h,'BackgroundColor');
-  set(h,'BackgroundColor',[.2 .8 .2]);
   varname = get(h,'String');
 
-  m = evalin('base',varname);
-  setappdata(fh,sprintf('m%d',idx),m);
-  updateBlend([],[],fh,thw,ah);
-  resetView([],[],fh,ah);
+  try
+    m = evalin('base',varname);
+    set(h,'BackgroundColor',[.2 .8 .2]);
+    setappdata(fh,sprintf('m%d',idx),m);
+    updateBlend([],[],fh,thw,ah);
+    resetView([],[],fh,ah);
+  catch
+    set(h,'BackgroundColor',[1 .2 .2]);
+  end
   pause(.2);
   set(h,'BackgroundColor',bgcol);  
 end

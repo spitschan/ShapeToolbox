@@ -3,6 +3,7 @@ function objDesigner(nmeshpoints)
 % OBJDESIGNER
 %
 % Usage: objDesigner()
+%        objDesigner(nmeshpoints)
   
 % 2016-12-12 - ts - first version
 % 2016-12-13 - ts - second first version
@@ -11,10 +12,11 @@ function objDesigner(nmeshpoints)
 % 2016-12-20 - ts - oops, several, several changes between then and now
 % 2016-12-29 - ts - improved hiding / showing windows,
 %                    enabling/disabling curves
+% 2017-11-17 - ts - fixes to figure and axes handles in callbacks
+%                    to make it work in octave
   
 % TODO
 % print current parameters / command to produce the shape
-% set filename and save in gui
 % load existing / saved model to gui
 % when loading, get default parameters for all perturbations and shapes
   
@@ -1229,6 +1231,8 @@ end
 
 function starttrackmouse(src,data)
   
+  figure(src);
+
   profiletype = getappdata(gca,'profiletype');
   pidx = strmatch(profiletype,{'linear','polar'});
   
@@ -1586,6 +1590,8 @@ function spinekeyfunc(src,data)
 end
 
 function spinestarttrackmouse(src,data)
+  
+  figure(src);  
   
   spinetype = getappdata(gca,'spinetype');
   sidx = strmatch(spinetype,{'x','z','y'});
