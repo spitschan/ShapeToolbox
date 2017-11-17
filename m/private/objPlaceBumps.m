@@ -28,6 +28,8 @@ function model = objPlaceBumps(model)
 % 2017-11-10 - ts - bug fix for sphere, cylinder: get size from
 %                    field Rbase instead of R (R will not exist yet
 %                    if this is the first perturbation added)
+% 2017-11-17 - ts - similar bug fix as above for torus (rbase
+%                    instead of r)
   
 ii = length(model.prm);
 prm = model.prm(ii).prm;
@@ -299,7 +301,7 @@ switch model.shape
     model.P(:,model.idx) = Rtmp;
 
   case 'torus'
-    rtmp = zeros(size(model.r));
+    rtmp = zeros(size(model.rbase));
     for jj = 1:nbumptypes
       if model.flags.custom_locations && ~isempty(model.opts.locations{1}{jj})
 

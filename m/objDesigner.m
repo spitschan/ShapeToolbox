@@ -14,6 +14,7 @@ function objDesigner(nmeshpoints)
 %                    enabling/disabling curves
 % 2017-11-17 - ts - fixes to figure and axes handles in callbacks
 %                    to make it work in octave
+%                   enabled bumps for tori
   
 % TODO
 % print current parameters / command to produce the shape
@@ -946,13 +947,13 @@ function updatePerturbation(src,event,hPrm,hPreview,hCurve,hSpine)
       set(hPrm.noise.carr,'Visible','On');
       set(hPrm.noise.mod,'Visible','On');   
     case 'bump'
-      if ~strcmp(shape,'torus')
+      %if ~strcmp(shape,'torus')
         setappdata(hPrm.f,'perturbation','bump');
         set(hPrm.bump.header,'Visible','On');
         set(hPrm.bump.label,'Visible','On');
         set(hPrm.bump.reset.prm,'Visible','On');
         set(hPrm.bump.prm,'Visible','On');
-      end
+      %end
     case 'custom'
       setappdata(hPrm.f,'perturbation','custom');
       set(hPrm.custom.header,'Visible','On');
