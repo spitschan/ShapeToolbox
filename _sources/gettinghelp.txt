@@ -34,8 +34,8 @@ extent.
 HTML-manual, online
 ===================
 
-The latest version of this HTML manual can be found in 
-http://saarela.github.io/ShapeToolbox/.
+The latest version of this HTML manual (for the latest version of the
+toolbox) can be found in http://saarela.github.io/ShapeToolbox/.
 
 
 Email

@@ -40,20 +40,29 @@ the contents of the file ``crater.m`` (you can copy it and save it in
 
 Now the code for producing the model::
   
-  m = objMakeBump('sphere',[30 .05 0.2],'mindist',.35,'npoints',[128 256]);
+  % First make a bumpy sphere
+  m = objMakeBump('sphere',[30 .2 0.05],'mindist',.35,'npoints',[128 256]);
 
+  % Set the parameters for calling our function defined above.  The
+  % two rows are for different types of modulation (in this case,
+  % different sizes of crater).  The first number in each row is the
+  % number of times the function will be called, the second number is
+  % a cut-off value for applying the function, and the subsequent
+  % numbers will be passed to the function itself.
   prm = [20 0.50 0.30 .03 0.18  0.18
          20 0.26 0.15 .03 0.09  0.09];
 
-  objMakeCustom(m,
-                @crater,prm,...
-                'mindist',pi/6,...
-                'model',m,...
-                'normals',true,
-                'moon.obj')
+  % Now call objMakeCustom and give the existing model m as input.
+  % This way the modulation defined by our custom crater-function will 
+  % be added to the bumpy sphere.
+  m = objMakeCustom(m,...
+                    @crater,prm,...
+                    'mindist',pi/6,...
+                    'normals',true,...
+                    'moon.obj')
 
 To get a better quality rendering of the crater rims, you might want
-to increase the mesh resolution, and set the option ``npoints`` to a
+to increase the mesh resolution, by setting the option ``npoints`` to a
 higher value, for example ``...,'npoints',[256 512],...``.
 
 .. highlight:: xml

@@ -78,7 +78,12 @@ option <code class="docutils literal"><span class="pre">npoints</span></code>:</
 </div>
 <div class="section" id="default-model-size">
 <h2>Default model size<a class="headerlink" href="#default-model-size" title="Permalink to this headline">¶</a></h2>
-<p>Width, height = 1.  Centered at the origin.</p>
+<p>Default size of the plane is 1 (both width and height), and the plane
+is centered at the origin.  The width and height of the plane can be
+changed with the options, that&#8217;s right, <code class="docutils literal"><span class="pre">width</span></code> and <code class="docutils literal"><span class="pre">height</span></code>.</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;plane&#39;</span><span class="p">,[],</span><span class="s">&#39;width&#39;</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="s">&#39;height&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -146,7 +151,7 @@ option <code class="docutils literal"><span class="pre">npoints</span></code>:</
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, Toni P. Saarela.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
     </div>
   </body>
 </html>

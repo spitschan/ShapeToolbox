@@ -80,10 +80,10 @@ same happens with texture/UV coordinates: the mapped texture will look
 distorted on the surface of the sphere.</p>
 <p>There is currently no flat-mapping of these modulations or textures to
 a sphere.</p>
-<p>An expection are Gaussian bumps (using <code class="docutils literal"><span class="pre">objMakeBump</span></code>) and
+<p>An exception are Gaussian bumps (using <code class="docutils literal"><span class="pre">objMakeBump</span></code>) and
 perturbation determined by a user-defined function (using
 <code class="docutils literal"><span class="pre">objMakeCustom</span></code>).  Here, the bumps are symmetric with the desired
-size in radians, regradless of the location of the bump.</p>
+size in radians, regardless of the location of the bump.</p>
 </div>
 <div class="section" id="default-mesh-size">
 <h2>Default mesh size<a class="headerlink" href="#default-mesh-size" title="Permalink to this headline">¶</a></h2>
@@ -97,7 +97,13 @@ mesh size.  To do this, use the option <code class="docutils literal"><span clas
 </div>
 <div class="section" id="default-model-size">
 <h2>Default model size<a class="headerlink" href="#default-model-size" title="Permalink to this headline">¶</a></h2>
-<p>Radius = 1.</p>
+<p>By default, the (unmodulated) sphere has a radius of 1.  This can be
+changed with the option <code class="docutils literal"><span class="pre">radius</span></code>.  (Note that you can scale the model
+when importing the model in a rendering software, so you might not
+need to change the radius of the model when making it.)</p>
+<div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeNoise</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,[],</span><span class="s">&#39;radius&#39;</span><span class="p">,</span><span class="mf">1.5</span><span class="p">);</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="redundant-vertices">
 <h2>Redundant vertices<a class="headerlink" href="#redundant-vertices" title="Permalink to this headline">¶</a></h2>
@@ -112,7 +118,7 @@ visual perception, not for efficient graphics applications.  Second,
 in some cases you might need a high resolution near the poles.</p>
 <p>Third, the models produced by ShapeToolbox functions can be given as
 input to other functions to add perturbations, and two models can also
-be blended (using <code class="docutils literal"><span class="pre">objBlend</span></code>).  In these cases, the coordinates
+be blended (using <code class="docutils literal"><span class="pre">objBlend</span></code>).  In these cases, the coordinate
 systems and the sampling points have to match.  Not fiddling with the
 mesh enables one to do both (see <a class="reference internal" href="gs-combining.html#gs-combining"><span>Combining modulation types</span></a> and
 <a class="reference internal" href="gs-blending.html#gs-blending"><span>Blending (morphing between) two models</span></a>).</p>
@@ -189,7 +195,7 @@ remove these faces.</p>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, Toni P. Saarela.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
     </div>
   </body>
 </html>

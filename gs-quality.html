@@ -108,11 +108,11 @@ final model.</p>
 </pre></div>
 </div>
 <p>The following example illustrates the effect of including the surface
-normals.  It also illustrates another option, <code class="docutils literal"><span class="pre">'npoints'</span></code>, which
-defines the resolution (number of vertices in the elevation and
-azimuth directions) of the model.  The example makes the same object
-in four ways: with two resolutions and with surface normal computation
-turned on/off.</p>
+normals.  It also uses the option <code class="docutils literal"><span class="pre">'npoints'</span></code>, which defines the
+resolution (number of vertices in the elevation and azimuth
+directions) of the model.  The example makes the same object in four
+ways: with two resolutions and with surface normal computation turned
+on/off.</p>
 <div class="highlight-matlab"><div class="highlight"><pre><span class="n">objMakeSine</span><span class="p">(</span><span class="s">&#39;sphere&#39;</span><span class="p">,</span><span class="c">...</span>
             <span class="p">[</span><span class="mi">6</span> <span class="p">.</span><span class="mi">15</span> <span class="mi">0</span> <span class="mi">60</span><span class="p">],</span><span class="c">...</span>
             <span class="s">&#39;npoints&#39;</span><span class="p">,[</span><span class="mi">32</span> <span class="mi">64</span><span class="p">],</span><span class="c">...</span>
@@ -165,8 +165,7 @@ it would for a smoothly curved surface, as a weighted average as
 described above.  Better vertex normal algorithms can spot the edges
 that are meant to be sharp and handle them differently.  The
 indiscriminate use of a weighted average by ShapeToolbox for all
-vertices means that sharp edges will appear duller than intended.
-Most of the time this should not be a problem though.</li>
+vertices means that sharp edges might appear duller than intended.</li>
 </ul>
 </div>
 </div>
@@ -239,7 +238,7 @@ Most of the time this should not be a problem though.</li>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, Toni P. Saarela.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
     </div>
   </body>
 </html>

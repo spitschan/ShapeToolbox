@@ -5,7 +5,9 @@
 Torus
 =====
 
-.. image:: ../images/torus_coords.png
+.. image:: ../images/coordinates/torus_coords_3d_400.png
+   :width: 300px
+.. image:: ../images/coordinates/torus_coords.png
 
 
 Coordinate system

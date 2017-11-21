@@ -6,9 +6,9 @@ Sphere
 ======
 
 
-.. image:: ../images/sphere_coords_3d_400.png
+.. image:: ../images/coordinates/sphere_coords_3d_400.png
    :width: 300px
-.. image:: ../images/sphere_coords.png
+.. image:: ../images/coordinates/sphere_coords.png
 
 
 Coordinate system
@@ -40,10 +40,10 @@ distorted on the surface of the sphere.
 There is currently no flat-mapping of these modulations or textures to
 a sphere.
 
-An expection are Gaussian bumps (using ``objMakeBump``) and
+An exception are Gaussian bumps (using ``objMakeBump``) and
 perturbation determined by a user-defined function (using
 ``objMakeCustom``).  Here, the bumps are symmetric with the desired
-size in radians, regradless of the location of the bump.
+size in radians, regardless of the location of the bump.
 
 Default mesh size
 =================
@@ -58,7 +58,14 @@ mesh size.  To do this, use the option ``npoints``::
 Default model size
 ==================
 
-Radius = 1.  
+By default, the (unmodulated) sphere has a radius of 1.  This can be
+changed with the option ``radius``.  (Note that you can scale the model
+when importing the model in a rendering software, so you might not
+need to change the radius of the model when making it.)
+
+::
+
+   objMakeNoise('sphere',[],'radius',1.5);
 
 
 Redundant vertices
@@ -78,7 +85,7 @@ in some cases you might need a high resolution near the poles.
 
 Third, the models produced by |toolbox| functions can be given as
 input to other functions to add perturbations, and two models can also
-be blended (using ``objBlend``).  In these cases, the coordinates
+be blended (using ``objBlend``).  In these cases, the coordinate
 systems and the sampling points have to match.  Not fiddling with the
 mesh enables one to do both (see :ref:`gs-combining` and
 :ref:`gs-blending`).

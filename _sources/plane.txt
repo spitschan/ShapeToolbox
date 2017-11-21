@@ -5,9 +5,9 @@
 Plane
 ======
 
-.. image:: ../images/plane_coords_3d_400.png
+.. image:: ../images/coordinates/plane_coords_3d_400.png
    :width: 300px
-.. image:: ../images/plane_coords.png
+.. image:: ../images/coordinates/plane_coords.png
 
 
 Coordinate system
@@ -34,4 +34,10 @@ option ``npoints``::
 Default model size
 ==================
 
-Width, height = 1.  Centered at the origin.
+Default size of the plane is 1 (both width and height), and the plane
+is centered at the origin.  The width and height of the plane can be
+changed with the options, that's right, ``width`` and ``height``.
+
+::
+
+   objMakeNoise('plane',[],'width',0.5,'height',2);
