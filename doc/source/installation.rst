@@ -19,9 +19,10 @@ Mac.
 Octave or Matlab
 ================
 
-|toolbox| was mainly developed on Ubuntu Linux using Octave 3.8.1 and
-Octave 4.0.0.  Tested on XXXX.  It should work with any reasonably
-up-to-date version of Octave or Matlab, but no guarantees.
+|toolbox| was initially developed and tested on Ubuntu Linux using
+Octave 3.8.1 and Octave 4.0.0, later mostly using Matlab 9 (2016)
+versions.  It should work with a reasonably up-to-date version of
+Octave or Matlab, but no guarantees.
 
 ================
 Getting the code

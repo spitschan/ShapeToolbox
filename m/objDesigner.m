@@ -15,6 +15,8 @@ function objDesigner(nmeshpoints)
 % 2017-11-17 - ts - fixes to figure and axes handles in callbacks
 %                    to make it work in octave
 %                   enabled bumps for tori
+% 2017-11-19 - ts - 'axis equal' before plotting anything caused a
+%                     problem in latest octave (4.2.1); fixed
   
 % TODO
 % print current parameters / command to produce the shape
@@ -476,7 +478,7 @@ function objDesigner(nmeshpoints)
     %set(hdat,'MarkerFaceColor','b');
     set(h.curve.ax(2),'XLim',xlim,'YLim',ylim);
     %set(ah,'RTick',xscale);
-    axis equal
+    % axis equal
 
     % Add one point to y1 to make it wrap around.  In
     % objMake*-functions the faces do the wrapping, so remember
@@ -496,10 +498,11 @@ function objDesigner(nmeshpoints)
     hdat_orig(2,1) = plot(x,y,'Visible','Off');
     hsmooth(2,1) = plot(x1,y1,'r-');
     hdat(2,1) = plot(x,y,'ob','MarkerFaceColor','b');
+    
+    axis equal
+    
     drawnow
-    
-    %keyboard
-    
+        
   end
   %title('Extrusion profile','FontWeight','normal','Fontsize',10);  
   set(get(h.curve.ax(2),'Title'),'String','Extrusion profile','FontWeight','normal','Fontsize',10);
