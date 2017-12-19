@@ -67,8 +67,8 @@ function model = objMakeBump(shape,prm,varargin)
 % for a single bump type.  For several bump types: 
 %   {{[x11 x12 ...],[x21 x22 ...],...},{[y11 y12 ...],[y21 y22 ...],...}}
 % Example: place two bumps and two dents diagonally on a plane:
-%   objMakeBump('plane',[2 .1 .1; 2 -.1 .1],'locations',...
-%               {{[-.5 .5],[-.5 .5]},{[-.5 .5],[.5 -.5]}})
+%   objMakeBump('plane',[2 .1 .1; 2 .1 -.1],'locations',...
+%               {{[-.25 .25],[-.25 .25]},{[-.25 .25],[.25 -.25]}})
 % 
 % MAX
 % Usually you add the new bump values to the existing
@@ -116,6 +116,7 @@ function model = objMakeBump(shape,prm,varargin)
 % 2016-03-26 - ts - is now a wrapper for the new objMake
 % 2016-04-08 - ts - re-enabled batch mode
 % 2017-05-26 - ts - help
+% 2017-12-05 - ts - fix to help
 
 % TODO
 % - option to add noise to bump amplitudes/sigmas
