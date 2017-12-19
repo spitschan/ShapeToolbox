@@ -2,12 +2,14 @@ function s = objCompFaces(s)
 
 % OBJCOMPFACES
 %
-% Usage:    MODEL = objCompNormals(SHAPE)
+% Usage:    MODEL = objCompNormals(MODEL)
 
 % Copyright (C) 2015 Toni Saarela
 % 2015-10-12 - ts - first version, separated from objSaveModel
 % 2016-05-27 - ts - added group handling for spheres et al.
 % 2016-05-28 - ts - groups ok for all shapes
+% 2017-11-22 - ts - experimental support for boxifying a plane
+%                   correction to help
 
 %------------------------------------------------------------
 
@@ -39,6 +41,11 @@ switch s.shape
     for ii = 1:m-1
       s.faces((ii-1)*(n-1)*2+1:ii*(n-1)*2,:) = (ii-1)*n + F;
     end
+    
+    if s.flags.caps
+      s.faces = [s.faces; 1 n m*n; 1 m*n (m-1)*n+1];
+    end
+    
   case 'torus'
     s.faces = zeros(m*n*2,3);
     % The first part is the same as with the sphere:

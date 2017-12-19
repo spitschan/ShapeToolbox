@@ -111,7 +111,7 @@ function model = objAddPerturbation(model)
       mprm = model.prm(model.idx).mprm;
       
       switch model.opts.coords
-        case {'spherical','torus'}
+        case {'spherical','toroidal','torus'}
           X = reshape(model.Theta,[model.n model.m])';
           Y = reshape(model.Phi,[model.n model.m])';
           w = 1;

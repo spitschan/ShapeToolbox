@@ -17,6 +17,7 @@ function objDesigner(nmeshpoints)
 %                   enabled bumps for tori
 % 2017-11-19 - ts - 'axis equal' before plotting anything caused a
 %                     problem in latest octave (4.2.1); fixed
+% 2017-11-21 - ts - indicate errors (red) when importing/exporting/saving
   
 % TODO
 % print current parameters / command to produce the shape
@@ -1509,8 +1510,8 @@ function exportCurveToWorkSpace(src,event,fh,th,curvetype)
     h = th;
   end
   bgcol = get(h,'BackgroundColor');
-  set(h,'BackgroundColor',[.2 .8 .2]);
   varname = get(h,'String');
+
   switch curvetype
     case 'linear'
       hdat = getappdata(fh,'hsmooth');
@@ -1519,7 +1520,12 @@ function exportCurveToWorkSpace(src,event,fh,th,curvetype)
       curve = getappdata(fh,'rdata');
       curve = curve(1:end-1);
   end
-  assignin('base',varname,curve);
+  try
+    assignin('base',varname,curve);
+    set(h,'BackgroundColor',[.2 .8 .2]);
+  catch
+    set(h,'BackgroundColor',[1 .2 .2]);
+  end
   pause(.2);
   set(h,'BackgroundColor',bgcol);
 end
@@ -1534,10 +1540,14 @@ function exportToWorkSpace(src,event,th,fh)
     h = th;
   end
   bgcol = get(h,'BackgroundColor');
-  set(h,'BackgroundColor',[.2 .8 .2]);
   varname = get(h,'String');
   m = getappdata(fh,'model');
-  assignin('base',varname,m);
+  try
+    assignin('base',varname,m);
+    set(h,'BackgroundColor',[.2 .8 .2]);
+  catch
+    set(h,'BackgroundColor',[1 .2 .2]);
+  end    
   pause(.2);
   set(h,'BackgroundColor',bgcol);
 end
@@ -1548,15 +1558,24 @@ function saveModel(src,event,th,fh)
   else
     h = th;
   end  
-  filename = get(h,'String');
-  if isempty(regexp(filename,'\.obj$'))
-    filename = [filename,'.obj'];
-  end
   bgcol = get(h,'BackgroundColor');
-  set(h,'BackgroundColor',[.2 .8 .2]);
-  m = getappdata(fh,'model');
-  m.filename = filename;
-  objSave(m);
+
+  filename = get(h,'String');
+  if isempty(filename)
+    set(h,'BackgroundColor',[1 .2 .2]);
+  else
+    try
+      if isempty(regexp(filename,'\.obj$'))
+        filename = [filename,'.obj'];
+      end
+      m = getappdata(fh,'model');
+      m.filename = filename;
+      objSave(m);
+      set(h,'BackgroundColor',[.2 .8 .2]);
+    catch
+      set(h,'BackgroundColor',[1 .2 .2]);
+    end
+  end
   pause(.2);
   set(h,'BackgroundColor',bgcol);
 end

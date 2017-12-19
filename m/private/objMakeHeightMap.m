@@ -26,7 +26,8 @@ ii = model.idx;
 
 switch model.shape
   case 'sphere'
-    R = reshape(model.R,[model.n model.m])';
+    % R = reshape(model.R,[model.n model.m])';
+    R = reshape(model.Rbase,[model.n model.m])';
     if model.prm(ii).mmap~=model.m || model.prm(ii).nmap~=model.n
       Theta = model.Theta;
       Phi = model.Phi;
@@ -44,7 +45,8 @@ switch model.shape
     % model.R = R(:);
     model.P(:,model.idx) = R(:);
   case 'plane'
-    Z = reshape(model.Z,[model.n model.m])';
+    % Z = reshape(model.Z,[model.n model.m])';
+    Z = reshape(model.Zbase,[model.n model.m])';
     if model.prm(ii).mmap~=model.m || model.prm(ii).nmap~=model.n
       X = model.X;
       Y = model.Y;
@@ -61,7 +63,8 @@ switch model.shape
     % model.Z = Z(:);
     model.P(:,model.idx) = Z(:);
   case {'cylinder','revolution','extrusion'}
-    R = reshape(model.R,[model.n model.m])';
+    % R = reshape(model.R,[model.n model.m])';
+    R = reshape(model.Rbase,[model.n model.m])';
     if model.prm(ii).mmap~=model.m || model.prm(ii).nmap~=model.n
       Theta = model.Theta;
       Y = model.Y;
@@ -79,7 +82,8 @@ switch model.shape
     % model.R = R(:);
     model.P(:,model.idx) = R(:);
   case 'worm'
-    R = reshape(model.R,[model.n model.m])';
+    % R = reshape(model.R,[model.n model.m])';
+    R = reshape(model.Rbase,[model.n model.m])';
     if model.prm(ii).mmap~=model.m || model.prm(ii).nmap~=model.n
       theta = linspace(-pi,pi-2*pi/model.n,model.n); % azimuth
       y = linspace(-model.height/2,model.height/2,model.m)'; %  
@@ -96,7 +100,8 @@ switch model.shape
     % model.R = R(:);
     model.P(:,model.idx) = R(:);
   case 'torus'
-    r = reshape(model.r,[model.n model.m])';
+    % r = reshape(model.r,[model.n model.m])';
+    r = reshape(model.rbase,[model.n model.m])';
     if model.prm(ii).mmap~=model.m || model.prm(ii).nmap~=model.n
       Theta = model.Theta;
       Phi = model.Phi;
@@ -114,4 +119,26 @@ switch model.shape
     r = r'; 
     % model.r = r(:);
     model.P(:,model.idx) = r(:);
+  case 'disk'
+    % Z = reshape(model.Z,[model.n model.m])';
+    Z = reshape(model.Zbase,[model.n model.m])';
+    if strcmp(model.opts.coords,'cartesian')
+      error('Bumps in cartesian coordinates not implemented for shape ''disk''.');
+    elseif strcmp(model.opts.coords,'polar')
+      
+      if model.prm(ii).mmap~=model.m || model.prm(ii).nmap~=model.n
+        Theta = model.Theta;
+        R = model.R;
+        Theta = reshape(Theta,[model.n model.m])';
+        R = reshape(R,[model.n model.m])';
+        
+        theta2 = linspace(-pi,pi,model.prm(ii).nmap); % 
+        phi2 = linspace(-pi,pi,model.prm(ii).mmap); % 
+        [Theta2,R2] = meshgrid(theta2,phi2);
+        model.prm(ii).map = interp2(Theta2,R2,model.prm(ii).map,Theta,R);
+      end
+      Z = Z + model.prm(ii).ampl * model.prm(ii).map;
+      Z = Z'; 
+      model.P(:,model.idx) = Z(:);
+    end
 end
