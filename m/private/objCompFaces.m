@@ -12,7 +12,7 @@ function s = objCompFaces(s)
 %                   correction to help
 
 %------------------------------------------------------------
-
+  
 m = s.m;
 n = s.n;
 
