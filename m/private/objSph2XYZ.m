@@ -43,7 +43,7 @@ function [x,y,z] = objSph2XYZ(theta,phi,r,rtorus)
     theta = theta(:,1);    
   elseif nargin == 3
     rtorus = 0;
-  elseif nargin != 4
+  elseif nargin ~= 4
     error('Invalid number of input args.');
   end
 
